@@ -11,11 +11,11 @@ import {
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { MeetingQRPDF } from './MeetingQRPDF';
 import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
+import { generateMeetingQRPDF } from './MeetingQRPDF';
 
 export interface Meeting {
-  id?: number; // Rend l'id optionnel pour les nouvelles réunions
+  id: number; // ID maintenant obligatoire
   title: string;
   description: string;
   status: 'active' | 'completed' | 'inactive';
@@ -23,7 +23,15 @@ export interface Meeting {
   startDate?: string;
   location?: string;
   max_participants?: number;
-  unique_code: string;
+  maxParticipants?: number;
+  uniqueCode: string;
+  qrConfig?: {
+    color?: {
+      dark?: string;
+      light?: string;
+    };
+    size?: number;
+  };
 }
 
 interface MeetingCardProps {
@@ -52,18 +60,25 @@ export const MeetingCard = ({
 
   const handleGenerateQR = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/qrcode`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${meeting.title}_Code_QR.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (!meeting.uniqueCode) {
+        throw new Error('Code unique manquant pour générer le QR code');
+      }
+      
+      const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
+      
+      await generateMeetingQRPDF({
+        meetingId: meeting.id,
+        meetingTitle: meeting.title,
+        qrValue: formUrl,
+        fileName: `${meeting.title}_Code_QR.pdf`,
+        onError: (error) => {
+          console.error('Erreur génération PDF:', error);
+          alert(`Erreur: ${error.message}`);
+        }
+      });
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('Erreur lors de la génération du QR code:', error);
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur inconnue est survenue'}`);
     }
   };
 
@@ -91,7 +106,9 @@ export const MeetingCard = ({
 
   const handleConfirmDelete = () => {
     setShowDeleteModal(false);
-    onDelete(meeting.id);
+    if (meeting.id) {
+      onDelete(meeting.id);
+    }
   };
 
   const handleCancelDelete = () => {
@@ -159,14 +176,16 @@ export const MeetingCard = ({
           </div>
           
           <div className="flex items-center space-x-2 text-gray-600">
-            <span className="text-sm font-medium">Code: {meeting.unique_code}</span>
+            <span className="text-sm font-medium">
+              Code: {meeting.uniqueCode || 'Non généré'}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex space-x-2">
             <button 
-              onClick={() => onView(meeting.id)}
+              onClick={() => meeting.id && onView(meeting.id)}
               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               title="Voir détails"
             >
@@ -174,7 +193,7 @@ export const MeetingCard = ({
             </button>
             
             <button 
-              onClick={() => onEdit(meeting.id)}
+              onClick={() => meeting.id && onEdit(meeting.id)}
               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
               title="Modifier"
             >

@@ -37,7 +37,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
   console.log('MeetingForm initialData:', JSON.stringify(initialData, null, 2));
   
   const [formData, setFormData] = useState<Omit<Meeting, 'id'> & { unique_code: string }>({
-    unique_code: initialData?.unique_code || '', // Le backend gère le code
+    unique_code: initialData?.unique_code || initialData?.uniqueCode || '', // Support les deux formats
     title: initialData?.title || '',
     description: initialData?.description || '',
     status: (initialData?.status as StatusType) || 'active',
@@ -126,11 +126,21 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         ...data,
         id: data.id || initialData?.id,
         unique_code: data.unique_code || data.uniqueCode,
-        startDate: data.start_date || data.startDate
+        startDate: data.start_date || data.startDate,
+        // Forcer la mise à jour du code unique dans le formulaire
+        qrConfig: qrConfig
       });
+
+      // Mettre à jour localement le code unique affiché
+      setFormData(prev => ({
+        ...prev,
+        unique_code: data.unique_code || data.uniqueCode
+      }));
       
-      // Fermer le formulaire
-      onCancel();
+      // Fermer le formulaire après un court délai pour voir la mise à jour
+      setTimeout(() => {
+        onCancel();
+      }, 500);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde');
       console.error('Erreur:', err);
@@ -389,10 +399,18 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                           className="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed font-mono text-sm"
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          <CheckCircleIcon className="h-4 w-4 text-gray-400" />
+                          {formData.unique_code ? (
+                            <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <ClockIcon className="h-4 w-4 text-gray-400" />
+                          )}
                         </div>
                       </div>
-                      <p className="text-xs text-gray-400 mt-1">Ce code est généré automatiquement par le système</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {formData.unique_code
+                          ? 'Code unique généré'
+                          : 'En attente de génération...'}
+                      </p>
                     </div>
                   </div>
                 </div>

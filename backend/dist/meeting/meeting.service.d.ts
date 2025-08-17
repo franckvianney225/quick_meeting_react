@@ -19,4 +19,11 @@ export declare class MeetingService {
     findOneByCode(uniqueCode: string): Promise<Meeting | null>;
     update(id: number, meetingData: Partial<Meeting>): Promise<Meeting>;
     remove(id: number): Promise<void>;
+    generateQRCode(meetingId: number, url: string, config?: {
+        color?: {
+            dark?: string;
+            light?: string;
+        };
+        size?: number;
+    }): Promise<Buffer>;
 }

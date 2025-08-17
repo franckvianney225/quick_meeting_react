@@ -1,10 +1,14 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
+import { PdfService } from '../pdf/pdf.service';
 
 @Controller('meetings')
 export class MeetingController {
-  constructor(private readonly service: MeetingService) {}
+  constructor(
+    private readonly service: MeetingService,
+    private readonly pdfService: PdfService
+  ) {}
 
   @Get()
   async findAll(): Promise<Meeting[]> {
@@ -54,5 +58,34 @@ export class MeetingController {
   @Delete(':id')
   async remove(@Param('id') id: number): Promise<void> {
     return this.service.remove(id);
+  }
+
+  @Post(':id/qrcode')
+  async generateQRCode(
+    @Param('id') id: number,
+    @Body() data: {
+      url: string;
+      qrConfig?: {
+        color?: {
+          dark?: string;
+          light?: string;
+        };
+        size?: number;
+      };
+    }
+  ): Promise<Buffer> {
+    try {
+      const meeting = await this.service.findOne(id);
+      return this.pdfService.generateMeetingQRPDF(
+        data.url,
+        meeting.title,
+        data.qrConfig
+      );
+    } catch (err) {
+      throw new HttpException(
+        err.message || 'Erreur lors de la génération du QR code',
+        HttpStatus.BAD_REQUEST
+      );
+    }
   }
 }

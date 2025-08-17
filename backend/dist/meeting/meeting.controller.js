@@ -15,9 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MeetingController = void 0;
 const common_1 = require("@nestjs/common");
 const meeting_service_1 = require("./meeting.service");
+const pdf_service_1 = require("../pdf/pdf.service");
 let MeetingController = class MeetingController {
-    constructor(service) {
+    constructor(service, pdfService) {
         this.service = service;
+        this.pdfService = pdfService;
     }
     async findAll() {
         return this.service.findAll();
@@ -44,6 +46,15 @@ let MeetingController = class MeetingController {
     }
     async remove(id) {
         return this.service.remove(id);
+    }
+    async generateQRCode(id, data) {
+        try {
+            const meeting = await this.service.findOne(id);
+            return this.pdfService.generateMeetingQRPDF(data.url, meeting.title, data.qrConfig);
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.message || 'Erreur lors de la génération du QR code', common_1.HttpStatus.BAD_REQUEST);
+        }
     }
 };
 exports.MeetingController = MeetingController;
@@ -82,8 +93,17 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)(':id/qrcode'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "generateQRCode", null);
 exports.MeetingController = MeetingController = __decorate([
     (0, common_1.Controller)('meetings'),
-    __metadata("design:paramtypes", [meeting_service_1.MeetingService])
+    __metadata("design:paramtypes", [meeting_service_1.MeetingService,
+        pdf_service_1.PdfService])
 ], MeetingController);
 //# sourceMappingURL=meeting.controller.js.map

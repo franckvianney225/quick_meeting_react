@@ -13,6 +13,7 @@ const meeting_service_1 = require("./meeting.service");
 const meeting_controller_1 = require("./meeting.controller");
 const meeting_entity_1 = require("./meeting.entity");
 const qrcode_module_1 = require("../qrcode/qrcode.module");
+const pdf_module_1 = require("../pdf/pdf.module");
 let MeetingModule = class MeetingModule {
 };
 exports.MeetingModule = MeetingModule;
@@ -20,7 +21,8 @@ exports.MeetingModule = MeetingModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([meeting_entity_1.Meeting]),
-            qrcode_module_1.QrCodeModule
+            qrcode_module_1.QrCodeModule,
+            pdf_module_1.PdfModule
         ],
         controllers: [meeting_controller_1.MeetingController],
         providers: [meeting_service_1.MeetingService],

@@ -62,7 +62,7 @@ export class MeetingService {
 
     // Enregistrer une seule fois avec le QR code
     meeting.qrCode = await this.qrCodeService.generateMeetingQRCode(meeting.uniqueCode);
-    return this.meetingRepository.save(meeting);
+    return await this.meetingRepository.save(meeting);
   }
 
   async findAll(): Promise<Meeting[]> {
@@ -113,5 +113,36 @@ export class MeetingService {
   async remove(id: number): Promise<void> {
     const meeting = await this.findOne(id);
     await this.meetingRepository.remove(meeting);
+  }
+
+  async generateQRCode(
+    meetingId: number,
+    url: string,
+    config?: {
+      color?: {
+        dark?: string;
+        light?: string;
+      };
+      size?: number;
+    }
+  ): Promise<Buffer> {
+    const meeting = await this.findOne(meetingId);
+    
+    if (!meeting.uniqueCode) {
+      throw new Error('Meeting has no unique code');
+    }
+
+    try {
+      return await this.qrCodeService.generateQRCode(url, {
+        color: {
+          dark: config?.color?.dark || '#000000',
+          light: config?.color?.light || '#ffffff'
+        },
+        width: config?.size || 200
+      });
+    } catch (err) {
+      console.error('Erreur génération QR code:', err);
+      throw new Error('Failed to generate QR code');
+    }
   }
 }
