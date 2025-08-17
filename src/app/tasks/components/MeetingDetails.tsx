@@ -23,7 +23,7 @@ interface MeetingDetailsProps {
   meeting: Meeting;
   onBack: () => void;
   onEdit: (meetingId: number) => void;
-  onGenerateQR: (meetingId: number) => void;
+  onGenerateQR?: (meetingId: number) => void;
   onAttendanceList: (meetingId: number) => void;
 }
 
@@ -39,7 +39,7 @@ export const MeetingDetails = ({
   
   const handleGenerateQR = async (meetingId: number) => {
     try {
-      const response = await fetch(`/api/meetings/${meetingId}/qrcode`);
+      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/qrcode`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -58,9 +58,10 @@ export const MeetingDetails = ({
     setShowEditForm(true);
   };
 
-  const handleSaveEdit = (meetingData: Omit<Meeting, 'id'>) => {
+  const handleSaveEdit = async (meetingData: Omit<Meeting, 'id'>) => {
     setShowEditForm(false);
     onEdit(meeting.id);
+    return Promise.resolve();
   };
 
   const handleCancelEdit = () => {
@@ -72,7 +73,7 @@ export const MeetingDetails = ({
       setIsSubmitting(true);
       
       // Récupérer les participants depuis l'API
-      const response = await fetch(`/api/meetings/${meeting.id}/participants`);
+      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
       
       // Vérifier le content-type avant de parser la réponse
       const contentType = response.headers.get('content-type');
@@ -215,7 +216,7 @@ export const MeetingDetails = ({
                 </button>
                 
                 <button
-                  onClick={() => onGenerateQR(meeting.id)}
+                  onClick={() => handleGenerateQR(meeting.id)}
                   disabled={isSubmitting}
                   className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'} text-white rounded-lg transition-colors font-medium`}
                 >

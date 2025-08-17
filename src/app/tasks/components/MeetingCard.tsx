@@ -15,11 +15,12 @@ import { MeetingQRPDF } from './MeetingQRPDF';
 import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
 
 export interface Meeting {
-  id: number;
+  id?: number; // Rend l'id optionnel pour les nouvelles réunions
   title: string;
   description: string;
   status: 'active' | 'completed' | 'inactive';
   start_date?: string;
+  startDate?: string;
   location?: string;
   max_participants?: number;
   unique_code: string;
@@ -30,8 +31,8 @@ interface MeetingCardProps {
   onEdit: (meetingId: number) => void;
   onDelete: (meetingId: number) => void;
   onView: (meetingId: number) => void;
-  onGenerateQR: (meetingId: number) => void;
-  onAttendanceList: (meetingId: number) => void;
+  onGenerateQR?: (meetingId: number) => void;
+  onAttendanceList?: (meetingId: number) => void;
 }
 
 export const MeetingCard = ({ 
@@ -51,7 +52,7 @@ export const MeetingCard = ({
 
   const handleGenerateQR = async () => {
     try {
-      const response = await fetch(`/api/meetings/${meeting.id}/qrcode`);
+      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/qrcode`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -68,25 +69,11 @@ export const MeetingCard = ({
 
   const handleAttendanceList = async () => {
     try {
-      // Données fictives temporaires
-      const participants = [
-        {
-          id: 1,
-          name: 'Jean Dupont',
-          email: 'jean.dupont@example.com',
-          function: 'Directeur',
-          organization: 'Entreprise A',
-          registeredAt: new Date().toISOString()
-        },
-        {
-          id: 2,
-          name: 'Marie Martin',
-          email: 'marie.martin@example.com',
-          function: 'Responsable RH',
-          organization: 'Entreprise B',
-          registeredAt: new Date().toISOString()
-        }
-      ];
+      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des participants');
+      }
+      const participants = await response.json();
       
       GenerateAttendanceListPDF({
         meetingTitle: meeting.title,

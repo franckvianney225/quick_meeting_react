@@ -7,7 +7,7 @@ export class QrCodeService {
   constructor(private configService: ConfigService) {}
 
   async generateMeetingQRCode(meetingCode: string): Promise<string> {
-    const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3000';
+    const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3001';
     const registrationUrl = `${baseUrl}/meetings/${meetingCode}/register`;
     
     try {

@@ -4,18 +4,18 @@ import { Meeting } from '../meeting/meeting.entity';
 @Entity()
 export class Participant {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number = 0;
 
   @Column()
-  name: string;
+  name: string = '';
 
   @Column()
-  email: string;
+  email: string = '';
 
   @Column()
-  phone: string;
+  phone: string = '';
 
   @ManyToOne(() => Meeting, meeting => meeting.participants)
   @JoinColumn({ name: 'meeting_id' })
-  meeting: Meeting;
+  meeting!: Meeting;
 }

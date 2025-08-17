@@ -19,11 +19,13 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/meetings');
+        const response = await fetch('http://localhost:3001/meetings');
         
         if (!response.ok) {
           throw new Error(`Erreur HTTP: ${response.status}`);
@@ -46,7 +48,7 @@ export default function TasksPage() {
     };
 
     fetchMeetings();
-  }, []);
+  }, [refreshKey]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -87,11 +89,23 @@ export default function TasksPage() {
   };
 
   // Suppression d'une réunion
-  const handleDelete = (meetingId: number) => {
-    setMeetings(meetings.filter(m => m.id !== meetingId));
-    // Si on supprime le meeting qu'on est en train de voir, retourner à la liste
-    if (selectedMeetingId === meetingId) {
-      setSelectedMeetingId(null);
+  const handleDelete = async (meetingId: number) => {
+    try {
+      const response = await fetch(`http://localhost:3001/meetings/${meetingId}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erreur lors de la suppression');
+      }
+      
+      setMeetings(meetings.filter(m => m.id !== meetingId));
+      if (selectedMeetingId === meetingId) {
+        setSelectedMeetingId(null);
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
     }
   };
 
@@ -123,22 +137,28 @@ export default function TasksPage() {
   };
 
   // Sauvegarde d'une réunion (création ou modification depuis la liste)
-  const handleSaveMeeting = (meetingData: Omit<Meeting, 'id'>) => {
-    if (currentMeeting && currentMeeting.id !== 0) {
-      // Modification d'une réunion existante
-      setMeetings(meetings.map(m => 
-        m.id === currentMeeting.id ? { ...m, ...meetingData } : m
-      ));
-    } else {
-      // Création d'une nouvelle réunion
-      const newMeeting = {
-        ...meetingData,
-        id: Math.max(...meetings.map(m => m.id), 0) + 1
-      };
-      setMeetings([...meetings, newMeeting]);
+  const handleSaveMeeting = async (meetingData: Meeting) => {
+    try {
+      setShowForm(false);
+      setCurrentMeeting(null);
+      
+      // Afficher un toast de succès
+      setError('Réunion enregistrée avec succès!');
+      setTimeout(() => setError(null), 1000);
+      
+      // Rafraîchir les données depuis l'API
+      setRefreshKey(prev => prev + 1);
+    } catch (err) {
+      console.error('Erreur:', err);
+      let errorMessage = 'Erreur lors de la sauvegarde';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      // On garde le formulaire ouvert pour corriger les erreurs
     }
-    setShowForm(false);
-    setCurrentMeeting(null);
   };
 
   // Modification depuis la liste (ouvre le formulaire)
@@ -178,7 +198,6 @@ export default function TasksPage() {
           meeting={selectedMeeting}
           onBack={handleBack}
           onEdit={handleEditFromDetails}
-          onGenerateQR={() => handleGenerateQR(selectedMeeting.id)}
           onAttendanceList={handleAttendanceList}
         />
       );
@@ -301,14 +320,22 @@ export default function TasksPage() {
             </div>
           ) : error ? (
             <div className="text-center py-12">
-              <div className="text-red-500 text-lg mb-2">Erreur de chargement</div>
+              <div className={`text-lg mb-2 ${
+                error.includes('succès')
+                  ? 'text-green-500'
+                  : 'text-red-500'
+              }`}>
+                {error.includes('succès') ? 'Succès' : 'Erreur'}
+              </div>
               <p className="text-gray-600 mb-4">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-              >
-                Réessayer
-              </button>
+              {!error.includes('succès') && (
+                <button
+                 onClick={() => setRefreshKey(prev => prev + 1)}
+                 className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+               >
+                  Réessayer
+                </button>
+              )}
             </div>
           ) : filteredMeetings.length === 0 ? (
             <div className="text-center py-12">
@@ -332,7 +359,6 @@ export default function TasksPage() {
                       onView={handleView}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
-                      onGenerateQR={(meetingId) => handleGenerateQR(meetingId)}
                       onAttendanceList={handleAttendanceList}
                     />
                   ))}
@@ -361,7 +387,6 @@ export default function TasksPage() {
                         onView={handleView}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
-                        onGenerateQR={handleGenerateQR}
                         onAttendanceList={handleAttendanceList}
                       />
                     ))}

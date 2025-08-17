@@ -26,36 +26,38 @@ interface ParticipantsListProps {
 }
 
 export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListProps) => {
-  // Générer des données de test pour démontrer la pagination
-  const generateTestData = () => {
-    const participants = [];
-    const firstNames = ['Jean', 'Marie', 'Amadou', 'Fatou', 'Kouassi', 'Aya', 'Yao', 'Adjoua', 'Koffi', 'Akissi'];
-    const lastNames = ['Dupont', 'Kone', 'Traore', 'Diallo', 'Kouame', 'N\'Guessan', 'Ouattara', 'Bamba', 'Yapi', 'Diabate'];
-    const functions = ['Directeur Technique', 'Chef de Service', 'Conseiller Technique', 'Responsable Projet', 'Analyste', 'Coordinateur'];
-    const organizations = [
-      'Ministère des Télécommunications',
-      'Ministère des Transports',
-      'Ministère de l\'Éducation',
-      'Ministère de la Santé',
-      'Ministère des Finances',
-      'Ministère de l\'Intérieur'
-    ];
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    for (let i = 1; i <= 50; i++) {
-      participants.push({
-        id: i,
-        firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
-        lastName: lastNames[Math.floor(Math.random() * lastNames.length)],
-        email: `user${i}@${organizations[Math.floor(Math.random() * organizations.length)].toLowerCase().replace(/[^a-z]/g, '')}.gouv.ci`,
-        function: functions[Math.floor(Math.random() * functions.length)],
-        organization: organizations[Math.floor(Math.random() * organizations.length)],
-        registeredAt: new Date(2024, 7, Math.floor(Math.random() * 15) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60)).toISOString()
-      });
-    }
-    return participants;
-  };
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants`);
+        
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
 
-  const [participants] = useState<Participant[]>(generateTestData());
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Réponse non-JSON reçue de l\'API');
+        }
+
+        const data = await response.json();
+        setParticipants(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+        console.error('Erreur:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchParticipants();
+  }, [meetingId]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
@@ -162,7 +164,26 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
       </div>
 
       {/* Liste des participants */}
-      {currentParticipants.length > 0 ? (
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-8 w-8 bg-gray-300 rounded-full mb-4"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/4 mb-2"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <div className="text-red-500 text-lg mb-2">Erreur de chargement</div>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          >
+            Réessayer
+          </button>
+        </div>
+      ) : currentParticipants.length > 0 ? (
         <>
           <div className="overflow-hidden rounded-lg border border-gray-200">
             <table className="w-full">

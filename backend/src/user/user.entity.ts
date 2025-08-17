@@ -5,35 +5,35 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number = 0;
 
   @Column({ type: 'varchar', length: 255 })
-  name: string;
+  name: string = '';
 
   @Column({ type: 'varchar', length: 255, unique: true })
-  email: string;
+  email: string = '';
 
   @Column({ type: 'varchar', length: 255 })
-  password: string;
+  password: string = '';
 
   @Column({ type: 'varchar', length: 20, default: 'user' })
-  role: string;
+  role: string = 'user';
 
   @Column({ type: 'varchar', length: 20, default: 'active' })
-  status: string;
+  status: string = 'active';
 
   @Column({ type: 'varchar', length: 500, nullable: true })
-  avatar: string;
+  avatar: string | null = null;
 
   @Column({ type: 'timestamp', nullable: true })
-  last_login: Date;
+  last_login: Date | null = null;
 
   @Column({ type: 'integer', nullable: true })
-  entreprise_id: number;
+  entreprise_id: number | null = null;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at: Date = new Date();
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at: Date = new Date();
 }

@@ -11,11 +11,16 @@ import {
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import { type Meeting } from './MeetingCard';
+
+// Ajouter startDate à l'interface Meeting
+interface ExtendedMeeting extends Meeting {
+  startDate?: string;
+}
 import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanceList }: {
-  meeting: Meeting;
+  meeting: ExtendedMeeting;
   onView: (meetingId: number) => void;
   onEdit: (meetingId: number) => void;
   onDelete: (meetingId: number) => void;
@@ -26,7 +31,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
   
   const handleGenerateQR = async (meetingId: number) => {
     try {
-      const response = await fetch(`/api/meetings/${meetingId}/qrcode`);
+      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/qrcode`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -43,7 +48,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   const handleAttendanceList = async (meetingId: number) => {
     try {
-      const response = await fetch(`/api/meetings/${meetingId}/participants`);
+      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants`);
       const participants = await response.json();
       
       GenerateAttendanceListPDF({
@@ -89,9 +94,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
     }
   };
 
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString?: string | Date) => {
     if (!dateString) return 'Date non définie';
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -116,7 +122,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <CalendarIcon className="h-4 w-4 flex-shrink-0" />
-                <span>{formatDate(meeting.start_date)}</span>
+                <span>{formatDate(meeting.startDate || meeting.start_date)}</span>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">

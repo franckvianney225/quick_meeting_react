@@ -1,0 +1,16 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "webpack": false,
+    "watchAssets": true,
+    "assets": ["**/*.graphql"],
+    "builder": {
+      "type": "tsc",
+      "options": {
+        "watch": true,
+        "preserveWatchOutput": true
+      }
+    }
+  }
+}

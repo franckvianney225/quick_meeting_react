@@ -14,8 +14,9 @@ import {
 
 type MeetingFormProps = {
   initialData?: Meeting;
-  onSave: (meeting: Omit<Meeting, 'id'>) => void;
-  onCancel: () => void;
+  onSave: (meeting: Meeting) => Promise<void>;
+  onCancel: (savedMeeting?: Meeting) => void;
+  isSaving?: boolean;
 };
 
 type StatusType = 'active' | 'completed' | 'inactive';
@@ -32,22 +33,19 @@ interface QRConfig {
   logoUrl?: string;
 }
 
-export const MeetingForm = ({ initialData, onSave, onCancel }: MeetingFormProps) => {
-  // Générer un code unique automatiquement
-  const generateUniqueCode = () => {
-    const timestamp = Date.now().toString(36);
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    return `MTG${timestamp}${randomStr}`.toUpperCase();
-  };
-
-  const [formData, setFormData] = useState<Omit<Meeting, 'id'>>({
+export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }: MeetingFormProps) => {
+  console.log('MeetingForm initialData:', JSON.stringify(initialData, null, 2));
+  
+  const [formData, setFormData] = useState<Omit<Meeting, 'id'> & { unique_code: string }>({
+    unique_code: initialData?.unique_code || '', // Le backend gère le code
     title: initialData?.title || '',
     description: initialData?.description || '',
     status: (initialData?.status as StatusType) || 'active',
-    start_date: initialData?.start_date || '',
+    start_date: initialData?.startDate
+      ? new Date(initialData.startDate).toISOString().slice(0, 16)
+      : initialData?.start_date || '',
     location: initialData?.location || '',
     max_participants: initialData?.max_participants || 10,
-    unique_code: initialData?.unique_code || generateUniqueCode()
   });
 
   // Configuration QR Code
@@ -66,23 +64,77 @@ export const MeetingForm = ({ initialData, onSave, onCancel }: MeetingFormProps)
   const [activeTab, setActiveTab] = useState<'general' | 'qrcode'>('general');
 
   // Régénérer le code si c'est une nouvelle réunion
-  useEffect(() => {
-    if (!initialData) {
-      setFormData(prev => ({
-        ...prev,
-        unique_code: generateUniqueCode()
-      }));
-    }
-  }, [initialData]);
+  // Plus besoin de cet useEffect car le code unique est maintenant géré dans l'initialisation
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Inclure la configuration QR dans les données sauvegardées
-    const meetingWithQR = {
-      ...formData,
-      qrConfig: qrConfig
-    };
-    onSave(meetingWithQR);
+    setSubmitError(null);
+    
+    try {
+      // Préparer les données à envoyer au backend
+      if (!formData.start_date) {
+        throw new Error('La date de début est requise');
+      }
+
+      // Vérifier que la date est valide
+      const dateObj = new Date(formData.start_date);
+      if (isNaN(dateObj.getTime())) {
+        throw new Error('Format de date invalide');
+      }
+      
+      // Convertir la date en format ISO et nettoyer les données avant envoi
+      const meetingWithQR = {
+        ...formData,
+        startDate: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
+        start_date: undefined, // Supprimer l'ancien format
+        unique_code: initialData?.unique_code, // Conserver le code existant pour les modifications
+        qrConfig: qrConfig
+      };
+      
+      // Déterminer si c'est une création ou une modification
+      const isUpdate = initialData && initialData.id && initialData.id > 0;
+      const method = isUpdate ? 'PUT' : 'POST';
+      const url = isUpdate
+        ? `http://localhost:3001/meetings/${initialData.id}`
+        : 'http://localhost:3001/meetings';
+      
+      console.log('Operation type:', isUpdate ? 'UPDATE' : 'CREATE');
+      console.log('Meeting ID:', initialData?.id);
+      console.log('Method:', method);
+      console.log('URL:', url);
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(meetingWithQR),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to ${initialData ? 'update' : 'create'} meeting`);
+      }
+
+      const data = await response.json();
+      console.log('Meeting saved:', data);
+      
+      // Transmettre les données sauvegardées au parent via onSave
+      await onSave({
+        ...data,
+        id: data.id || initialData?.id,
+        unique_code: data.unique_code || data.uniqueCode,
+        startDate: data.start_date || data.startDate
+      });
+      
+      // Fermer le formulaire
+      onCancel();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde');
+      console.error('Erreur:', err);
+    }
   };
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -93,6 +145,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel }: MeetingFormProps)
 
   const confirmDelete = () => {
     setShowDeleteModal(false);
+    // Fermer simplement la modal sans transmettre de données
     onCancel();
   };
 
@@ -104,7 +157,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel }: MeetingFormProps)
     }));
   };
 
-  const handleQRConfigChange = (field: keyof QRConfig, value: any) => {
+  const handleQRConfigChange = (field: keyof QRConfig, value: string | number | boolean) => {
     setQRConfig(prev => ({
       ...prev,
       [field]: value
@@ -172,7 +225,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel }: MeetingFormProps)
               {initialData ? 'Modifier Réunion' : 'Nouvelle Réunion'}
             </h2>
             <button 
-              onClick={onCancel}
+              onClick={() => onCancel()}
               className="text-gray-400 hover:text-gray-500"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -546,20 +599,39 @@ export const MeetingForm = ({ initialData, onSave, onCancel }: MeetingFormProps)
             </div>
 
             <div className="mt-8 flex justify-end space-x-3 border-t pt-6">
+              {submitError && (
+                <div className="flex-1 text-red-500 text-sm">
+                  {submitError}
+                </div>
+              )}
               <button
                 type="button"
-                onClick={onCancel}
-                className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                onClick={() => onCancel()}
+                disabled={isSaving}
+                className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Annuler
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                disabled={isSaving}
+                className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center">
-                  <CheckCircleIcon className="h-4 w-4 mr-2" />
-                  Enregistrer
+                  {isSaving ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Enregistrement...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircleIcon className="h-4 w-4 mr-2" />
+                      Enregistrer
+                    </>
+                  )}
                 </div>
               </button>
             </div>
