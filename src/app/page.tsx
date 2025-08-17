@@ -1,6 +1,9 @@
+'use client'; // Ajouter cette directive en haut du fichier
+
 import { Card } from '../components/ui/Card';
 import { StatCard } from '../components/ui/StatCard';
 import { QuickActionCard } from '../components/ui/QuickActionCard';
+import { UserProfile } from '../components/ui/UserProfile';
 import { 
   CalendarIcon,
   UserGroupIcon,
@@ -18,6 +21,15 @@ export default function HomePage() {
     activeMeetings: 8,
     totalParticipants: 156,
     completedMeetings: 16
+  };
+
+  // Données utilisateur
+  const currentUser = {
+    id: "1",
+    name: "Vianney Kouadio",
+    role: "Développeur Full Stack",
+    email: "vianney@gouvernement.ci",
+    avatar: "/images/avatar.jpg" // optionnel
   };
 
   const recentMeetings = [
@@ -47,15 +59,37 @@ export default function HomePage() {
     }
   ];
 
+  const handleLogout = () => {
+    // Logique de déconnexion
+    console.log("Déconnexion...");
+    // Redirection ou appel API
+  };
+
+  const handleSettings = () => {
+    // Redirection vers les paramètres
+    console.log("Ouverture des paramètres...");
+    // Navigation vers la page des paramètres
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard Réunions</h1>
-          <p className="text-gray-600 mt-2">Gérez vos réunions et générez des QR codes facilement</p>
+        {/* Header avec profil utilisateur */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard Réunions</h1>
+            <p className="text-gray-600 mt-2">Gérez vos réunions et générez des QR codes facilement</p>
+          </div>
+          
+          {/* Profil utilisateur en haut à droite */}
+          <UserProfile 
+            user={currentUser}
+            onLogout={handleLogout}
+            onSettings={handleSettings}
+          />
         </div>
 
+        {/* Le reste du code reste identique */}
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard

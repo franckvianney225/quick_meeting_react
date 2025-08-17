@@ -1,8 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MeetingCard, type Meeting } from './components/MeetingCard';
 import { MeetingListItem } from './components/MeetingListItem';
 import { MeetingForm } from './components/MeetingForm';
+import { MeetingDetails } from './components/MeetingDetails';
+import { UserProfile } from '../../components/ui/UserProfile';
 import { 
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -12,50 +14,100 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function TasksPage() {
-  const [meetings, setMeetings] = useState<Meeting[]>([
-    {
-      id: 1,
-      title: "Réunion Budget 2024",
-      description: "Discussion sur le budget ministériel",
-      status: "active",
-      start_date: "2024-08-15T14:00:00",
-      location: "Salle de conférence A",
-      max_participants: 20,
-      unique_code: "BDG2024"
-    },
-    {
-      id: 2,
-      title: "Formation Sécurité",
-      description: "Formation sur les bonnes pratiques",
-      status: "completed",
-      start_date: "2024-08-12T09:00:00",
-      location: "Amphithéâtre",
-      max_participants: 50,
-      unique_code: "SEC2024"
-    }
-  ]);
+  const [selectedMeetingId, setSelectedMeetingId] = useState<number | null>(null);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/meetings');
+        
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Réponse non-JSON reçue de l\'API');
+        }
+
+        const data = await response.json();
+        setMeetings(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue lors du chargement des réunions');
+        console.error('Erreur:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMeetings();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showForm, setShowForm] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
-  const [meetingToDelete, setMeetingToDelete] = useState<Meeting | null>(null);
 
-  const handleView = (meeting: Meeting) => {
-    console.log('View meeting:', meeting);
+  // Données utilisateur connecté
+  const currentUser = {
+    id: "1",
+    name: "Vianney Kouadio",
+    role: "Développeur Full Stack",
+    email: "vianney@gouvernement.ci",
+    avatar: "/images/avatar.jpg" // optionnel
   };
 
-  const handleDelete = (meeting: Meeting) => {
-    if (confirm(`Supprimer "${meeting.title}" ?`)) {
-      setMeetings(meetings.filter(m => m.id !== meeting.id));
+  // Handlers pour le profil utilisateur
+  const handleLogout = () => {
+    console.log("Déconnexion...");
+    // Logique de déconnexion
+    // Exemple: router.push('/login');
+  };
+
+  const handleSettings = () => {
+    console.log("Ouverture des paramètres...");
+    // Navigation vers les paramètres
+    // Exemple: router.push('/settings');
+  };
+
+  // Navigation vers les détails
+  const handleView = (meetingId: number) => {
+    setSelectedMeetingId(meetingId);
+  };
+
+  // Retour à la liste depuis les détails
+  const handleBack = () => {
+    setSelectedMeetingId(null);
+  };
+
+  // Suppression d'une réunion
+  const handleDelete = (meetingId: number) => {
+    setMeetings(meetings.filter(m => m.id !== meetingId));
+    // Si on supprime le meeting qu'on est en train de voir, retourner à la liste
+    if (selectedMeetingId === meetingId) {
+      setSelectedMeetingId(null);
     }
   };
 
-  const handleGenerateQR = (meeting: Meeting) => {
-    console.log('Generate QR for:', meeting);
+  // Génération QR Code
+  const handleGenerateQR = (meetingId: number) => {
+    console.log('Generate QR for meeting ID:', meetingId);
+    // Ici tu peux ajouter la logique pour générer le QR code
   };
 
+  // Liste de présence
+  const handleAttendanceList = (meetingId: number) => {
+    console.log('Attendance list for meeting ID:', meetingId);
+    // Ici tu peux ajouter la logique pour la liste de présence
+  };
+
+  // Création d'une nouvelle réunion
   const handleCreateNew = () => {
     setCurrentMeeting({
       id: 0,
@@ -70,12 +122,15 @@ export default function TasksPage() {
     setShowForm(true);
   };
 
+  // Sauvegarde d'une réunion (création ou modification depuis la liste)
   const handleSaveMeeting = (meetingData: Omit<Meeting, 'id'>) => {
-    if (currentMeeting) {
+    if (currentMeeting && currentMeeting.id !== 0) {
+      // Modification d'une réunion existante
       setMeetings(meetings.map(m => 
         m.id === currentMeeting.id ? { ...m, ...meetingData } : m
       ));
     } else {
+      // Création d'une nouvelle réunion
       const newMeeting = {
         ...meetingData,
         id: Math.max(...meetings.map(m => m.id), 0) + 1
@@ -83,20 +138,30 @@ export default function TasksPage() {
       setMeetings([...meetings, newMeeting]);
     }
     setShowForm(false);
+    setCurrentMeeting(null);
   };
 
-  const handleEdit = (meeting: Meeting) => {
-    setCurrentMeeting(meeting);
-    setShowForm(true);
-  };
-
-  const confirmDelete = () => {
-    if (meetingToDelete) {
-      setMeetings(meetings.filter(m => m.id !== meetingToDelete.id));
-      setMeetingToDelete(null);
+  // Modification depuis la liste (ouvre le formulaire)
+  const handleEdit = (meetingId: number) => {
+    const meeting = meetings.find(m => m.id === meetingId);
+    if (meeting) {
+      setCurrentMeeting(meeting);
+      setShowForm(true);
+      // Fermer la vue détails si elle est ouverte
+      setSelectedMeetingId(null);
     }
   };
 
+  // Modification depuis les détails (met à jour directement)
+  const handleEditFromDetails = (meetingId: number) => {
+    const meeting = meetings.find(m => m.id === meetingId);
+    if (meeting) {
+      setCurrentMeeting(meeting);
+      setShowForm(true);
+    }
+  };
+
+  // Filtrage des réunions
   const filteredMeetings = meetings.filter(meeting => {
     const matchesSearch = meeting.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          meeting.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -104,19 +169,40 @@ export default function TasksPage() {
     return matchesSearch && matchesStatus;
   });
 
+  // Si un meeting est sélectionné pour voir les détails, afficher seulement les détails
+  if (selectedMeetingId) {
+    const selectedMeeting = meetings.find(m => m.id === selectedMeetingId);
+    if (selectedMeeting) {
+      return (
+        <MeetingDetails
+          meeting={selectedMeeting}
+          onBack={handleBack}
+          onEdit={handleEditFromDetails}
+          onGenerateQR={() => handleGenerateQR(selectedMeeting.id)}
+          onAttendanceList={handleAttendanceList}
+        />
+      );
+    }
+  }
+
+  // Page principale avec formulaire optionnel
   return (
     <>
-      {showForm && currentMeeting && (
-        <MeetingForm
-          initialData={currentMeeting}
-          onSave={handleSaveMeeting}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
       <div className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Réunions</h1>
-          <p className="text-gray-600 mb-6">Organisez et gérez vos réunions gouvernementales</p>
+          {/* Header avec profil utilisateur */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Réunions</h1>
+              <p className="text-gray-600">Organisez et gérez vos réunions gouvernementales</p>
+            </div>
+            
+            {/* Profil utilisateur en haut à droite */}
+            <UserProfile
+              user={currentUser}
+              onLogout={handleLogout}
+            />
+          </div>
 
           {/* Statistiques */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -187,9 +273,9 @@ export default function TasksPage() {
                     className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   >
                     <option value="">Tous les statuts</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Terminée</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="active">Actif</option>
+                    <option value="completed">Terminé</option>
+                    <option value="inactive">En attente</option>
                   </select>
                 </div>
 
@@ -204,13 +290,32 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* Affichage conditionnel selon le mode de vue */}
-          {filteredMeetings.length === 0 ? (
+          {/* Affichage conditionnel selon l'état */}
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="h-8 w-8 bg-gray-300 rounded-full mb-4"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/4 mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-red-500 text-lg mb-2">Erreur de chargement</div>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+              >
+                Réessayer
+              </button>
+            </div>
+          ) : filteredMeetings.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-400 text-lg mb-2">Aucune réunion trouvée</div>
               <p className="text-gray-600">
-                {searchTerm || statusFilter 
-                  ? 'Essayez de modifier vos critères de recherche' 
+                {searchTerm || statusFilter
+                  ? 'Essayez de modifier vos critères de recherche'
                   : 'Créez votre première réunion pour commencer'
                 }
               </p>
@@ -227,7 +332,8 @@ export default function TasksPage() {
                       onView={handleView}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
-                      onGenerateQR={handleGenerateQR}
+                      onGenerateQR={(meetingId) => handleGenerateQR(meetingId)}
+                      onAttendanceList={handleAttendanceList}
                     />
                   ))}
                 </div>
@@ -256,6 +362,7 @@ export default function TasksPage() {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onGenerateQR={handleGenerateQR}
+                        onAttendanceList={handleAttendanceList}
                       />
                     ))}
                   </div>
@@ -266,33 +373,16 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* Modal de confirmation de suppression */}
-      {meetingToDelete && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/95 rounded-xl shadow-lg w-full max-w-md p-6 backdrop-blur-sm">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">
-              Confirmer la suppression
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {`Êtes-vous sûr de vouloir supprimer "${meetingToDelete.title}" ? Cette action est irréversible.`}
-            </p>
-            
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setMeetingToDelete(null)}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-              >
-                Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Formulaire d'édition/création */}
+      {showForm && currentMeeting && (
+        <MeetingForm
+          initialData={currentMeeting}
+          onSave={handleSaveMeeting}
+          onCancel={() => {
+            setShowForm(false);
+            setCurrentMeeting(null);
+          }}
+        />
       )}
     </>
   );
