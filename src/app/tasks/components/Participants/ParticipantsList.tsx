@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   UsersIcon,
   EnvelopeIcon,
@@ -17,7 +17,7 @@ export interface Participant {
   email: string;
   function: string;
   organization: string;
-  registeredAt?: string;
+  registeredAt?: string | null;
 }
 
 interface ParticipantsListProps {
@@ -88,7 +88,8 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
     setCurrentPage(1);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'Non disponible';
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -202,7 +203,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     Organisation
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date dinscription
+                    Date d'inscription
                   </th>
                 </tr>
               </thead>
@@ -238,7 +239,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {participant.registeredAt ? formatDate(participant.registeredAt) : 'N/A'}
+                      {participant.registeredAt ? formatDate(participant.registeredAt) : 'Non disponible'}
                     </td>
                   </tr>
                 ))}

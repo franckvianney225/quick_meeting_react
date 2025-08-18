@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { type Participant } from './Participants/ParticipantsList';
 import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
+import { generateMeetingQRPDF } from './MeetingQRPDF';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -37,20 +38,27 @@ export const MeetingDetails = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleGenerateQR = async (meetingId: number) => {
+  const handleGenerateQR = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/qrcode`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${meeting.title}_Code_QR.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (!meeting.uniqueCode) {
+        throw new Error('Code unique manquant pour générer le QR code');
+      }
+      
+      const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
+      
+      await generateMeetingQRPDF({
+        meetingId: meeting.id,
+        meetingTitle: meeting.title,
+        qrValue: formUrl,
+        fileName: `${meeting.title}_Code_QR.pdf`,
+        onError: (error: Error) => {
+          console.error('Erreur génération PDF:', error);
+          alert(`Erreur: ${error.message}`);
+        }
+      });
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('Erreur lors de la génération du QR code:', error);
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur inconnue est survenue'}`);
     }
   };
 
@@ -141,29 +149,18 @@ export const MeetingDetails = ({
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    
-    const date = new Date(dateString);
-    const dateOptions: Intl.DateTimeFormatOptions = {
-      weekday: 'long',
+    if (!dateString) return 'Date non définie';
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
       year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-    
-    const timeOptions: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit'
-    };
-
-    return {
-      date: date.toLocaleDateString('fr-FR', dateOptions),
-      time: date.toLocaleTimeString('fr-FR', timeOptions)
-    };
+    });
   };
 
   const statusConfig = getStatusConfig(meeting.status);
-  const formattedDate = formatDate(meeting.start_date);
+  const formattedDate = formatDate(meeting.start_date || meeting.startDate);
 
   return (
     <>
@@ -198,9 +195,11 @@ export const MeetingDetails = ({
                     <div className={`w-3 h-3 rounded-full ${statusConfig.indicator}`} />
                     <span className="text-sm font-medium">{statusConfig.label}</span>
                   </div>
-                  <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
-                    {meeting.unique_code}
-                  </span>
+                  {meeting.uniqueCode && (
+                    <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
+                      {meeting.uniqueCode}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -216,7 +215,7 @@ export const MeetingDetails = ({
                 </button>
                 
                 <button
-                  onClick={() => handleGenerateQR(meeting.id)}
+                  onClick={handleGenerateQR}
                   disabled={isSubmitting}
                   className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'} text-white rounded-lg transition-colors font-medium`}
                 >
@@ -266,14 +265,7 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Date et heure</h3>
-                      {formattedDate ? (
-                        <>
-                          <p className="text-gray-600 capitalize mb-1">{formattedDate.date}</p>
-                          <p className="text-gray-600 font-medium">{formattedDate.time}</p>
-                        </>
-                      ) : (
-                        <p className="text-gray-600">Date non définie</p>
-                      )}
+                      <p className="text-gray-600">{formatDate(meeting.start_date || meeting.startDate)}</p>
                     </div>
                   </div>
 
@@ -314,9 +306,13 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Code accès</h3>
-                      <p className="text-gray-600 font-mono bg-gray-100 px-3 py-2 rounded-lg text-sm inline-block">
-                        {meeting.unique_code}
-                      </p>
+                      {meeting.uniqueCode ? (
+                        <p className="text-gray-600 font-mono bg-gray-100 px-3 py-2 rounded-lg text-sm inline-block">
+                          {meeting.uniqueCode}
+                        </p>
+                      ) : (
+                        <p className="text-gray-600">Code non défini</p>
+                      )}
                     </div>
                   </div>
                 </div>

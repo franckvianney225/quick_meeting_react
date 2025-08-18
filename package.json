@@ -11,10 +11,12 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@nestjs/config": "^4.0.2",
+    "@types/jspdf": "^2.0.0",
     "@types/qrcode": "^1.5.5",
     "@types/qrcode.react": "^3.0.0",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
+    "lucide-react": "^0.539.0",
     "next": "15.4.6",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",

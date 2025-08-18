@@ -11,6 +11,7 @@ import {
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import { type Meeting } from './MeetingCard';
+import { generateMeetingQRPDF } from './MeetingQRPDF';
 
 // Ajouter startDate à l'interface Meeting
 interface ExtendedMeeting extends Meeting {
@@ -24,25 +25,32 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
   onView: (meetingId: number) => void;
   onEdit: (meetingId: number) => void;
   onDelete: (meetingId: number) => void;
-  onGenerateQR?: never;
+  onGenerateQR?: (meetingId: number) => void;
   onAttendanceList: (meetingId: number) => void;
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   
-  const handleGenerateQR = async (meetingId: number) => {
+  const handleGenerateQR = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/qrcode`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${meeting.title}_Code_QR.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (!meeting.uniqueCode) {
+        throw new Error('Code unique manquant pour générer le QR code');
+      }
+      
+      const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
+      
+      await generateMeetingQRPDF({
+        meetingId: meeting.id,
+        meetingTitle: meeting.title,
+        qrValue: formUrl,
+        fileName: `${meeting.title}_Code_QR.pdf`,
+        onError: (error: Error) => {
+          console.error('Erreur génération PDF:', error);
+          alert(`Erreur: ${error.message}`);
+        }
+      });
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('Erreur lors de la génération du QR code:', error);
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur inconnue est survenue'}`);
     }
   };
 
@@ -117,7 +125,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
               <div className="md:col-span-2">
                 <h3 className="font-semibold text-gray-900 mb-1">{meeting.title}</h3>
                 <p className="text-sm text-gray-600 line-clamp-1">{meeting.description}</p>
-                <span className="text-xs text-gray-500 font-mono">{meeting.unique_code}</span>
+                <span className="text-xs text-gray-500 font-mono">{meeting.uniqueCode}</span>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -159,7 +167,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
                 </button>
                 
                 <button
-                  onClick={() => handleGenerateQR(meeting.id)}
+                  onClick={handleGenerateQR}
                   className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                   title="Générer QR Code"
                 >
