@@ -55,16 +55,15 @@ export function ParticipantForm() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('/api/participants', {
+      const uniqueCode = searchParams.get('code')?.toUpperCase();
+      if (!uniqueCode) throw new Error('Code de réunion manquant');
+      const response = await fetch(`http://localhost:3001/meetings/${uniqueCode}/participants`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          meetingId: searchParams.get('meetingId'),
-          code: searchParams.get('code')
-        }),
+        body: JSON.stringify(formData),
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -100,11 +99,9 @@ export function ParticipantForm() {
         />
       )}
       {currentStep === 3 && (
-        <FormStep 
+        <FormStep
           formData={formData}
-          onChange={(field, value) => {
-            setFormData(prev => ({ ...prev, [field]: value }));
-          }}
+          onChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
           onNext={nextStep}
           onBack={prevStep}
         />

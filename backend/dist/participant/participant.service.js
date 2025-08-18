@@ -23,8 +23,8 @@ let ParticipantService = class ParticipantService {
         this.participantRepository = participantRepository;
         this.meetingService = meetingService;
     }
-    async create(meetingCode, participantData) {
-        const meeting = await this.meetingService.findOneByCode(meetingCode);
+    async create(uniqueCode, participantData) {
+        const meeting = await this.meetingService.findOneByCode(uniqueCode);
         if (!meeting) {
             throw new Error('Meeting not found');
         }

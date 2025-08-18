@@ -6,6 +6,6 @@ export declare class ParticipantService {
     private participantRepository;
     private meetingService;
     constructor(participantRepository: Repository<Participant>, meetingService: MeetingService);
-    create(meetingCode: string, participantData: CreateParticipantDto): Promise<Participant>;
+    create(uniqueCode: string, participantData: CreateParticipantDto): Promise<Participant>;
     findAllByMeeting(meetingCode: string): Promise<Participant[]>;
 }

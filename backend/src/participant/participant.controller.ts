@@ -2,16 +2,16 @@ import { Controller, Post, Body, Param, Get } from '@nestjs/common';
 import { ParticipantService } from './participant.service';
 import { CreateParticipantDto } from './dto/create-participant.dto';
 
-@Controller('meetings/:meetingCode/participants')
+@Controller('meetings/:uniqueCode/participants')
 export class ParticipantController {
   constructor(private readonly service: ParticipantService) {}
 
   @Post()
   async create(
-    @Param('meetingCode') meetingCode: string,
+    @Param('uniqueCode') uniqueCode: string,
     @Body() participantData: CreateParticipantDto
   ) {
-    return this.service.create(meetingCode, participantData);
+    return this.service.create(uniqueCode, participantData);
   }
 
   @Get()

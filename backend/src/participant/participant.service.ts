@@ -13,8 +13,8 @@ export class ParticipantService {
     private meetingService: MeetingService
   ) {}
 
-  async create(meetingCode: string, participantData: CreateParticipantDto) {
-    const meeting = await this.meetingService.findOneByCode(meetingCode);
+  async create(uniqueCode: string, participantData: CreateParticipantDto) {
+    const meeting = await this.meetingService.findOneByCode(uniqueCode);
     if (!meeting) {
       throw new Error('Meeting not found');
     }

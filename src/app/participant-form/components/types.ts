@@ -12,7 +12,7 @@ export interface EmailStepProps {
 
 export interface FormStepProps {
   formData: Pick<FormData, 'firstName' | 'lastName' | 'company' | 'position'>;
-  onChange: <K extends keyof FormData>(field: K, value: FormData[K]) => void;
+  onChange: (data: Partial<FormData>) => void;
   onNext: () => void;
   onBack: () => void;
 }

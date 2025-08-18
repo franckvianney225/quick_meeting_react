@@ -20,8 +20,8 @@ let ParticipantController = class ParticipantController {
     constructor(service) {
         this.service = service;
     }
-    async create(meetingCode, participantData) {
-        return this.service.create(meetingCode, participantData);
+    async create(uniqueCode, participantData) {
+        return this.service.create(uniqueCode, participantData);
     }
     async findAllByMeeting(meetingCode) {
         return this.service.findAllByMeeting(meetingCode);
@@ -30,7 +30,7 @@ let ParticipantController = class ParticipantController {
 exports.ParticipantController = ParticipantController;
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Param)('meetingCode')),
+    __param(0, (0, common_1.Param)('uniqueCode')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, create_participant_dto_1.CreateParticipantDto]),
@@ -44,7 +44,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ParticipantController.prototype, "findAllByMeeting", null);
 exports.ParticipantController = ParticipantController = __decorate([
-    (0, common_1.Controller)('meetings/:meetingCode/participants'),
+    (0, common_1.Controller)('meetings/:uniqueCode/participants'),
     __metadata("design:paramtypes", [participant_service_1.ParticipantService])
 ], ParticipantController);
 //# sourceMappingURL=participant.controller.js.map

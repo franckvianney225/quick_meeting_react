@@ -40,7 +40,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     unique_code: initialData?.unique_code || initialData?.uniqueCode || '', // Support les deux formats
     title: initialData?.title || '',
     description: initialData?.description || '',
-    status: (initialData?.status as StatusType) || 'active',
+    status: (initialData?.status as StatusType) || 'inactive',
     start_date: initialData?.startDate
       ? new Date(initialData.startDate).toISOString().slice(0, 16)
       : initialData?.start_date || '',
@@ -214,7 +214,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
   };
 
   const statusConfig = getStatusConfig();
-  const currentStatus = formData.status === 'inactive' ? 'pending' : formData.status as StatusType;
+  // Suppression de currentStatus qui n'est plus utilisé
 
   // Couleurs prédéfinies pour le QR Code
   const presetColors = [
@@ -282,7 +282,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                     <div className="grid grid-cols-3 gap-3">
                       {statusConfig.map((status) => {
                         const Icon = status.icon;
-                        const isActive = currentStatus === status.key;
+                        const isActive = formData.status === status.key;
                         
                         return (
                           <button
