@@ -1,6 +1,18 @@
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
+interface ParticipantResponse {
+    id: number;
+    name: string;
+    prenom: string;
+    email: string;
+    phone: string;
+    fonction: string;
+    organisation: string;
+    signature: string;
+    meetingId: number;
+    registeredAt: string;
+}
 export declare class MeetingController {
     private readonly service;
     private readonly pdfService;
@@ -18,6 +30,18 @@ export declare class MeetingController {
     }): Promise<Meeting>;
     update(id: number, meetingData: Partial<Meeting>): Promise<Meeting>;
     remove(id: number): Promise<void>;
+    handleParticipantRegistration(code: string, participantData: {
+        email: string;
+        firstName: string;
+        lastName: string;
+        company?: string;
+        position?: string;
+        signature: string;
+        agreedToTerms: boolean;
+    }): Promise<{
+        success: boolean;
+    }>;
+    getMeetingParticipants(id: number): Promise<ParticipantResponse[]>;
     generateQRCode(id: number, data: {
         url: string;
         qrConfig?: {
@@ -29,3 +53,4 @@ export declare class MeetingController {
         };
     }): Promise<Buffer>;
 }
+export {};

@@ -17,10 +17,12 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const meeting_entity_1 = require("./meeting.entity");
+const participant_entity_1 = require("../participant/participant.entity");
 const qrcode_service_1 = require("../qrcode/qrcode.service");
 let MeetingService = class MeetingService {
-    constructor(meetingRepository, qrCodeService) {
+    constructor(meetingRepository, participantRepository, qrCodeService) {
         this.meetingRepository = meetingRepository;
+        this.participantRepository = participantRepository;
         this.qrCodeService = qrCodeService;
     }
     async create(meetingData) {
@@ -93,6 +95,42 @@ let MeetingService = class MeetingService {
         const meeting = await this.findOne(id);
         await this.meetingRepository.remove(meeting);
     }
+    async getMeetingParticipants(meetingId) {
+        const participants = await this.participantRepository.find({
+            where: { meeting: { id: meetingId } },
+            relations: ['meeting']
+        });
+        return participants.map(p => ({
+            id: p.id,
+            name: p.name,
+            prenom: p.prenom,
+            email: p.email,
+            phone: p.phone,
+            fonction: p.fonction,
+            organisation: p.organisation,
+            signature: p.signature,
+            meetingId: p.meeting?.id || 0,
+            registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString()
+        }));
+    }
+    async registerParticipant(meetingCode, participantData) {
+        const meeting = await this.findOneByCode(meetingCode);
+        if (!meeting) {
+            throw new Error('Meeting not found');
+        }
+        const participant = this.participantRepository.create({
+            name: participantData.lastName,
+            prenom: participantData.firstName,
+            email: participantData.email,
+            phone: '',
+            fonction: participantData.position || '',
+            organisation: participantData.company || '',
+            signature: participantData.signature,
+            meeting: meeting
+        });
+        await this.participantRepository.save(participant);
+        return true;
+    }
     async generateQRCode(meetingId, url, config) {
         const meeting = await this.findOne(meetingId);
         if (!meeting.uniqueCode) {
@@ -117,7 +155,9 @@ exports.MeetingService = MeetingService;
 exports.MeetingService = MeetingService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(meeting_entity_1.Meeting)),
+    __param(1, (0, typeorm_1.InjectRepository)(participant_entity_1.Participant)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         qrcode_service_1.QrCodeService])
 ], MeetingService);
 //# sourceMappingURL=meeting.service.js.map

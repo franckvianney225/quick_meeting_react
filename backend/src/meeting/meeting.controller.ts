@@ -3,6 +3,20 @@ import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
 
+interface ParticipantResponse {
+  id: number;
+  name: string;
+  prenom: string;
+  email: string;
+  phone: string;
+  fonction: string;
+  organisation: string;
+  signature: string;
+  meetingId: number;
+  registeredAt: string;
+}
+import { Participant } from '../participant/participant.entity';
+
 @Controller('meetings')
 export class MeetingController {
   constructor(
@@ -58,6 +72,44 @@ export class MeetingController {
   @Delete(':id')
   async remove(@Param('id') id: number): Promise<void> {
     return this.service.remove(id);
+  }
+
+  @Post(':code/participants')
+  async handleParticipantRegistration(
+    @Param('code') code: string,
+    @Body() participantData: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      company?: string;
+      position?: string;
+      signature: string;
+      agreedToTerms: boolean;
+    }
+  ): Promise<{success: boolean}> {
+    try {
+      const result = await this.service.registerParticipant(code, participantData);
+      return {success: result};
+    } catch (err) {
+      throw new HttpException(
+        err.message || "Erreur lors de l'enregistrement",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  @Get(':id/participants')
+  async getMeetingParticipants(
+    @Param('id') id: number
+  ): Promise<ParticipantResponse[]> {
+    try {
+      return await this.service.getMeetingParticipants(id);
+    } catch (err) {
+      throw new HttpException(
+        err.message || "Erreur lors de la récupération des participants",
+        HttpStatus.BAD_REQUEST
+      );
+    }
   }
 
   @Post(':id/qrcode')

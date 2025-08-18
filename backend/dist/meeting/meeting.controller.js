@@ -47,6 +47,23 @@ let MeetingController = class MeetingController {
     async remove(id) {
         return this.service.remove(id);
     }
+    async handleParticipantRegistration(code, participantData) {
+        try {
+            const result = await this.service.registerParticipant(code, participantData);
+            return { success: result };
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.message || "Erreur lors de l'enregistrement", common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
+    async getMeetingParticipants(id) {
+        try {
+            return await this.service.getMeetingParticipants(id);
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.message || "Erreur lors de la récupération des participants", common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
     async generateQRCode(id, data) {
         try {
             const meeting = await this.service.findOne(id);
@@ -93,6 +110,21 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)(':code/participants'),
+    __param(0, (0, common_1.Param)('code')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "handleParticipantRegistration", null);
+__decorate([
+    (0, common_1.Get)(':id/participants'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "getMeetingParticipants", null);
 __decorate([
     (0, common_1.Post)(':id/qrcode'),
     __param(0, (0, common_1.Param)('id')),

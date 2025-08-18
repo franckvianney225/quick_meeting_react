@@ -11,6 +11,7 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
 
+
 export const Sidebar = () => {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);

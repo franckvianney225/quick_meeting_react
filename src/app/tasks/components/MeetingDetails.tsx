@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type Participant } from './Participants/ParticipantsList';
 import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
@@ -37,6 +37,7 @@ export const MeetingDetails = ({
 }: MeetingDetailsProps) => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [participantCount, setParticipantCount] = useState(0);
   
   const handleGenerateQR = async () => {
     try {
@@ -158,6 +159,22 @@ export const MeetingDetails = ({
       minute: '2-digit'
     });
   };
+
+  useEffect(() => {
+    const fetchParticipantCount = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
+        if (response.ok) {
+          const participants = await response.json();
+          setParticipantCount(participants.length);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des participants:', error);
+      }
+    };
+
+    fetchParticipantCount();
+  }, [meeting.id]);
 
   const statusConfig = getStatusConfig(meeting.status);
   const formattedDate = formatDate(meeting.start_date || meeting.startDate);
@@ -336,7 +353,7 @@ export const MeetingDetails = ({
                     <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3">
                       <UsersIcon className="h-6 w-6 text-blue-600" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">4</div>
+                    <div className="text-2xl font-bold text-gray-900">{participantCount}</div>
                     <div className="text-sm text-gray-600">Inscrits</div>
                   </div>
                   

@@ -2,6 +2,20 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Meeting } from './meeting.entity';
+
+interface ParticipantResponse {
+  id: number;
+  name: string;
+  prenom: string;
+  email: string;
+  phone: string;
+  fonction: string;
+  organisation: string;
+  signature: string;
+  meetingId: number;
+  registeredAt: string;
+}
+import { Participant } from '../participant/participant.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { QrCodeService } from '../qrcode/qrcode.service';
 
@@ -10,6 +24,8 @@ export class MeetingService {
   constructor(
     @InjectRepository(Meeting)
     private meetingRepository: Repository<Meeting>,
+    @InjectRepository(Participant)
+    private participantRepository: Repository<Participant>,
     private qrCodeService: QrCodeService
   ) {}
 
@@ -113,6 +129,58 @@ export class MeetingService {
   async remove(id: number): Promise<void> {
     const meeting = await this.findOne(id);
     await this.meetingRepository.remove(meeting);
+  }
+
+  async getMeetingParticipants(meetingId: number): Promise<ParticipantResponse[]> {
+    const participants = await this.participantRepository.find({
+      where: { meeting: { id: meetingId } },
+      relations: ['meeting']
+    });
+
+    return participants.map(p => ({
+      id: p.id,
+      name: p.name,
+      prenom: p.prenom,
+      email: p.email,
+      phone: p.phone,
+      fonction: p.fonction,
+      organisation: p.organisation,
+      signature: p.signature,
+      meetingId: p.meeting?.id || 0,
+      registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString()
+    }));
+  }
+
+  async registerParticipant(
+    meetingCode: string,
+    participantData: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      company?: string;
+      position?: string;
+      signature: string;
+      agreedToTerms: boolean;
+    }
+  ): Promise<boolean> {
+    const meeting = await this.findOneByCode(meetingCode);
+    if (!meeting) {
+      throw new Error('Meeting not found');
+    }
+
+    const participant = this.participantRepository.create({
+      name: participantData.lastName,
+      prenom: participantData.firstName,
+      email: participantData.email,
+      phone: '', // Champ obligatoire non fourni dans le formulaire
+      fonction: participantData.position || '',
+      organisation: participantData.company || '',
+      signature: participantData.signature,
+      meeting: meeting
+    });
+
+    await this.participantRepository.save(participant);
+    return true;
   }
 
   async generateQRCode(

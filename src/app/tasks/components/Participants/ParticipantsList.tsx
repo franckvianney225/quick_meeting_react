@@ -46,7 +46,27 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
         }
 
         const data = await response.json();
-        setParticipants(data);
+        interface ApiParticipant {
+          id: number;
+          name: string;
+          prenom: string;
+          email: string;
+          fonction: string;
+          organisation: string;
+          createdAt?: string;
+          registeredAt?: string;
+        }
+
+        const mappedParticipants = data.map((p: ApiParticipant) => ({
+          id: p.id,
+          firstName: p.prenom,
+          lastName: p.name,
+          email: p.email,
+          function: p.fonction,
+          organization: p.organisation,
+          registeredAt: p.createdAt || p.registeredAt
+        }));
+        setParticipants(mappedParticipants);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
@@ -65,12 +85,12 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
   // Filtrer les participants
   const filteredParticipants = useMemo(() => {
     return participants.filter(participant => {
-      const matchesSearch = 
-        participant.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        participant.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        participant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        participant.function.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        participant.organization.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch =
+        (participant.firstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (participant.lastName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (participant.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (participant.function?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (participant.organization?.toLowerCase() || '').includes(searchTerm.toLowerCase());
       
       return matchesSearch;
     });
@@ -99,8 +119,10 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
     });
   };
 
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName[0]}${lastName[0]}`.toUpperCase();
+  const getInitials = (firstName?: string, lastName?: string) => {
+    const firstInitial = firstName?.[0] || '';
+    const lastInitial = lastName?.[0] || '';
+    return `${firstInitial}${lastInitial}`.toUpperCase();
   };
 
   // Générer les numéros de pages à afficher
@@ -203,7 +225,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     Organisation
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date d'inscription
+                    Date de signature
                   </th>
                 </tr>
               </thead>

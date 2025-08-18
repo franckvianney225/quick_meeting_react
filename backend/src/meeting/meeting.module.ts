@@ -3,12 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MeetingService } from './meeting.service';
 import { MeetingController } from './meeting.controller';
 import { Meeting } from './meeting.entity';
+import { Participant } from '../participant/participant.entity';
 import { QrCodeModule } from '../qrcode/qrcode.module';
 import { PdfModule } from '../pdf/pdf.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Meeting]),
+    TypeOrmModule.forFeature([Meeting, Participant]),
     QrCodeModule,
     PdfModule
   ],

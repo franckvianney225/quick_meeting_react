@@ -21,7 +21,8 @@ export class ParticipantService {
 
     const participant = this.participantRepository.create({
       ...participantData,
-      meeting
+      meeting,
+      submittedAt: new Date() // Date/heure actuelle
     });
 
     return this.participantRepository.save(participant);

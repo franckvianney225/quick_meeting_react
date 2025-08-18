@@ -30,7 +30,8 @@ let ParticipantService = class ParticipantService {
         }
         const participant = this.participantRepository.create({
             ...participantData,
-            meeting
+            meeting,
+            submittedAt: new Date()
         });
         return this.participantRepository.save(participant);
     }
