@@ -17,7 +17,7 @@ import { generateMeetingQRPDF } from './MeetingQRPDF';
 interface ExtendedMeeting extends Meeting {
   startDate?: string;
 }
-import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
+import { generateAttendancePDF } from './AttendanceListPDF';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanceList }: {
@@ -56,14 +56,15 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   const handleAttendanceList = async (meetingId: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants`);
+      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants?order=DESC`);
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des participants');
+      }
       const participants = await response.json();
       
-      GenerateAttendanceListPDF({
+      await generateAttendancePDF({
         meetingTitle: meeting.title,
-        meetingDate: meeting.start_date,
-        meetingLocation: meeting.location,
-        participants,
+        participants: participants,
         onClose: () => {}
       });
     } catch (error) {

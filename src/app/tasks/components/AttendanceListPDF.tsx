@@ -1,6 +1,7 @@
 'use client';
 import { jsPDF } from 'jspdf';
-import { useEffect } from 'react';
+import { useEffect, forwardRef, useImperativeHandle } from 'react';
+import { createRoot } from 'react-dom/client';
 
 interface Participant {
   id: number;
@@ -28,7 +29,7 @@ interface AttendanceListPDFProps {
   onClose: () => void;
 }
 
-export const AttendanceListPDF = ({ 
+const AttendanceListPDF = forwardRef(({
   meetingTitle,
   meetingDate,
   meetingLocation,
@@ -43,7 +44,7 @@ export const AttendanceListPDF = ({
   onClose
 }: AttendanceListPDFProps) => {
   const generatePDF = () => {
-    const doc = new jsPDF('portrait', 'mm', 'a4');
+    const doc = new jsPDF('landscape', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     
@@ -56,11 +57,15 @@ export const AttendanceListPDF = ({
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, pageWidth, 25, 'F');
     
-    // Logo et nom de l'entreprise (en blanc)
+    // Logo (remplacé par texte temporairement)
+    doc.setFontSize(12);
+    doc.text(companyInfo.name, 15, 12);
+    
+    // Nom de l'entreprise (en blanc)
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text(companyInfo.name, 15, 12);
+    doc.text(companyInfo.name, 50, 12);
     
     // Informations de contact (en blanc, plus petit)
     doc.setFontSize(9);
@@ -119,12 +124,13 @@ export const AttendanceListPDF = ({
     
     // En-tête du tableau
     const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'SIGNATURE'];
-    const colWidths = [12, 25, 25, 40, 30, 25, 25, 30]; // Largeurs des colonnes
+    const colWidths = [12, 30, 30, 50, 40, 30, 30, 40]; // Largeurs des colonnes augmentées pour le paysage
     let xPos = 15;
     
     // Dessiner l'en-tête du tableau
     doc.setFillColor(...lightGray);
     doc.rect(10, yPos - 5, pageWidth - 20, 10, 'F');
+    doc.setFontSize(7); // Taille de police réduite pour plus d'espace
     
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
@@ -180,11 +186,13 @@ export const AttendanceListPDF = ({
       xPos += colWidths[3];
       
       // Structure/Organisation
-      doc.text(participant.organization, xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
+      const orgText = participant.organization || 'N/A';
+      doc.text(orgText, xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
       xPos += colWidths[4];
       
       // Fonction
-      doc.text(participant.function, xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
+      const funcText = participant.function || 'N/A';
+      doc.text(funcText, xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
       xPos += colWidths[5];
       
       // Contact
@@ -234,8 +242,34 @@ export const AttendanceListPDF = ({
 
   // Utilisation de useEffect pour générer le PDF après le rendu
   useEffect(() => {
-    generatePDF();
+    try {
+      generatePDF();
+    } catch (error) {
+      console.error('Erreur génération PDF:', error);
+      onClose();
+    }
   }, []);
 
   return null;
-};
+});
+
+AttendanceListPDF.displayName = 'AttendanceListPDF';
+
+export default AttendanceListPDF;
+
+export function generateAttendancePDF(props: AttendanceListPDFProps) {
+  const pdfContainer = document.createElement('div');
+  pdfContainer.style.display = 'none';
+  document.body.appendChild(pdfContainer);
+  
+  const root = createRoot(pdfContainer);
+  root.render(
+    <AttendanceListPDF
+      {...props}
+      onClose={() => {
+        root.unmount();
+        document.body.removeChild(pdfContainer);
+      }}
+    />
+  );
+}

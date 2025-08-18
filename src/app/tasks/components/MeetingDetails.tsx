@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { type Participant } from './Participants/ParticipantsList';
-import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
+import { generateAttendancePDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
 import {
   CalendarIcon,
@@ -78,44 +78,35 @@ export const MeetingDetails = ({
   };
 
   const handleAttendanceListClick = async () => {
+    let timeoutId: NodeJS.Timeout;
     try {
       setIsSubmitting(true);
       
-      // Récupérer les participants depuis l'API
+      // Timeout de secours au cas où le callback ne serait pas appelé
+      timeoutId = setTimeout(() => {
+        setIsSubmitting(false);
+      }, 5000); // 5 secondes max
+
       const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
-      
-      // Vérifier le content-type avant de parser la réponse
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Réponse non-JSON reçue de l\'API');
-      }
-
       if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
+        throw new Error('Erreur lors de la récupération des participants');
       }
-
-      const apiParticipants = await response.json();
+      const participants = await response.json();
       
-      const formattedParticipants = apiParticipants.map((p: Participant) => ({
-        id: p.id,
-        name: `${p.lastName} ${p.firstName}`,
-        firstName: p.firstName,
-        email: p.email,
-        function: p.function,
-        organization: p.organization,
-        phone: '', // Ajout d'une valeur par défaut pour phone
-        registeredAt: p.registeredAt
-      }));
-      
-      // Générer le PDF
-      GenerateAttendanceListPDF({
+      await generateAttendancePDF({
         meetingTitle: meeting.title,
-        participants: formattedParticipants,
-        onClose: () => setIsSubmitting(false)
+        participants: participants,
+        onClose: () => {
+          clearTimeout(timeoutId);
+          setIsSubmitting(false);
+        }
       });
-      
     } catch (error) {
-      console.error('Erreur lors de la génération de la liste de présence:', error);
+      console.error('Erreur lors de la génération de la liste:', error);
+      clearTimeout(timeoutId!);
+      setIsSubmitting(false);
+    } finally {
+      clearTimeout(timeoutId!);
       setIsSubmitting(false);
     }
   };

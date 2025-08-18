@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { createRoot } from 'react-dom/client';
 import { 
   CalendarIcon, 
   MapPinIcon, 
@@ -11,7 +12,7 @@ import {
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { AttendanceListPDF as GenerateAttendanceListPDF } from './AttendanceListPDF';
+import AttendanceListPDF, { generateAttendancePDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
 
 export interface Meeting {
@@ -84,15 +85,15 @@ export const MeetingCard = ({
 
   const handleAttendanceList = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
+      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants?order=DESC`);
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des participants');
       }
       const participants = await response.json();
       
-      GenerateAttendanceListPDF({
+      await generateAttendancePDF({
         meetingTitle: meeting.title,
-        participants,
+        participants: participants,
         onClose: () => {}
       });
     } catch (error) {
@@ -134,7 +135,14 @@ export const MeetingCard = ({
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Date non définie';
+    if (!dateString) {
+      // Vérifier aussi startDate si start_date n'est pas défini
+      if (meeting.startDate) {
+        dateString = meeting.startDate;
+      } else {
+        return 'Date non définie';
+      }
+    }
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -160,7 +168,7 @@ export const MeetingCard = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="flex items-center space-x-2 text-gray-600">
             <CalendarIcon className="h-4 w-4" />
-            <span className="text-sm">{formatDate(meeting.start_date)}</span>
+            <span className="text-sm">{formatDate(meeting.start_date || meeting.startDate)}</span>
           </div>
           
           <div className="flex items-center space-x-2 text-gray-600">

@@ -58,7 +58,9 @@ let MeetingService = class MeetingService {
         return await this.meetingRepository.save(meeting);
     }
     async findAll() {
-        return this.meetingRepository.find();
+        return this.meetingRepository.find({
+            order: { createdAt: 'DESC' }
+        });
     }
     async findOne(id) {
         const meeting = await this.meetingRepository.findOne({ where: { id } });

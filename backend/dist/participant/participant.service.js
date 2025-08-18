@@ -40,7 +40,10 @@ let ParticipantService = class ParticipantService {
         if (!meeting) {
             throw new Error('Meeting not found');
         }
-        return this.participantRepository.find({ where: { meeting: { id: meeting.id } } });
+        return this.participantRepository.find({
+            where: { meeting: { id: meeting.id } },
+            order: { createdAt: 'ASC' }
+        });
     }
 };
 exports.ParticipantService = ParticipantService;

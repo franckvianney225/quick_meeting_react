@@ -82,7 +82,9 @@ export class MeetingService {
   }
 
   async findAll(): Promise<Meeting[]> {
-    return this.meetingRepository.find();
+    return this.meetingRepository.find({
+      order: { createdAt: 'DESC' } // Tri par date de création descendante
+    });
   }
 
   async findOne(id: number): Promise<Meeting> {
