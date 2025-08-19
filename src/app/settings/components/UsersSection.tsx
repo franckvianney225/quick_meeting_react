@@ -16,7 +16,7 @@ interface User {
   email: string;
   role: string;
   status: 'active' | 'inactive';
-  lastLogin?: string;
+  last_login?: string;
 }
 
 interface UsersSectionProps {
@@ -266,7 +266,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.lastLogin ? `Il y a ${user.lastLogin}` : 'Jamais connecté'}
+                    {user.last_login ? formatLastLogin(user.last_login) : 'Jamais connecté'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
@@ -331,3 +331,34 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     </>
   );
 };
+
+// Fonction pour formater la dernière connexion
+function formatLastLogin(dateString: string): string {
+  try {
+    const lastLoginDate = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - lastLoginDate.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 1) {
+      return 'À l\'instant';
+    } else if (diffInMinutes < 60) {
+      return `Il y a ${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''}`;
+    } else if (diffInHours < 24) {
+      return `Il y a ${diffInHours} heure${diffInHours > 1 ? 's' : ''}`;
+    } else if (diffInDays < 7) {
+      return `Il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`;
+    } else {
+      return lastLoginDate.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+  } catch (error) {
+    console.error('Erreur de formatage de date:', error);
+    return 'Date invalide';
+  }
+}

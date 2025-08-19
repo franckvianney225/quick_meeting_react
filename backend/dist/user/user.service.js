@@ -72,6 +72,11 @@ let UserService = class UserService {
         user.status = user.status === 'active' ? 'inactive' : 'active';
         return this.userRepository.save(user);
     }
+    async updateLastLogin(id) {
+        await this.userRepository.update(id, {
+            last_login: new Date()
+        });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

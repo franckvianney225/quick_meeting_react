@@ -76,4 +76,10 @@ export class UserService {
     user.status = user.status === 'active' ? 'inactive' : 'active';
     return this.userRepository.save(user);
   }
+
+  async updateLastLogin(id: number): Promise<void> {
+    await this.userRepository.update(id, {
+      last_login: new Date()
+    });
+  }
 }

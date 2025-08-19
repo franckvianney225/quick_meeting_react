@@ -5,7 +5,9 @@ import { MeetingListItem } from './components/MeetingListItem';
 import { MeetingForm } from './components/MeetingForm';
 import { MeetingDetails } from './components/MeetingDetails';
 import { UserProfile } from '../../components/ui/UserProfile';
-import { 
+import AuthGuard from '@/components/AuthGuard';
+import { useAuth } from '@/hooks/useAuth';
+import {
   MagnifyingGlassIcon,
   FunnelIcon,
   PlusIcon,
@@ -14,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function TasksPage() {
+  const { user, logout } = useAuth();
   const [selectedMeetingId, setSelectedMeetingId] = useState<number | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,18 +61,16 @@ export default function TasksPage() {
 
   // Données utilisateur connecté
   const currentUser = {
-    id: "1",
-    name: "Vianney Kouadio",
-    role: "Développeur Full Stack",
-    email: "vianney@gouvernement.ci",
+    id: user?.id?.toString() || "1",
+    name: user?.name || "Utilisateur",
+    role: user?.role || "Utilisateur",
+    email: user?.email || "",
     avatar: "/images/avatar.jpg" // optionnel
   };
 
   // Handlers pour le profil utilisateur
   const handleLogout = () => {
-    console.log("Déconnexion...");
-    // Logique de déconnexion
-    // Exemple: router.push('/login');
+    logout();
   };
 
   const handleSettings = () => {
@@ -206,7 +207,7 @@ export default function TasksPage() {
 
   // Page principale avec formulaire optionnel
   return (
-    <>
+    <AuthGuard>
       <div className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           {/* Header avec profil utilisateur */}
@@ -409,6 +410,6 @@ export default function TasksPage() {
           }}
         />
       )}
-    </>
+    </AuthGuard>
   );
 }

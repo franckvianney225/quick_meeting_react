@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   XMarkIcon,
   UserIcon,
@@ -38,6 +38,29 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
   
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+  // Mettre à jour le formulaire quand l'utilisateur en édition change
+  useEffect(() => {
+    if (editingUser) {
+      setFormData({
+        name: editingUser.name || '',
+        email: editingUser.email || '',
+        password: '', // Toujours vide pour l'édition
+        role: editingUser.role || 'Utilisateur',
+        status: editingUser.status || 'active'
+      });
+    } else {
+      // Réinitialiser le formulaire pour la création
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        role: 'Utilisateur',
+        status: 'active'
+      });
+    }
+    setErrors({});
+  }, [editingUser, isOpen]);
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};

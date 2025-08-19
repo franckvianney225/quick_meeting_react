@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import AuthGuard from '@/components/AuthGuard';
 import {
   UserCircleIcon, 
   Cog6ToothIcon, 
@@ -18,7 +19,7 @@ import {
   ComputerDesktopIcon
 } from '@heroicons/react/24/outline';
 
-export default function ProfilePage() {
+function ProfilePage() {
   const [user, setUser] = useState({
     name: 'Jean Dupont',
     email: 'jean.dupont@example.com',
@@ -550,5 +551,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePageWrapper() {
+  return (
+    <AuthGuard>
+      <ProfilePage />
+    </AuthGuard>
   );
 }

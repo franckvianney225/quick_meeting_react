@@ -7,6 +7,8 @@ import { OrganizationSection } from './components/OrganizationSection';
 import { EmailSection } from './components/EmailSection';
 import { BackupSection } from './components/BackupSection';
 import { UserProfile } from '../../components/ui/UserProfile';
+import AuthGuard from '@/components/AuthGuard';
+import { useAuth } from '@/hooks/useAuth';
 
 interface User {
   id: number;
@@ -45,22 +47,21 @@ interface Backup {
 }
 
 export default function SettingsPage() {
+  const { user, logout } = useAuth();
   const [activeSection, setActiveSection] = useState('users');
   
   // Données utilisateur connecté
   const currentUser = {
-    id: "1",
-    name: "Vianney Kouadio",
-    role: "Développeur Full Stack",
-    email: "vianney@gouvernement.ci",
+    id: user?.id?.toString() || "1",
+    name: user?.name || "Utilisateur",
+    role: user?.role || "Utilisateur",
+    email: user?.email || "",
     avatar: "/images/avatar.jpg" // optionnel
   };
 
   // Handlers pour le profil utilisateur
   const handleLogout = () => {
-    console.log("Déconnexion...");
-    // Logique de déconnexion
-    // Exemple: router.push('/login');
+    logout();
   };
 
   const handleSettings = () => {
@@ -146,6 +147,7 @@ export default function SettingsPage() {
   };
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Header avec profil utilisateur */}
@@ -160,10 +162,10 @@ export default function SettingsPage() {
           </div>
           
           {/* Profil utilisateur en haut à droite */}
-          <UserProfile 
+          <UserProfile
             user={currentUser}
             onLogout={handleLogout}
-            onSettings={handleSettings}
+            onProfile={handleSettings}
           />
         </div>
 
@@ -203,5 +205,6 @@ export default function SettingsPage() {
         </SettingsLayout>
       </div>
     </div>
+    </AuthGuard>
   );
 }

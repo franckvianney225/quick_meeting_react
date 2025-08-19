@@ -7,6 +7,7 @@ import { Participant } from './participant/participant.entity';
 import { User } from './user/user.entity';
 import { MeetingModule } from './meeting/meeting.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserModule } from './user/user.module';
     }),
     MeetingModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

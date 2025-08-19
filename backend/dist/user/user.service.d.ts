@@ -10,4 +10,5 @@ export declare class UserService {
     update(id: number, userData: Partial<User>): Promise<User>;
     remove(id: number): Promise<void>;
     toggleStatus(id: number): Promise<User>;
+    updateLastLogin(id: number): Promise<void>;
 }

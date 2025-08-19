@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card';
 import { StatCard } from '../components/ui/StatCard';
 import { QuickActionCard } from '../components/ui/QuickActionCard';
 import { UserProfile } from '../components/ui/UserProfile';
-import { 
+import {
   CalendarIcon,
   UserGroupIcon,
   QrCodeIcon,
@@ -14,8 +14,13 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+  const { user, logout, loading } = useAuth();
+  const router = useRouter();
   const stats = {
     totalMeetings: 24,
     activeMeetings: 8,
@@ -23,13 +28,31 @@ export default function HomePage() {
     completedMeetings: 16
   };
 
+  // Rediriger vers le login si non authentifié
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   // Données utilisateur
   const currentUser = {
-    id: "1",
-    name: "Vianney Kouadio",
-    role: "Développeur Full Stack",
-    email: "vianney@gouvernement.ci",
-    avatar: "/images/avatar.jpg" // optionnel
+    id: user.id.toString(),
+    name: user.name,
+    role: user.role,
+    email: user.email
   };
 
   const recentMeetings = [
@@ -60,15 +83,12 @@ export default function HomePage() {
   ];
 
   const handleLogout = () => {
-    // Logique de déconnexion
-    console.log("Déconnexion...");
-    // Redirection ou appel API
+    logout();
+    router.push('/login');
   };
 
-  const handleSettings = () => {
-    // Redirection vers les paramètres
-    console.log("Ouverture des paramètres...");
-    // Navigation vers la page des paramètres
+  const handleProfile = () => {
+    router.push('/profile');
   };
 
   return (
@@ -82,10 +102,10 @@ export default function HomePage() {
           </div>
           
           {/* Profil utilisateur en haut à droite */}
-          <UserProfile 
+          <UserProfile
             user={currentUser}
             onLogout={handleLogout}
-            onSettings={handleSettings}
+            onProfile={handleProfile}
           />
         </div>
 
