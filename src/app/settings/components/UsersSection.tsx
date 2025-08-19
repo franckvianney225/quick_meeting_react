@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   PlusIcon,
   PencilIcon,
@@ -28,42 +28,115 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreateUser = (userData: Omit<User, 'id'> & { password: string }) => {
-    const user: User = {
-      id: Math.max(...users.map(u => u.id), 0) + 1,
-      name: userData.name,
-      email: userData.email,
-      role: userData.role,
-      status: userData.status
-    };
-    setUsers([...users, user]);
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  const handleEditUser = (userData: Omit<User, 'id'> & { password: string }) => {
-    if (editingUser) {
-      setUsers(users.map(u => 
-        u.id === editingUser.id 
-          ? { ...u, name: userData.name, email: userData.email, role: userData.role, status: userData.status }
-          : u
-      ));
-      setEditingUser(null);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:3001/users');
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des utilisateurs');
+      }
+      const data = await response.json();
+      setUsers(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteUser = () => {
-    if (userToDelete) {
+  const handleCreateUser = async (userData: Omit<User, 'id'> & { password: string }) => {
+    try {
+      const response = await fetch('http://localhost:3001/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la création');
+      }
+
+      const newUser = await response.json();
+      setUsers([...users, newUser]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création');
+      throw err;
+    }
+  };
+
+  const handleEditUser = async (userData: Omit<User, 'id'> & { password: string }) => {
+    if (!editingUser) return;
+
+    try {
+      const response = await fetch(`http://localhost:3001/users/${editingUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la modification');
+      }
+
+      const updatedUser = await response.json();
+      setUsers(users.map(u => u.id === editingUser.id ? updatedUser : u));
+      setEditingUser(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la modification');
+      throw err;
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:3001/users/${userToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la suppression');
+      }
+
       setUsers(users.filter(u => u.id !== userToDelete.id));
       setUserToDelete(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
     }
   };
 
-  const handleToggleUserStatus = (userId: number) => {
-    setUsers(users.map(u => 
-      u.id === userId 
-        ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' }
-        : u
-    ));
+  const handleToggleUserStatus = async (userId: number) => {
+    try {
+      const response = await fetch(`http://localhost:3001/users/${userId}/toggle-status`, {
+        method: 'PUT',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors du changement de statut');
+      }
+
+      const updatedUser = await response.json();
+      setUsers(users.map(u => u.id === userId ? updatedUser : u));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors du changement de statut');
+    }
   };
 
   const openCreateModal = () => {
@@ -80,6 +153,34 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     setShowUserModal(false);
     setEditingUser(null);
   };
+
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="text-red-600 font-medium">Erreur</div>
+          <div className="text-red-800">{error}</div>
+          <button
+            onClick={fetchUsers}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

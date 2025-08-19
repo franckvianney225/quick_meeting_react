@@ -14,17 +14,77 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
-const user_entity_1 = require("./user.entity");
 const user_service_1 = require("./user.service");
 let UserController = class UserController {
     constructor(service) {
         this.service = service;
     }
     async findAll() {
-        return this.service.findAll();
+        try {
+            return await this.service.findAll();
+        }
+        catch (error) {
+            throw new common_1.HttpException('Erreur lors de la récupération des utilisateurs', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async findOne(id) {
+        try {
+            return await this.service.findOne(id);
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            throw new common_1.HttpException('Erreur lors de la récupération de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     async create(userData) {
-        return this.service.create(userData);
+        try {
+            return await this.service.create(userData);
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('existe déjà')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
+            }
+            throw new common_1.HttpException('Erreur lors de la création de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async update(id, userData) {
+        try {
+            return await this.service.update(id, userData);
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            if (error instanceof Error && error.message.includes('existe déjà')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
+            }
+            throw new common_1.HttpException('Erreur lors de la mise à jour de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async remove(id) {
+        try {
+            await this.service.remove(id);
+            return { message: 'Utilisateur supprimé avec succès' };
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            throw new common_1.HttpException('Erreur lors de la suppression de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async toggleStatus(id) {
+        try {
+            return await this.service.toggleStatus(id);
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            throw new common_1.HttpException('Erreur lors du changement de statut', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 };
 exports.UserController = UserController;
@@ -35,12 +95,41 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "findOne", null);
+__decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_entity_1.User]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "create", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Put)(':id/toggle-status'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "toggleStatus", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [user_service_1.UserService])

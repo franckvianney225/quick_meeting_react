@@ -6,6 +6,7 @@ import { Entreprise } from './entreprise/entreprise.entity';
 import { Participant } from './participant/participant.entity';
 import { User } from './user/user.entity';
 import { MeetingModule } from './meeting/meeting.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MeetingModule } from './meeting/meeting.module';
       })
     }),
     MeetingModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

@@ -14,6 +14,7 @@ const entreprise_entity_1 = require("./entreprise/entreprise.entity");
 const participant_entity_1 = require("./participant/participant.entity");
 const user_entity_1 = require("./user/user.entity");
 const meeting_module_1 = require("./meeting/meeting.module");
+const user_module_1 = require("./user/user.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -34,6 +35,7 @@ exports.AppModule = AppModule = __decorate([
                 })
             }),
             meeting_module_1.MeetingModule,
+            user_module_1.UserModule,
         ],
         controllers: [],
         providers: [],
