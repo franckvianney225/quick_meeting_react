@@ -7,11 +7,13 @@ import LegalStep from './LegalStep';
 import EmailStep from './EmailStep';
 import FormStep from './FormStep';
 import SignatureStep from './SignatureStep';
+import ValidationStep from './ValidationStep';
 import type {
   LegalStepProps,
   EmailStepProps,
   FormStepProps,
-  SignatureStepProps
+  SignatureStepProps,
+  ValidationStepProps
 } from './types';
 
 export function ParticipantForm() {
@@ -70,12 +72,16 @@ export function ParticipantForm() {
         throw new Error('Erreur lors de la soumission');
       }
 
-      alert('Formulaire soumis avec succès!');
-      // Redirection ou autre logique après soumission
+      // Passer à l'étape de validation au lieu d'afficher une alerte
+      setCurrentStep(5);
     } catch (error) {
       console.error('Erreur:', error);
       alert('Une erreur est survenue lors de la soumission');
     }
+  };
+
+  const handleBackToHome = () => {
+    window.location.href = '/';
   };
 
   if (!isValidLink) {
@@ -112,6 +118,13 @@ export function ParticipantForm() {
           onChange={(signature) => setFormData(prev => ({...prev, signature}))}
           onSubmit={handleSubmit}
           onBack={prevStep}
+        />
+      )}
+      {currentStep === 5 && (
+        <ValidationStep
+          firstName={formData.firstName}
+          lastName={formData.lastName}
+          onBack={handleBackToHome}
         />
       )}
     </div>

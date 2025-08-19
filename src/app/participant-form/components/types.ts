@@ -24,6 +24,12 @@ export interface SignatureStepProps {
   onBack: () => void;
 }
 
+export interface ValidationStepProps {
+  firstName: string;
+  lastName: string;
+  onBack: () => void;
+}
+
 export interface BaseFormData {
   email: string;
   firstName: string;

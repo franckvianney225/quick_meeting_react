@@ -106,7 +106,7 @@ export default function SignatureStep({
           className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
           disabled={!hasSigned}
         >
-          Signer et soumettre
+          Signer et valider
         </button>
       </div>
     </div>
