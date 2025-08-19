@@ -25,6 +25,15 @@ export class User {
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatar: string | null = null;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string | null = null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  department: string | null = null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  position: string | null = null;
+
   @Column({ type: 'timestamp', nullable: true })
   last_login: Date | null = null;
 

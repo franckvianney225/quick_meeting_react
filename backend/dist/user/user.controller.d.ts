@@ -11,4 +11,9 @@ export declare class UserController {
         message: string;
     }>;
     toggleStatus(id: number): Promise<User>;
+    getProfile(id: number): Promise<User>;
+    updateProfile(id: number, profileData: Partial<User>): Promise<User>;
+    uploadAvatar(id: number, file: Express.Multer.File): Promise<{
+        avatarUrl: string;
+    }>;
 }

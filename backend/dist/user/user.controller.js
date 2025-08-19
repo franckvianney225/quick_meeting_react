@@ -14,6 +14,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const path_1 = require("path");
 const user_service_1 = require("./user.service");
 let UserController = class UserController {
     constructor(service) {
@@ -86,6 +89,57 @@ let UserController = class UserController {
             throw new common_1.HttpException('Erreur lors du changement de statut', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    async getProfile(id) {
+        try {
+            return await this.service.findOne(id);
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            throw new common_1.HttpException('Erreur lors de la récupération du profil', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async updateProfile(id, profileData) {
+        try {
+            const allowedFields = ['name', 'email', 'phone', 'department', 'position', 'avatar'];
+            const filteredData = {};
+            for (const key of allowedFields) {
+                if (key in profileData && profileData[key] !== undefined) {
+                    filteredData[key] = profileData[key];
+                }
+            }
+            return await this.service.update(id, filteredData);
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            if (error instanceof Error && error.message.includes('existe déjà')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
+            }
+            throw new common_1.HttpException('Erreur lors de la mise à jour du profil', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async uploadAvatar(id, file) {
+        try {
+            if (!file) {
+                throw new common_1.BadRequestException('Aucun fichier fourni');
+            }
+            const avatarUrl = `/uploads/avatars/${file.filename}`;
+            await this.service.update(id, { avatar: avatarUrl });
+            return { avatarUrl };
+        }
+        catch (error) {
+            if (error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            if (error instanceof Error && error.message.includes('non trouvé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            throw new common_1.HttpException('Erreur lors de l\'upload de l\'avatar', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -130,6 +184,48 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "toggleStatus", null);
+__decorate([
+    (0, common_1.Get)(':id/profile'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Put)(':id/profile'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Post)(':id/avatar'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('avatar', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads/avatars',
+            filename: (req, file, callback) => {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                const ext = (0, path_1.extname)(file.originalname);
+                callback(null, `avatar-${uniqueSuffix}${ext}`);
+            }
+        }),
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
+        fileFilter: (req, file, callback) => {
+            if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+                return callback(new common_1.BadRequestException('Seules les images sont autorisées'), false);
+            }
+            callback(null, true);
+        }
+    })),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "uploadAvatar", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [user_service_1.UserService])
