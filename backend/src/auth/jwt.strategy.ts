@@ -41,7 +41,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         email: user.email,
         name: user.name,
         civility: user.civility,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar
       });
       console.log('=== JWT VALIDATION END ===');
       
@@ -50,7 +51,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         email: user.email,
         name: user.name,
         civility: user.civility,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar
       };
     } catch (error) {
       console.log('JWT VALIDATION FAILED:', error.message);

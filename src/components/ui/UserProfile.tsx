@@ -14,6 +14,7 @@ interface UserProfileProps {
     role: string;
     avatar?: string;
     email?: string;
+    civility?: string;
   };
   onLogout?: () => void;
   onProfile?: () => void; // Changé de onSettings à onProfile

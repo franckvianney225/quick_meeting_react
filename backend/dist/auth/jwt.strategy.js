@@ -39,7 +39,8 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 email: user.email,
                 name: user.name,
                 civility: user.civility,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             });
             console.log('=== JWT VALIDATION END ===');
             return {
@@ -47,7 +48,8 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
                 email: user.email,
                 name: user.name,
                 civility: user.civility,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             };
         }
         catch (error) {
