@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -12,12 +11,12 @@ import {
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import AttendanceListPDF, { generateAttendancePDF } from './AttendanceListPDF';
+import { generateAttendancePDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
 import { AuthService } from '@/lib/auth';
 
 export interface Meeting {
-  id: number; // ID maintenant obligatoire
+  id: number;
   title: string;
   description: string;
   status: 'active' | 'completed' | 'inactive';
@@ -45,16 +44,15 @@ interface MeetingCardProps {
   onAttendanceList?: (meetingId: number) => void;
 }
 
-export const MeetingCard = ({ 
-  meeting, 
-  onEdit, 
-  onDelete, 
-  onView, 
+export const MeetingCard = ({
+  meeting,
+  onEdit,
+  onDelete,
+  onView,
   onGenerateQR,
   onAttendanceList
 }: MeetingCardProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -65,15 +63,15 @@ export const MeetingCard = ({
       if (!meeting.uniqueCode) {
         throw new Error('Code unique manquant pour générer le QR code');
       }
-      
+
       const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
-      
+
       await generateMeetingQRPDF({
         meetingId: meeting.id,
         meetingTitle: meeting.title,
         qrValue: formUrl,
         fileName: `${meeting.title}_Code_QR.pdf`,
-        onError: (error) => {
+        onError: (error: Error) => {
           console.error('Erreur génération PDF:', error);
           alert(`Erreur: ${error.message}`);
         }
@@ -93,7 +91,7 @@ export const MeetingCard = ({
         throw new Error('Erreur lors de la récupération des participants');
       }
       const participants = await response.json();
-      
+
       await generateAttendancePDF({
         meetingTitle: meeting.title,
         participants: participants,
@@ -102,10 +100,6 @@ export const MeetingCard = ({
     } catch (error) {
       console.error('Erreur lors de la génération de la liste:', error);
     }
-  };
-
-  const handleCloseQRModal = () => {
-    setShowQRModal(false);
   };
 
   const handleConfirmDelete = () => {
@@ -121,10 +115,10 @@ export const MeetingCard = ({
 
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'completed': return 'bg-red-100 text-red-800 border-red-200';
-      case 'inactive': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'active': return 'bg-gradient-to-r from-green-400 to-green-600 text-white border-green-400';
+      case 'completed': return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white border-blue-400';
+      case 'inactive': return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white border-gray-400';
+      default: return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white border-gray-400';
     }
   };
 
@@ -139,7 +133,6 @@ export const MeetingCard = ({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) {
-      // Vérifier aussi startDate si start_date n'est pas défini
       if (meeting.startDate) {
         dateString = meeting.startDate;
       } else {
@@ -157,81 +150,88 @@ export const MeetingCard = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">{meeting.title}</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
             <p className="text-gray-600 text-sm line-clamp-2">{meeting.description}</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(meeting.status)}`}>
+          <span className={`px-4 py-2 rounded-xl text-xs font-bold border ${getStatusColor(meeting.status)}`}>
             {getStatusLabel(meeting.status)}
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="flex items-center space-x-2 text-gray-600">
-            <CalendarIcon className="h-4 w-4" />
-            <span className="text-sm">{formatDate(meeting.start_date || meeting.startDate)}</span>
+          <div className="flex items-center space-x-3 text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
+              <CalendarIcon className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-medium">{formatDate(meeting.start_date || meeting.startDate)}</span>
           </div>
-          
-          <div className="flex items-center space-x-2 text-gray-600">
-            <MapPinIcon className="h-4 w-4" />
-            <span className="text-sm">{meeting.location || 'Lieu non défini'}</span>
+
+          <div className="flex items-center space-x-3 text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
+              <MapPinIcon className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-medium">{meeting.location || 'Lieu non défini'}</span>
           </div>
-          
-          <div className="flex items-center space-x-2 text-gray-600">
-            <UserGroupIcon className="h-4 w-4" />
-            <span className="text-sm">
+
+          <div className="flex items-center space-x-3 text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
+              <UserGroupIcon className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-medium">
               {meeting.max_participants ? `Max ${meeting.max_participants}` : 'Illimité'} participants
             </span>
           </div>
-          
-          <div className="flex items-center space-x-2 text-gray-600">
-            <span className="text-sm font-medium">
-              Code: {meeting.uniqueCode || 'Non généré'}
-            </span>
+
+          <div className="flex items-center space-x-3 text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg flex items-center justify-center">
+              <QrCodeIcon className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-medium font-mono">{meeting.uniqueCode || 'Non généré'}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between pt-4 border-t border-orange-200/30">
           <div className="flex space-x-2">
-            <button 
+            <button
               onClick={() => meeting.id && onView(meeting.id)}
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Voir détails"
             >
-              <EyeIcon className="h-5 w-5" />
+              <EyeIcon className="h-4 w-4" />
             </button>
-            
-            <button 
+
+            <button
               onClick={() => meeting.id && onEdit(meeting.id)}
-              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              className="p-3 text-green-600 hover:bg-green-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Modifier"
             >
-              <PencilIcon className="h-5 w-5" />
+              <PencilIcon className="h-4 w-4" />
             </button>
-            
-            <button 
+
+            <button
               onClick={handleDeleteClick}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
-              <TrashIcon className="h-5 w-5" />
+              <TrashIcon className="h-4 w-4" />
             </button>
           </div>
-          
-          <div className="flex space-x-2">
-            <button 
+
+          <div className="flex space-x-3">
+            <button
               onClick={handleGenerateQR}
-              className="flex items-center space-x-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               <QrCodeIcon className="h-4 w-4" />
               <span className="text-sm font-medium">QR Code</span>
             </button>
-            
+
             <button
               onClick={handleAttendanceList}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               <ClipboardDocumentListIcon className="h-4 w-4" />
               <span className="text-sm font-medium">Liste de présence</span>
@@ -240,7 +240,6 @@ export const MeetingCard = ({
         </div>
       </div>
 
-      {/* Modal de confirmation de suppression */}
       <ConfirmModal
         isOpen={showDeleteModal}
         title="Supprimer la réunion"
@@ -251,8 +250,6 @@ export const MeetingCard = ({
         cancelText="Annuler"
         type="danger"
       />
-
-      {/* Ancienne implémentation modale retirée */}
     </>
   );
 };

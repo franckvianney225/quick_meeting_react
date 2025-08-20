@@ -30,15 +30,15 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
   onAttendanceList: (meetingId: number) => void;
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  
+
   const handleGenerateQR = async () => {
     try {
       if (!meeting.uniqueCode) {
         throw new Error('Code unique manquant pour générer le QR code');
       }
-      
+
       const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
-      
+
       await generateMeetingQRPDF({
         meetingId: meeting.id,
         meetingTitle: meeting.title,
@@ -64,7 +64,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         throw new Error('Erreur lors de la récupération des participants');
       }
       const participants = await response.json();
-      
+
       await generateAttendancePDF({
         meetingTitle: meeting.title,
         participants: participants,
@@ -90,10 +90,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'completed': return 'bg-red-100 text-red-800';
-      case 'inactive': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-gradient-to-r from-green-400 to-green-600 text-white';
+      case 'completed': return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white';
+      case 'inactive': return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white';
+      default: return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white';
     }
   };
 
@@ -120,75 +120,80 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   return (
     <>
-      <div className="bg-white border-b border-gray-200 hover:bg-gray-50 transition-all duration-200">
-        <div className="px-6 py-4">
+      <div className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300">
+        <div className="px-6 py-5">
           <div className="flex items-center justify-between">
-            
             <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-              
+
               <div className="md:col-span-2">
-                <h3 className="font-semibold text-gray-900 mb-1">{meeting.title}</h3>
+                <h3 className="font-bold text-gray-900 mb-1 hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
                 <p className="text-sm text-gray-600 line-clamp-1">{meeting.description}</p>
-                <span className="text-xs text-gray-500 font-mono">{meeting.uniqueCode}</span>
+                <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-full">{meeting.uniqueCode}</span>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <CalendarIcon className="h-4 w-4 flex-shrink-0" />
-                <span>{formatDate(meeting.startDate || meeting.start_date)}</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
+                  <CalendarIcon className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-medium">{formatDate(meeting.startDate || meeting.start_date)}</span>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <MapPinIcon className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{meeting.location}</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
+                  <MapPinIcon className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-medium truncate">{meeting.location}</span>
               </div>
 
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <UserGroupIcon className="h-4 w-4 flex-shrink-0" />
-                <span>{meeting.max_participants || '∞'}</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <UserGroupIcon className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-medium">{meeting.max_participants || '∞'}</span>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(meeting.status)}`}>
+              <span className={`px-4 py-2 rounded-xl text-xs font-bold ${getStatusColor(meeting.status)}`}>
                 {getStatusLabel(meeting.status)}
               </span>
 
-              <div className="flex items-center space-x-1">
-                <button 
+              <div className="flex items-center space-x-2">
+                <button
                   onClick={() => onView(meeting.id)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Voir détails"
                 >
                   <EyeIcon className="h-4 w-4" />
                 </button>
-                
-                <button 
+
+                <button
                   onClick={() => onEdit(meeting.id)}
-                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Modifier"
                 >
                   <PencilIcon className="h-4 w-4" />
                 </button>
-                
+
                 <button
                   onClick={handleGenerateQR}
-                  className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                  className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Générer QR Code"
                 >
                   <QrCodeIcon className="h-4 w-4" />
                 </button>
-                
+
                 <button
                   onClick={() => handleAttendanceList(meeting.id)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Liste de présence"
                 >
                   <ClipboardDocumentListIcon className="h-4 w-4" />
                 </button>
-                
+
                 <button
                   onClick={handleDeleteClick}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
                   title="Supprimer"
                 >
                   <TrashIcon className="h-4 w-4" />
@@ -199,7 +204,6 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         </div>
       </div>
 
-      {/* Modal de confirmation de suppression */}
       <ConfirmModal
         isOpen={showDeleteModal}
         title="Supprimer la réunion"
@@ -213,4 +217,3 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
     </>
   );
 };
-

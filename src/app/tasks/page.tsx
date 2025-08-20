@@ -29,7 +29,7 @@ export default function TasksPage() {
     const fetchMeetings = async () => {
       try {
         setLoading(true);
-        
+
         // Vérifier si l'utilisateur est connecté
         const currentUser = AuthService.getUser();
         const token = AuthService.getToken();
@@ -38,7 +38,7 @@ export default function TasksPage() {
         console.log('Token present:', !!token);
         console.log('Token value:', token ? `${token.substring(0, 20)}...` : 'null');
         console.log('Token valide:', AuthService.validateToken());
-        
+
         // Vérifier si le token est expiré
         if (token) {
           try {
@@ -47,7 +47,7 @@ export default function TasksPage() {
             console.log('Token expiration:', new Date(payload.exp * 1000));
             console.log('Current time:', new Date());
             console.log('Token expired:', payload.exp * 1000 < Date.now());
-            
+
             // Si le token est expiré, déconnecter et rediriger
             if (payload.exp * 1000 < Date.now()) {
               console.log('Token expiré, déconnexion...');
@@ -70,10 +70,10 @@ export default function TasksPage() {
           }, 2000);
           return;
         }
-        
+
         const authHeaders = AuthService.getAuthHeaders();
         console.log('Auth headers:', authHeaders);
-        
+
         console.log('Envoi de la requête vers /meetings...');
         const response = await fetch('http://localhost:3001/meetings', {
           headers: {
@@ -81,20 +81,20 @@ export default function TasksPage() {
             ...authHeaders
           }
         });
-        
+
         console.log('Réponse reçue:', response.status, response.statusText);
         console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-        
+
         if (!response.ok) {
           console.log('Response status:', response.status);
-          
+
           // Si c'est une erreur 401, afficher simplement l'erreur sans déconnecter
           if (response.status === 401) {
             console.log('Erreur 401 détectée (token invalide ou expiré)');
             setError('Erreur d\'authentification. Le token est peut-être invalide ou expiré.');
             return;
           }
-          
+
           // Essayer de récupérer le message d'erreur du backend
           try {
             const errorData = await response.text();
@@ -102,10 +102,10 @@ export default function TasksPage() {
           } catch (e) {
             console.log('Cannot read error response');
           }
-          
+
           throw new Error(`Erreur HTTP: ${response.status}`);
         }
-        
+
         console.log('Requête réussie, traitement de la réponse...');
 
         const contentType = response.headers.get('content-type');
@@ -173,11 +173,11 @@ export default function TasksPage() {
         method: 'DELETE',
         headers: AuthService.getAuthHeaders()
       });
-      
+
       if (!response.ok) {
         throw new Error('Erreur lors de la suppression');
       }
-      
+
       setMeetings(meetings.filter(m => m.id !== meetingId));
       if (selectedMeetingId === meetingId) {
         setSelectedMeetingId(null);
@@ -220,21 +220,21 @@ export default function TasksPage() {
     try {
       setShowForm(false);
       setCurrentMeeting(null);
-      
+
       // Afficher un toast de succès
       setError('Réunion enregistrée avec succès!');
       setTimeout(() => setError(null), 1000);
-      
+
       // Rafraîchir les données depuis l'API
       setRefreshKey(prev => prev + 1);
     } catch (err) {
       console.error('Erreur:', err);
       let errorMessage = 'Erreur lors de la sauvegarde';
-      
+
       if (err instanceof Error) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
       // On garde le formulaire ouvert pour corriger les erreurs
     }
@@ -262,8 +262,8 @@ export default function TasksPage() {
 
   // Filtrage des réunions
   const filteredMeetings = meetings.filter(meeting => {
-    const matchesSearch = meeting.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         meeting.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = meeting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          meeting.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || meeting.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -286,15 +286,25 @@ export default function TasksPage() {
   // Page principale avec formulaire optionnel
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 pb-24 pt-4 w-full relative overflow-hidden">
+        {/* Éléments décoratifs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-green-200/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Header avec profil utilisateur */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Réunions</h1>
-              <p className="text-gray-600">Organisez et gérez vos réunions gouvernementales</p>
+          <div className="flex items-center justify-between mb-8">
+            <div className="space-y-3">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-orange-700 to-green-600 bg-clip-text text-transparent">
+                Gestion des Réunions
+              </h1>
+              <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
+                Organisez et gérez vos réunions gouvernementales
+              </p>
             </div>
-            
+
             {/* Profil utilisateur en haut à droite */}
             <UserProfile
               user={currentUser}
@@ -303,47 +313,56 @@ export default function TasksPage() {
           </div>
 
           {/* Statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-lg p-4 border border-gray-100">
-              <div className="text-2xl font-bold text-blue-600">{meetings.length}</div>
-              <div className="text-gray-600 text-sm">Total Réunions</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-4">
+                <Squares2X2Icon className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900">{meetings.length}</div>
+              <div className="text-gray-600 text-sm font-medium">Total Réunions</div>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-gray-100">
-              <div className="text-2xl font-bold text-green-600">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+                <ListBulletIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'active').length}
               </div>
-              <div className="text-gray-600 text-sm">Réunions Actives</div>
+              <div className="text-gray-600 text-sm font-medium">Réunions Actives</div>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-gray-100">
-              <div className="text-2xl font-bold text-orange-600">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+                <PlusIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'completed').length}
               </div>
-              <div className="text-gray-600 text-sm">Terminées</div>
+              <div className="text-gray-600 text-sm font-medium">Terminées</div>
             </div>
           </div>
 
           {/* Barre de filtres avec toggle vue */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
               <div className="relative flex-1 md:max-w-md">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Rechercher une réunion..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
                 />
               </div>
 
               <div className="flex items-center space-x-4">
                 {/* Toggle Vue Grille/Liste */}
-                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <div className="flex items-center bg-gray-100/80 rounded-xl p-1">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-all ${
-                      viewMode === 'grid' 
-                        ? 'bg-white shadow-sm text-orange-600' 
+                    className={`p-3 rounded-lg transition-all duration-300 ${
+                      viewMode === 'grid'
+                        ? 'bg-gradient-to-r from-orange-500 to-green-600 text-white shadow-md'
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                     title="Vue grille"
@@ -352,9 +371,9 @@ export default function TasksPage() {
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-all ${
-                      viewMode === 'list' 
-                        ? 'bg-white shadow-sm text-orange-600' 
+                    className={`p-3 rounded-lg transition-all duration-300 ${
+                      viewMode === 'list'
+                        ? 'bg-gradient-to-r from-orange-500 to-green-600 text-white shadow-md'
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                     title="Vue liste"
@@ -363,12 +382,12 @@ export default function TasksPage() {
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <FunnelIcon className="h-5 w-5 text-gray-400" />
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                    className="border border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
                   >
                     <option value="">Tous les statuts</option>
                     <option value="active">Actif</option>
@@ -379,10 +398,10 @@ export default function TasksPage() {
 
                 <button
                   onClick={handleCreateNew}
-                  className="flex items-center space-x-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
                 >
                   <PlusIcon className="h-5 w-5" />
-                  <span className="font-medium">Nouvelle Réunion</span>
+                  <span>Nouvelle Réunion</span>
                 </button>
               </div>
             </div>
@@ -391,14 +410,14 @@ export default function TasksPage() {
           {/* Affichage conditionnel selon l'état */}
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-pulse flex flex-col items-center">
-                <div className="h-8 w-8 bg-gray-300 rounded-full mb-4"></div>
-                <div className="h-4 bg-gray-300 rounded w-1/4 mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-              </div>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto mb-6"></div>
+              <p className="text-gray-600 text-lg">Chargement des réunions...</p>
             </div>
           ) : error ? (
             <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-r from-red-400 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <FunnelIcon className="w-8 h-8 text-white" />
+              </div>
               <div className={`text-lg mb-2 ${
                 error.includes('succès')
                   ? 'text-green-500'
@@ -408,10 +427,10 @@ export default function TasksPage() {
               </div>
               <p className="text-gray-600 mb-4">{error}</p>
               {!error.includes('succès') && (
-                <div className="flex flex-col space-y-2">
+                <div className="flex flex-col space-y-3">
                   <button
                     onClick={() => setRefreshKey(prev => prev + 1)}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 font-semibold"
                   >
                     Réessayer
                   </button>
@@ -421,7 +440,7 @@ export default function TasksPage() {
                         AuthService.clearAllAuthData();
                         window.location.href = '/login';
                       }}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                      className="px-6 py-3 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold text-sm"
                     >
                       Nettoyer et reconnecter
                     </button>
@@ -431,8 +450,11 @@ export default function TasksPage() {
             </div>
           ) : filteredMeetings.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-lg mb-2">Aucune réunion trouvée</div>
-              <p className="text-gray-600">
+              <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <ListBulletIcon className="w-10 h-10 text-white" />
+              </div>
+              <p className="text-gray-500 text-xl font-medium">Aucune réunion trouvée</p>
+              <p className="text-gray-400 text-sm mt-2">
                 {searchTerm || statusFilter
                   ? 'Essayez de modifier vos critères de recherche'
                   : 'Créez votre première réunion pour commencer'
@@ -443,7 +465,7 @@ export default function TasksPage() {
             <>
               {/* Vue Grille */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {filteredMeetings.map((meeting) => (
                     <MeetingCard
                       key={meeting.id}
@@ -459,17 +481,17 @@ export default function TasksPage() {
 
               {/* Vue Liste */}
               {viewMode === 'list' && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
                   {/* Header du tableau */}
-                  <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm font-medium text-gray-700">
+                  <div className="bg-gradient-to-r from-orange-50/80 to-green-50/80 px-6 py-4 border-b border-orange-200/30">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm font-semibold text-gray-700">
                       <div className="md:col-span-2">Réunion</div>
                       <div>Date</div>
                       <div>Lieu</div>
                       <div>Participants</div>
                     </div>
                   </div>
-                  
+
                   {/* Liste des réunions */}
                   <div>
                     {filteredMeetings.map((meeting) => (
