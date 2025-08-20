@@ -39,7 +39,7 @@ __decorate([
     __metadata("design:type", String)
 ], OrganizationSettings.prototype, "website", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 500, nullable: true }),
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], OrganizationSettings.prototype, "logo", void 0);
 __decorate([

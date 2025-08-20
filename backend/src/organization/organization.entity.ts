@@ -20,7 +20,7 @@ export class OrganizationSettings {
   @Column({ type: 'varchar', length: 500, nullable: true })
   website?: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
+  @Column({ type: 'text', nullable: true })
   logo?: string;
 
   @Column({ type: 'jsonb', nullable: true })
