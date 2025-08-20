@@ -52,7 +52,7 @@ interface Backup {
 export default function SettingsPage() {
   const { user, logout } = useAuth();
   const [activeSection, setActiveSection] = useState('users');
-  
+
   // Données utilisateur connecté
   const currentUser = {
     id: user?.id?.toString() || "1",
@@ -180,63 +180,63 @@ export default function SettingsPage() {
 
   return (
     <AuthGuard>
-    <div className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        {/* Header avec profil utilisateur */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {getSectionTitle()}
-            </h1>
-            <p className="text-gray-600">
-              {getSectionDescription()}
-            </p>
-          </div>
-          
-          {/* Profil utilisateur en haut à droite */}
-          <UserProfile
-            user={currentUser}
-            onLogout={handleLogout}
-            onProfile={handleSettings}
-          />
-        </div>
-
-        {/* Contenu principal */}
-        <SettingsLayout>
-          <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
-            <SettingsSidebar 
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-            />
-
-            <div className="xl:col-span-4">
-              {activeSection === 'users' && (
-                <UsersSection users={users} setUsers={setUsers} />
-              )}
-              {activeSection === 'organization' && (
-                <OrganizationSection 
-                  settings={orgSettings}
-                  setSettings={setOrgSettings}
-                />
-              )}
-              {activeSection === 'email' && (
-                <EmailSection 
-                  config={smtpConfig}
-                  setConfig={setSmtpConfig}
-                />
-              )}
-              {activeSection === 'backup' && (
-                <BackupSection
-                  backups={backups}
-                  onBackup={handleBackup}
-                  onRestore={handleRestore}
-                />
-              )}
+      <div className="min-h-screen bg-gray-50 pb-24 pt-2 w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          {/* Header avec profil utilisateur */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {getSectionTitle()}
+              </h1>
+              <p className="text-gray-600">
+                {getSectionDescription()}
+              </p>
             </div>
+
+            {/* Profil utilisateur en haut à droite */}
+            <UserProfile
+              user={currentUser}
+              onLogout={handleLogout}
+              onProfile={handleSettings}
+            />
           </div>
-        </SettingsLayout>
+
+          {/* Contenu principal */}
+          <SettingsLayout>
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+              <SettingsSidebar
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+              />
+
+              <div className="xl:col-span-4">
+                {activeSection === 'users' && (
+                  <UsersSection users={users} setUsers={setUsers} />
+                )}
+                {activeSection === 'organization' && (
+                  <OrganizationSection
+                    settings={orgSettings}
+                    setSettings={setOrgSettings}
+                  />
+                )}
+                {activeSection === 'email' && (
+                  <EmailSection
+                    config={smtpConfig}
+                    setConfig={setSmtpConfig}
+                  />
+                )}
+                {activeSection === 'backup' && (
+                  <BackupSection
+                    backups={backups}
+                    onBackup={handleBackup}
+                    onRestore={handleRestore}
+                  />
+                )}
+              </div>
+            </div>
+          </SettingsLayout>
+        </div>
       </div>
-    </div>
     </AuthGuard>
   );
 }

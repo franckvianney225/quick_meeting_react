@@ -12,7 +12,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 
-
 export const Sidebar = () => {
   const { user } = useAuth();
   const pathname = usePathname();
@@ -53,9 +52,9 @@ export const Sidebar = () => {
   }, []);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+      className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -65,17 +64,16 @@ export const Sidebar = () => {
           isVisible ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
         }`}
       >
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-full p-3 shadow-lg cursor-pointer group">
-          <ChevronUpIcon className="h-5 w-5 text-white animate-bounce group-hover:animate-none transition-all" />
-          <div className="absolute inset-0 bg-orange-400 rounded-full animate-ping opacity-20"></div>
+        <div className="bg-gradient-to-r from-orange-500 to-green-600 rounded-full p-3 shadow-lg cursor-pointer">
+          <ChevronUpIcon className="h-5 w-5 text-white" />
         </div>
       </div>
 
       {/* Sidebar principale */}
       <nav
         className={`transition-all duration-700 ease-out ${
-          isVisible 
-            ? 'opacity-100 translate-y-0 scale-100' 
+          isVisible
+            ? 'opacity-100 translate-y-0 scale-100'
             : 'opacity-0 translate-y-6 scale-90 pointer-events-none'
         }`}
       >
@@ -93,24 +91,24 @@ export const Sidebar = () => {
               <Link
                 key={href}
                 href={href}
-                className="relative p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 transition-all duration-300 hover:scale-110 active:scale-95 group"
+                className="relative p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-green-50 transition-all duration-300 hover:scale-110 active:scale-95 group"
                 title={title}
               >
                 <Icon className={`h-6 w-6 transition-all duration-300 ${
-                  pathname === href 
-                    ? 'text-orange-500 scale-110' 
+                  pathname === href
+                    ? 'text-orange-500 scale-110'
                     : 'text-gray-600 group-hover:text-orange-500 group-hover:scale-105'
                 }`} />
-                
+
                 {/* Indicateur de page active */}
                 {pathname === href && (
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-green-600 rounded-full"></div>
                   </div>
                 )}
-                
+
                 {/* Effet de hover */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-500/0 to-orange-500/0 group-hover:from-orange-500/10 group-hover:to-orange-600/10 transition-all duration-300"></div>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-500/0 to-green-600/0 group-hover:from-orange-500/10 group-hover:to-green-600/10 transition-all duration-300"></div>
               </Link>
             ))}
           </div>
