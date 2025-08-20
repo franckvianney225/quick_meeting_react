@@ -1,8 +1,10 @@
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { OrganizationService } from '../organization/organization.service';
 export declare class UserService {
     private userRepository;
-    constructor(userRepository: Repository<User>);
+    private organizationService;
+    constructor(userRepository: Repository<User>, organizationService: OrganizationService);
     findAll(): Promise<User[]>;
     findOne(id: number): Promise<User>;
     findByEmail(email: string): Promise<User | null>;

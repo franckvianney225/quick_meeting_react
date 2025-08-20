@@ -1,14 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
+import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private organizationService: OrganizationService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -34,6 +36,20 @@ export class UserService {
       throw new Error('Un utilisateur avec cet email existe déjà');
     }
 
+    // Vérifier si le domaine email est autorisé
+    const organizationSettings = await this.organizationService.getCurrentSettings();
+    if (organizationSettings?.allowedEmailDomains?.length > 0) {
+      const userEmail = userData.email!.toLowerCase();
+      const isDomainAllowed = organizationSettings.allowedEmailDomains.some(domain => {
+        const domainPattern = domain.startsWith('@') ? domain.toLowerCase() : `@${domain.toLowerCase()}`;
+        return userEmail.endsWith(domainPattern);
+      });
+
+      if (!isDomainAllowed) {
+        throw new ForbiddenException('Le domaine email n\'est pas autorisé pour la création de compte');
+      }
+    }
+
     // Hasher le mot de passe
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, 10);
@@ -46,11 +62,25 @@ export class UserService {
   async update(id: number, userData: Partial<User>): Promise<User> {
     const user = await this.findOne(id);
     
-    // Si l'email est modifié, vérifier qu'il n'existe pas déjà
+    // Si l'email est modifié, vérifier qu'il n'existe pas déjà et que le domaine est autorisé
     if (userData.email && userData.email !== user.email) {
       const existingUser = await this.findByEmail(userData.email);
       if (existingUser) {
         throw new Error('Un utilisateur avec cet email existe déjà');
+      }
+
+      // Vérifier si le domaine email est autorisé
+      const organizationSettings = await this.organizationService.getCurrentSettings();
+      if (organizationSettings?.allowedEmailDomains?.length > 0) {
+        const userEmail = userData.email.toLowerCase();
+        const isDomainAllowed = organizationSettings.allowedEmailDomains.some(domain => {
+          const domainPattern = domain.startsWith('@') ? domain.toLowerCase() : `@${domain.toLowerCase()}`;
+          return userEmail.endsWith(domainPattern);
+        });
+
+        if (!isDomainAllowed) {
+          throw new ForbiddenException('Le domaine email n\'est pas autorisé pour la création de compte');
+        }
       }
     }
 

@@ -18,9 +18,11 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./user.entity");
 const bcrypt = require("bcrypt");
+const organization_service_1 = require("../organization/organization.service");
 let UserService = class UserService {
-    constructor(userRepository) {
+    constructor(userRepository, organizationService) {
         this.userRepository = userRepository;
+        this.organizationService = organizationService;
     }
     async findAll() {
         return this.userRepository.find();
@@ -40,6 +42,17 @@ let UserService = class UserService {
         if (existingUser) {
             throw new Error('Un utilisateur avec cet email existe déjà');
         }
+        const organizationSettings = await this.organizationService.getCurrentSettings();
+        if (organizationSettings?.allowedEmailDomains?.length > 0) {
+            const userEmail = userData.email.toLowerCase();
+            const isDomainAllowed = organizationSettings.allowedEmailDomains.some(domain => {
+                const domainPattern = domain.startsWith('@') ? domain.toLowerCase() : `@${domain.toLowerCase()}`;
+                return userEmail.endsWith(domainPattern);
+            });
+            if (!isDomainAllowed) {
+                throw new common_1.ForbiddenException('Le domaine email n\'est pas autorisé pour la création de compte');
+            }
+        }
         if (userData.password) {
             userData.password = await bcrypt.hash(userData.password, 10);
         }
@@ -52,6 +65,17 @@ let UserService = class UserService {
             const existingUser = await this.findByEmail(userData.email);
             if (existingUser) {
                 throw new Error('Un utilisateur avec cet email existe déjà');
+            }
+            const organizationSettings = await this.organizationService.getCurrentSettings();
+            if (organizationSettings?.allowedEmailDomains?.length > 0) {
+                const userEmail = userData.email.toLowerCase();
+                const isDomainAllowed = organizationSettings.allowedEmailDomains.some(domain => {
+                    const domainPattern = domain.startsWith('@') ? domain.toLowerCase() : `@${domain.toLowerCase()}`;
+                    return userEmail.endsWith(domainPattern);
+                });
+                if (!isDomainAllowed) {
+                    throw new common_1.ForbiddenException('Le domaine email n\'est pas autorisé pour la création de compte');
+                }
             }
         }
         if (userData.password) {
@@ -82,6 +106,7 @@ exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        organization_service_1.OrganizationService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

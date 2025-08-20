@@ -58,6 +58,9 @@ export class UserController {
       if (error instanceof Error && error.message.includes('existe déjà')) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
       }
+      if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+      }
       throw new HttpException(
         'Erreur lors de la création de l\'utilisateur',
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -78,6 +81,9 @@ export class UserController {
       }
       if (error instanceof Error && error.message.includes('existe déjà')) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
+      }
+      if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
       }
       throw new HttpException(
         'Erreur lors de la mise à jour de l\'utilisateur',
@@ -155,6 +161,9 @@ export class UserController {
       }
       if (error instanceof Error && error.message.includes('existe déjà')) {
         throw new HttpException(error.message, HttpStatus.CONFLICT);
+      }
+      if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
       }
       throw new HttpException(
         'Erreur lors de la mise à jour du profil',

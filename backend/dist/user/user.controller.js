@@ -49,6 +49,9 @@ let UserController = class UserController {
             if (error instanceof Error && error.message.includes('existe déjà')) {
                 throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
             }
+            if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.FORBIDDEN);
+            }
             throw new common_1.HttpException('Erreur lors de la création de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -62,6 +65,9 @@ let UserController = class UserController {
             }
             if (error instanceof Error && error.message.includes('existe déjà')) {
                 throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
+            }
+            if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.FORBIDDEN);
             }
             throw new common_1.HttpException('Erreur lors de la mise à jour de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -117,6 +123,9 @@ let UserController = class UserController {
             }
             if (error instanceof Error && error.message.includes('existe déjà')) {
                 throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
+            }
+            if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.FORBIDDEN);
             }
             throw new common_1.HttpException('Erreur lors de la mise à jour du profil', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
