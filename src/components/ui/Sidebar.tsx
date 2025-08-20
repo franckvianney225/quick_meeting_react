@@ -3,16 +3,18 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  HomeIcon, 
-  ClipboardDocumentIcon, 
-  UserIcon, 
+import {
+  HomeIcon,
+  ClipboardDocumentIcon,
+  UserIcon,
   CogIcon,
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '@/hooks/useAuth';
 
 
 export const Sidebar = () => {
+  const { user } = useAuth();
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -83,7 +85,10 @@ export const Sidebar = () => {
               { href: '/', icon: HomeIcon, title: 'Accueil' },
               { href: '/tasks', icon: ClipboardDocumentIcon, title: 'Réunions' },
               { href: '/profile', icon: UserIcon, title: 'Profil' },
-              { href: '/settings', icon: CogIcon, title: 'Paramètres' }
+              // Afficher les paramètres uniquement pour les administrateurs
+              ...(user?.role && ['admin', 'administrator', 'Admin'].includes(user.role) ? [
+                { href: '/settings', icon: CogIcon, title: 'Paramètres' }
+              ] : [])
             ].map(({ href, icon: Icon, title }) => (
               <Link
                 key={href}
