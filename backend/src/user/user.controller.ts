@@ -139,7 +139,7 @@ export class UserController {
   ): Promise<User> {
     try {
       // Filtrer les champs autorisés pour la mise à jour du profil
-      const allowedFields = ['name', 'email', 'phone', 'department', 'position', 'avatar'];
+      const allowedFields = ['name', 'email', 'phone', 'department', 'position', 'civility', 'avatar'];
       const filteredData: Record<string, unknown> = {};
       
       for (const key of allowedFields) {

@@ -102,7 +102,7 @@ let UserController = class UserController {
     }
     async updateProfile(id, profileData) {
         try {
-            const allowedFields = ['name', 'email', 'phone', 'department', 'position', 'avatar'];
+            const allowedFields = ['name', 'email', 'phone', 'department', 'position', 'civility', 'avatar'];
             const filteredData = {};
             for (const key of allowedFields) {
                 if (key in profileData && profileData[key] !== undefined) {

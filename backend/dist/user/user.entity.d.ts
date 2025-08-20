@@ -11,6 +11,7 @@ export declare class User {
     phone: string | null;
     department: string | null;
     position: string | null;
+    civility: string | null;
     last_login: Date | null;
     entreprise_id: number | null;
     created_at: Date;

@@ -35,6 +35,9 @@ export class User {
   @Column({ type: 'varchar', length: 100, nullable: true })
   position: string | null = null;
 
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  civility: string | null = null;
+
   @Column({ type: 'timestamp', nullable: true })
   last_login: Date | null = null;
 

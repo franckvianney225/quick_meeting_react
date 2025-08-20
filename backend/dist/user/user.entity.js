@@ -25,6 +25,7 @@ let User = class User {
         this.phone = null;
         this.department = null;
         this.position = null;
+        this.civility = null;
         this.last_login = null;
         this.entreprise_id = null;
         this.created_at = new Date();
@@ -72,6 +73,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "position", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 10, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "civility", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Date)
