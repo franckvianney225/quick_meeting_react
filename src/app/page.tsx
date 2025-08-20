@@ -16,18 +16,49 @@ import {
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthService } from '@/lib/auth';
+import { MeetingService, Meeting, MeetingStats } from '@/lib/meeting';
 
 export default function HomePage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
-  const stats = {
-    totalMeetings: 24,
-    activeMeetings: 8,
-    totalParticipants: 156,
-    completedMeetings: 16
-  };
+  const [stats, setStats] = useState<MeetingStats>({
+    totalMeetings: 0,
+    activeMeetings: 0,
+    inactiveMeetings: 0,
+    totalParticipants: 0,
+    completedMeetings: 0
+  });
+  const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  // Charger les données du tableau de bord
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setLoadingData(true);
+        
+        // Charger les statistiques et les réunions récentes en parallèle
+        const [meetingStats, recentMeetingsData] = await Promise.all([
+          MeetingService.getMeetingStats(),
+          MeetingService.getRecentMeetings(5)
+        ]);
+        
+        setStats(meetingStats);
+        setRecentMeetings(recentMeetingsData);
+        
+      } catch (error) {
+        console.error('Erreur lors du chargement des données du tableau de bord:', error);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [user]);
 
   // Rediriger vers le login si non authentifié et forcer la mise à jour des données
   useEffect(() => {
@@ -39,7 +70,7 @@ export default function HomePage() {
     }
   }, [user, loading, router]);
 
-  if (loading) {
+  if (loading || loadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
@@ -68,32 +99,6 @@ export default function HomePage() {
     civility: user.civility // Ajouter la civilité
   };
 
-  const recentMeetings = [
-    {
-      id: 1,
-      title: "Réunion Budget 2024",
-      status: "active",
-      participants: 12,
-      date: "2024-08-15",
-      location: "Salle A"
-    },
-    {
-      id: 2,
-      title: "Formation Sécurité",
-      status: "completed",
-      participants: 25,
-      date: "2024-08-12",
-      location: "Amphithéâtre"
-    },
-    {
-      id: 3,
-      title: "Point Mensuel",
-      status: "active",
-      participants: 8,
-      date: "2024-08-18",
-      location: "Bureau Direction"
-    }
-  ];
 
   const handleLogout = () => {
     logout();
@@ -138,69 +143,40 @@ export default function HomePage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
-            title="Total Réunions"
-            value={stats.totalMeetings}
-            icon={CalendarIcon}
-            color="blue"
-            trend={12}
-          />
-          <StatCard
-            title="Réunions Actives"
-            value={stats.activeMeetings}
-            icon={ClockIcon}
-            color="green"
-            trend={5}
-          />
-          <StatCard
-            title="Participants"
-            value={stats.totalParticipants}
-            icon={UserGroupIcon}
-            color="purple"
-            trend={8}
-          />
-          <StatCard
-            title="Terminées"
-            value={stats.completedMeetings}
-            icon={CheckCircleIcon}
-            color="orange"
-            trend={-2}
-          />
+         title="Total Réunions"
+         value={stats.totalMeetings}
+         icon={CalendarIcon}
+         color="blue"
+         trend={0}
+       />
+       <StatCard
+         title="Réunions Actives"
+         value={stats.activeMeetings}
+         icon={ClockIcon}
+         color="green"
+         trend={0}
+       />
+       <StatCard
+         title="Réunion inactive"
+         value={stats.inactiveMeetings}
+         icon={ClockIcon}
+         color="red"
+         trend={0}
+       />
+       <StatCard
+         title="Terminées"
+         value={stats.completedMeetings}
+         icon={CheckCircleIcon}
+         color="orange"
+         trend={0}
+       />
         </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Actions Rapides</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <QuickActionCard
-              title="Nouvelle Réunion"
-              description="Créer une nouvelle réunion avec QR code"
-              href="/meetings/create"
-              icon={PlusIcon}
-              color="blue"
-            />
-            <QuickActionCard
-              title="Générer QR Code"
-              description="Générer un QR code pour une réunion"
-              href="/qr-generator"
-              icon={QrCodeIcon}
-              color="green"
-            />
-            <QuickActionCard
-              title="Rapports"
-              description="Voir les statistiques et rapports"
-              href="/reports"
-              icon={ChartBarIcon}
-              color="purple"
-            />
-          </div>
-        </div>
-
         {/* Recent Meetings */}
         <Card>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-800">Réunions Récentes</h2>
-            <Link 
-              href="/meetings" 
+            <Link
+              href="/tasks"
               className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
             >
               Voir tout →
@@ -208,32 +184,41 @@ export default function HomePage() {
           </div>
           
           <div className="space-y-4">
-            {recentMeetings.map((meeting) => (
-              <div 
-                key={meeting.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-800">{meeting.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {meeting.location} • {meeting.participants} participants
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-500">{meeting.date}</span>
-                  <span className={`
-                    px-3 py-1 rounded-full text-xs font-medium
-                    ${meeting.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                    }
-                  `}>
-                    {meeting.status === 'active' ? 'Active' : 'Terminée'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+           {recentMeetings.length > 0 ? (
+             recentMeetings.map((meeting) => (
+               <div
+                 key={meeting.id}
+                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+               >
+                 <div className="flex-1">
+                   <h3 className="font-medium text-gray-800">{meeting.title}</h3>
+                   <p className="text-sm text-gray-600 mt-1">
+                     {meeting.location} • {meeting.participants_count || 0} participants
+                   </p>
+                 </div>
+                 <div className="flex items-center space-x-4">
+                   <span className="text-sm text-gray-500">
+                     {new Date(meeting.start_date).toLocaleDateString('fr-FR')}
+                   </span>
+                   <span className={`
+                     px-3 py-1 rounded-full text-xs font-medium
+                     ${meeting.status === 'active' || meeting.status === 'scheduled'
+                       ? 'bg-green-100 text-green-800'
+                       : 'bg-gray-100 text-gray-800'
+                     }
+                   `}>
+                     {meeting.status === 'active' || meeting.status === 'scheduled' ? 'Active' : 'Terminée'}
+                   </span>
+                 </div>
+               </div>
+             ))
+           ) : (
+             <div className="text-center py-8 text-gray-500">
+               <p>Aucune réunion trouvée</p>
+               <p className="text-sm mt-2">Créez votre première réunion pour commencer</p>
+             </div>
+           )}
+         </div>
         </Card>
       </div>
     </main>
