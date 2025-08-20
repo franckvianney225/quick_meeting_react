@@ -11,8 +11,12 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (!frontendUrl && process.env.NODE_ENV === 'production') {
+        throw new Error('FRONTEND_URL environment variable is required in production');
+    }
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: frontendUrl || 'http://localhost:3000',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     });

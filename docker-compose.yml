@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: meeting_db
+    environment:
+      POSTGRES_DB: meeting_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - meeting_network
+    restart: unless-stopped
+
+  # Backend NestJS
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: meeting_backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=meeting_db
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - APP_URL=http://164.160.40.182:3001
+      - FRONTEND_URL=http://164.160.40.182:3000
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - meeting_network
+    restart: unless-stopped
+
+  # Frontend Next.js
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meeting_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://164.160.40.182:3001
+    depends_on:
+      - backend
+    networks:
+      - meeting_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  meeting_network:
+    driver: bridge

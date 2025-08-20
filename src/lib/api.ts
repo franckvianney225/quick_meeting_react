@@ -4,10 +4,18 @@
 
 /**
  * Get the base API URL from environment variable
- * Falls back to localhost:3001 if not set
+ * Throws an error if not set in production
  */
 export const getApiUrl = (): string => {
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('NEXT_PUBLIC_API_URL environment variable is required in production');
+    }
+    // Fallback for development only
+    return 'http://localhost:3001';
+  }
+  return apiUrl;
 };
 
 /**
