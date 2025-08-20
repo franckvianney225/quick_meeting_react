@@ -34,11 +34,19 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         console.log('Current time:', new Date());
         try {
             const user = await this.authService.validateToken(payload);
-            console.log('JWT VALIDATION SUCCESS: User found:', { id: user.id, email: user.email });
+            console.log('JWT VALIDATION SUCCESS: User found:', {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                civility: user.civility,
+                role: user.role
+            });
             console.log('=== JWT VALIDATION END ===');
             return {
                 id: user.id,
                 email: user.email,
+                name: user.name,
+                civility: user.civility,
                 role: user.role
             };
         }

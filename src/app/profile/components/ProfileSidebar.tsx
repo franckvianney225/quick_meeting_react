@@ -15,6 +15,7 @@ interface User {
   avatar?: string;
   joinedDate: string;
   lastLogin: string;
+  civility?: string;
 }
 
 interface ProfileSidebarProps {
@@ -62,6 +63,9 @@ export const ProfileSidebar = ({ user, activeTab, onTabChange, onAvatarEdit }: P
           )}
         </div>
         
+        {user.civility && (
+          <p className="text-gray-600 text-sm mb-1">{user.civility}</p>
+        )}
         <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.name}</h2>
         <p className="text-orange-600 font-medium mb-1">{user.role}</p>
         <p className="text-gray-500 text-sm mb-6">{user.department}</p>

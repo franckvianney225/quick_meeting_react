@@ -8,6 +8,7 @@ export interface User {
   status: string;
   lastLogin: Date | null;
   avatar?: string;
+  civility?: string;
 }
 
 export interface AuthResponse {
@@ -50,7 +51,17 @@ export class AuthService {
 
   static getUser(): User | null {
     const userStr = localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    const user = userStr ? JSON.parse(userStr) : null;
+    
+    console.log('=== AUTH SERVICE GET USER ===');
+    console.log('User from localStorage:', user);
+    console.log('User name:', user?.name);
+    console.log('User civility:', user?.civility);
+    console.log('User role:', user?.role);
+    console.log('User email:', user?.email);
+    console.log('=============================');
+    
+    return user;
   }
 
   static isAuthenticated(): boolean {
@@ -104,5 +115,26 @@ export class AuthService {
     if (!token) return false;
     
     return !this.isTokenExpired(token);
+  }
+
+  static async refreshUserData(): Promise<void> {
+    try {
+      const token = this.getToken();
+      if (!token) return;
+
+      const response = await fetch('http://localhost:3001/auth/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        this.setUser(userData);
+        console.log('User data refreshed:', userData);
+      }
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
   }
 }

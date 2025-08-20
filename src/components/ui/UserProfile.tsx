@@ -56,7 +56,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
           ) : (
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-lg">
-                {user.name.charAt(0).toUpperCase()}
+                {user?.name ? user.name.charAt(0).toUpperCase() : user?.role?.charAt(0) || 'U'}
               </span>
             </div>
           )}
@@ -68,7 +68,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
         {/* Informations utilisateur - toujours visibles avec plus d'espace */}
         <div className="flex-1 text-left">
           <p className="text-base font-semibold text-gray-900 leading-tight">
-            {user.name}
+            {user?.name || user?.role || 'Utilisateur'}
           </p>
           <p className="text-sm text-gray-600 leading-tight">
             {user.role}
@@ -109,7 +109,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
                   ) : (
                     <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-xl">
-                        {user.name.charAt(0).toUpperCase()}
+                        {user?.name ? user.name.charAt(0).toUpperCase() : user?.role?.charAt(0) || 'U'}
                       </span>
                     </div>
                   )}
@@ -118,7 +118,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
                 
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-semibold text-gray-900 truncate">
-                    {user.name}
+                    {user?.name || user?.role || 'Utilisateur'}
                   </p>
                   <p className="text-sm text-gray-600 truncate">
                     {user.role}

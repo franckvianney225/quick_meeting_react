@@ -9,6 +9,7 @@ interface ProfileTabContentProps {
   user: any;
   isEditing: boolean;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
@@ -21,6 +22,7 @@ export const ProfileTabContent = ({
   user,
   isEditing,
   onInputChange,
+  onSelectChange,
   onEdit,
   onSave,
   onCancel,
@@ -35,6 +37,7 @@ export const ProfileTabContent = ({
             user={user}
             isEditing={isEditing}
             onInputChange={onInputChange}
+            onSelectChange={onSelectChange}
             onEdit={onEdit}
             onSave={onSave}
             onCancel={onCancel}

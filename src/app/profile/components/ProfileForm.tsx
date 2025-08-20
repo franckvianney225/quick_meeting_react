@@ -16,18 +16,20 @@ interface User {
   phone: string;
   department: string;
   position?: string; // Nouveau champ "poste"
+  civility?: string; // Nouveau champ "civilité"
 }
 
 interface ProfileFormProps {
   user: User;
   isEditing: boolean;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
 }
 
-export const ProfileForm = ({ user, isEditing, onInputChange, onEdit, onSave, onCancel }: ProfileFormProps) => {
+export const ProfileForm = ({ user, isEditing, onInputChange, onSelectChange, onEdit, onSave, onCancel }: ProfileFormProps) => {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
@@ -82,6 +84,31 @@ export const ProfileForm = ({ user, isEditing, onInputChange, onEdit, onSave, on
             ) : (
               <div className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
                 {user.name}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Civilité */}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">Civilité</label>
+          <div className="relative">
+            <UserCircleIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            {isEditing ? (
+              <select
+                name="civility"
+                value={user.civility || ''}
+                onChange={onSelectChange}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors appearance-none bg-white"
+              >
+                <option value="">Sélectionner une civilité</option>
+                <option value="Mr">Mr</option>
+                <option value="Mme">Mme</option>
+                <option value="Mlle">Mlle</option>
+              </select>
+            ) : (
+              <div className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
+                {user.civility || 'Non spécifié'}
               </div>
             )}
           </div>

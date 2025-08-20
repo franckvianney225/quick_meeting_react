@@ -8,9 +8,14 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = AuthService.getToken();
-      const userData = AuthService.getUser();
+      let userData = AuthService.getUser();
+      
+      console.log('=== USE AUTH CHECK ===');
+      console.log('Token present:', !!token);
+      console.log('User data from storage:', userData);
+      console.log('User civility:', userData?.civility);
       
       if (!token) {
         // Pas de token, utilisateur non authentifié
@@ -22,6 +27,18 @@ export function useAuth() {
       
       // Vérifier si le token est valide (non expiré)
       const isValid = AuthService.validateToken();
+      
+      // Si l'utilisateur est incomplet (manque name), rafraîchir depuis l'API
+      if (isValid && userData && (!userData.name || !userData.email)) {
+        console.log('User data incomplete, refreshing from API...');
+        try {
+          await AuthService.refreshUserData();
+          userData = AuthService.getUser();
+          console.log('User data after refresh:', userData);
+        } catch (error) {
+          console.error('Failed to refresh user data:', error);
+        }
+      }
       
       setIsAuthenticated(isValid);
       setUser(isValid ? userData : null);

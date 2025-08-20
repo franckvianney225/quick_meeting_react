@@ -16,6 +16,7 @@ export declare class AuthService {
             status: string;
             lastLogin: string;
             avatar: string;
+            civility: string;
         };
     }>;
     validateToken(payload: {

@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { AuthService } from '@/lib/auth';
 
 export default function HomePage() {
   const { user, logout, loading } = useAuth();
@@ -28,10 +29,13 @@ export default function HomePage() {
     completedMeetings: 16
   };
 
-  // Rediriger vers le login si non authentifié
+  // Rediriger vers le login si non authentifié et forcer la mise à jour des données
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
+    } else if (user) {
+      // Forcer la mise à jour des données utilisateur au chargement
+      AuthService.refreshUserData().catch(console.error);
     }
   }, [user, loading, router]);
 
@@ -47,13 +51,21 @@ export default function HomePage() {
     return null;
   }
 
+  // Debug: vérifier les données utilisateur
+  console.log('=== DONNÉES UTILISATEUR ===');
+  console.log('User object:', user);
+  console.log('Civilité:', user.civility);
+  console.log('Has civility:', !!user.civility);
+  console.log('==========================');
+
   // Données utilisateur
   const currentUser = {
     id: user.id.toString(),
     name: user.name,
     role: user.role,
     email: user.email,
-    avatar: user.avatar // Ajouter l'avatar
+    avatar: user.avatar, // Ajouter l'avatar
+    civility: user.civility // Ajouter la civilité
   };
 
   const recentMeetings = [
@@ -92,14 +104,26 @@ export default function HomePage() {
     router.push('/profile');
   };
 
+  const handleClearStorage = () => {
+    AuthService.clearAllAuthData();
+    router.push('/login');
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Header avec profil utilisateur */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard Réunions</h1>
-            <p className="text-gray-600 mt-2">Gérez vos réunions et générez des QR codes facilement</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Bonjour 👋 {user.civility ? `${user.civility} ` : ''}
+              <br/>
+              {user.name}
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Bienvenu sur votre tableau de bord. Ici vous pourrez gérer vos réunions et récupérer les listes de présence
+            </p>
+            
           </div>
           
           {/* Profil utilisateur en haut à droite */}
