@@ -73,14 +73,23 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
 
       const newUser = await response.json();
       setUsers([...users, newUser]);
+      return { success: true };
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la création');
-      throw err;
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
+      
+      // Si c'est une erreur de domaine non autorisé, on la retourne pour l'afficher dans le modal
+      if (errorMessage.includes('domaine email n\'est pas autorisé')) {
+        return { success: false, error: 'Le domaine email n\'est pas autorisé pour la création de compte' };
+      }
+      
+      // Pour les autres erreurs, on les affiche globalement
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
   const handleEditUser = async (userData: Omit<User, 'id'> & { password: string }) => {
-    if (!editingUser) return;
+    if (!editingUser) return { success: false, error: 'Aucun utilisateur à modifier' };
 
     try {
       const response = await fetch(`http://localhost:3001/users/${editingUser.id}`, {
@@ -100,9 +109,18 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
       const updatedUser = await response.json();
       setUsers(users.map(u => u.id === editingUser.id ? updatedUser : u));
       setEditingUser(null);
+      return { success: true };
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la modification');
-      throw err;
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la modification';
+      
+      // Si c'est une erreur de domaine non autorisé, on la retourne pour l'afficher dans le modal
+      if (errorMessage.includes('domaine email n\'est pas autorisé')) {
+        return { success: false, error: 'Le domaine email n\'est pas autorisé pour la création de compte' };
+      }
+      
+      // Pour les autres erreurs, on les affiche globalement
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 

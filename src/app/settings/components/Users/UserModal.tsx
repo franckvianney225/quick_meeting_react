@@ -10,6 +10,7 @@ import {
   EyeSlashIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { AuthService } from '@/lib/auth';
 
 interface User {
   id: number;
@@ -23,7 +24,7 @@ interface User {
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (userData: Omit<User, 'id'> & { password: string }) => void;
+  onSave: (userData: Omit<User, 'id'> & { password: string }) => Promise<{ success: boolean; error?: string }>;
   editingUser?: User | null;
 }
 
@@ -38,6 +39,28 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
   
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
+
+  // Charger les domaines email autorisés
+  useEffect(() => {
+    const fetchAllowedDomains = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/organization/settings', {
+          headers: AuthService.getAuthHeaders()
+        });
+        if (response.ok) {
+          const settings = await response.json();
+          setAllowedDomains(settings.allowedEmailDomains || []);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des domaines autorisés:', error);
+      }
+    };
+
+    if (isOpen) {
+      fetchAllowedDomains();
+    }
+  }, [isOpen]);
 
   // Mettre à jour le formulaire quand l'utilisateur en édition change
   useEffect(() => {
@@ -73,6 +96,16 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
       newErrors.email = 'L\'email est requis';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Format d\'email invalide';
+    } else if (allowedDomains.length > 0) {
+      const userEmail = formData.email.toLowerCase();
+      const isDomainAllowed = allowedDomains.some(domain => {
+        const domainPattern = domain.startsWith('@') ? domain.toLowerCase() : `@${domain.toLowerCase()}`;
+        return userEmail.endsWith(domainPattern);
+      });
+
+      if (!isDomainAllowed) {
+        newErrors.email = 'Le domaine email n\'est pas autorisé pour la création de compte';
+      }
     }
     
     if (!editingUser && !formData.password) {
@@ -85,15 +118,36 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
     
-    onSave(formData);
-    handleClose();
+    try {
+      const result = await onSave(formData);
+      
+      if (result && !result.success) {
+        // Gérer les erreurs spécifiques
+        if (result.error && result.error.includes('domaine email n\'est pas autorisé')) {
+          setErrors(prev => ({ ...prev, email: result.error || 'Erreur de domaine email' }));
+        } else if (result.error) {
+          // Pour les autres erreurs, on pourrait afficher un message général
+          console.error('Erreur lors de la sauvegarde:', result.error);
+        }
+      } else {
+        // Succès - fermer le modal
+        handleClose();
+      }
+    } catch (error) {
+      // Gestion des erreurs pour la compatibilité avec l'ancien format
+      if (error instanceof Error && error.message.includes('domaine email n\'est pas autorisé')) {
+        setErrors(prev => ({ ...prev, email: error.message }));
+      } else {
+        console.error('Erreur lors de la sauvegarde:', error);
+      }
+    }
   };
 
   const handleClose = () => {
