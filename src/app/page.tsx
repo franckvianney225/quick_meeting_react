@@ -37,19 +37,19 @@ export default function HomePage() {
   useEffect(() => {
     const loadDashboardData = async () => {
       if (!user) return;
-      
+
       try {
         setLoadingData(true);
-        
+
         // Charger les statistiques et les réunions récentes en parallèle
         const [meetingStats, recentMeetingsData] = await Promise.all([
           MeetingService.getMeetingStats(),
           MeetingService.getRecentMeetings(5)
         ]);
-        
+
         setStats(meetingStats);
         setRecentMeetings(recentMeetingsData);
-        
+
       } catch (error) {
         console.error('Erreur lors du chargement des données du tableau de bord:', error);
       } finally {
@@ -72,8 +72,8 @@ export default function HomePage() {
 
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-green-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
       </div>
     );
   }
@@ -115,110 +115,133 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-24 pt-8 w-full">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 pb-24 pt-4 w-full relative overflow-hidden">
+      {/* Éléments décoratifs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-green-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header avec profil utilisateur */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+          <div className="space-y-3">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-orange-700 to-green-600 bg-clip-text text-transparent">
               Bonjour 👋 {user.civility ? `${user.civility} ` : ''}
               <br/>
               {user.name}
             </h1>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
               Bienvenu sur votre tableau de bord. Ici vous pourrez gérer vos réunions et récupérer les listes de présence
             </p>
-            
           </div>
-          
+
           {/* Profil utilisateur en haut à droite */}
-          <UserProfile
-            user={currentUser}
-            onLogout={handleLogout}
-            onProfile={handleProfile}
-          />
+          <div className="-mt-8">
+            <UserProfile
+              user={currentUser}
+              onLogout={handleLogout}
+              onProfile={handleProfile}
+            />
+          </div>
         </div>
 
-        {/* Le reste du code reste identique */}
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
-         title="Total Réunions"
-         value={stats.totalMeetings}
-         icon={CalendarIcon}
-         color="blue"
-         trend={0}
-       />
-       <StatCard
-         title="Réunions Actives"
-         value={stats.activeMeetings}
-         icon={ClockIcon}
-         color="green"
-         trend={0}
-       />
-       <StatCard
-         title="Réunion inactive"
-         value={stats.inactiveMeetings}
-         icon={ClockIcon}
-         color="red"
-         trend={0}
-       />
-       <StatCard
-         title="Terminées"
-         value={stats.completedMeetings}
-         icon={CheckCircleIcon}
-         color="orange"
-         trend={0}
-       />
+            title="Total Réunions"
+            value={stats.totalMeetings}
+            icon={CalendarIcon}
+            color="blue"
+            trend={0}
+          />
+          <StatCard
+            title="Réunions Actives"
+            value={stats.activeMeetings}
+            icon={ClockIcon}
+            color="green"
+            trend={0}
+          />
+          <StatCard
+            title="Réunion inactive"
+            value={stats.inactiveMeetings}
+            icon={ClockIcon}
+            color="red"
+            trend={0}
+          />
+          <StatCard
+            title="Terminées"
+            value={stats.completedMeetings}
+            icon={CheckCircleIcon}
+            color="orange"
+            trend={0}
+          />
         </div>
+
         {/* Recent Meetings */}
         <Card>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">Réunions Récentes</h2>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-green-600 rounded-xl flex items-center justify-center">
+                <CalendarIcon className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Réunions Récentes</h2>
+            </div>
             <Link
               href="/tasks"
-              className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-green-600 text-white font-medium rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               Voir tout →
             </Link>
           </div>
-          
+
           <div className="space-y-4">
-           {recentMeetings.length > 0 ? (
-             recentMeetings.map((meeting) => (
-               <div
-                 key={meeting.id}
-                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-               >
-                 <div className="flex-1">
-                   <h3 className="font-medium text-gray-800">{meeting.title}</h3>
-                   <p className="text-sm text-gray-600 mt-1">
-                     {meeting.location} • {meeting.participants_count || 0} participants
-                   </p>
-                 </div>
-                 <div className="flex items-center space-x-4">
-                   <span className="text-sm text-gray-500">
-                     {new Date(meeting.start_date).toLocaleDateString('fr-FR')}
-                   </span>
-                   <span className={`
-                     px-3 py-1 rounded-full text-xs font-medium
-                     ${meeting.status === 'active' || meeting.status === 'scheduled'
-                       ? 'bg-green-100 text-green-800'
-                       : 'bg-gray-100 text-gray-800'
-                     }
-                   `}>
-                     {meeting.status === 'active' || meeting.status === 'scheduled' ? 'Active' : 'Terminée'}
-                   </span>
-                 </div>
-               </div>
-             ))
-           ) : (
-             <div className="text-center py-8 text-gray-500">
-               <p>Aucune réunion trouvée</p>
-               <p className="text-sm mt-2">Créez votre première réunion pour commencer</p>
-             </div>
-           )}
-         </div>
+            {recentMeetings.length > 0 ? (
+              recentMeetings.map((meeting, index) => (
+                <div
+                  key={meeting.id}
+                  className="group flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01]"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
+                    <p className="text-sm text-gray-600 mt-2 flex items-center space-x-4">
+                      <span className="flex items-center space-x-1">
+                        <UserGroupIcon className="w-4 h-4 text-gray-400" />
+                        <span>{meeting.participants_count || 0} participants</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <ClockIcon className="w-4 h-4 text-gray-400" />
+                        <span>{meeting.location}</span>
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
+                      {new Date(meeting.start_date).toLocaleDateString('fr-FR')}
+                    </span>
+                    <span className={`
+                      px-4 py-2 rounded-full text-xs font-bold transition-all duration-300
+                      ${meeting.status === 'active' || meeting.status === 'scheduled'
+                        ? 'bg-gradient-to-r from-green-400 to-green-600 text-white shadow-md hover:shadow-lg'
+                        : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white shadow-md hover:shadow-lg'
+                      }
+                    `}>
+                      {meeting.status === 'active' || meeting.status === 'scheduled' ? 'Active' : 'Terminée'}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <CalendarIcon className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-gray-500 text-lg font-medium">Aucune réunion trouvée</p>
+                <p className="text-gray-400 text-sm mt-2">Créez votre première réunion pour commencer</p>
+              </div>
+            )}
+          </div>
         </Card>
       </div>
     </main>
