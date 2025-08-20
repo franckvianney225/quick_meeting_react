@@ -37,7 +37,7 @@ export class MeetingService {
     max_participants?: number;
     start_date?: string;
     startDate?: string;
-  }): Promise<Meeting> {
+  }, userId?: number): Promise<Meeting> {
     // Normaliser le nom du champ date (support ancien et nouveau format)
     const dateString = meetingData.startDate ||
                       (meetingData.start_date ? new Date(meetingData.start_date).toISOString() : undefined);
@@ -73,7 +73,9 @@ export class MeetingService {
       location: meetingData.location,
       maxParticipants: meetingData.max_participants,
       startDate: startDate,
-      uniqueCode: uniqueCode
+      uniqueCode: uniqueCode,
+      createdBy: userId ? { id: userId } : null,
+      createdById: userId || null
     });
 
     // Enregistrer une seule fois avec le QR code
@@ -81,14 +83,20 @@ export class MeetingService {
     return await this.meetingRepository.save(meeting);
   }
 
-  async findAll(): Promise<Meeting[]> {
+  async findAll(userId?: number): Promise<Meeting[]> {
+    const where = userId ? { createdById: userId } : {};
     return this.meetingRepository.find({
-      order: { createdAt: 'DESC' } // Tri par date de création descendante
+      where,
+      order: { createdAt: 'DESC' }, // Tri par date de création descendante
+      relations: ['createdBy'] // Charger la relation createdBy
     });
   }
 
   async findOne(id: number): Promise<Meeting> {
-    const meeting = await this.meetingRepository.findOne({ where: { id } });
+    const meeting = await this.meetingRepository.findOne({
+      where: { id },
+      relations: ['createdBy'] // Charger la relation createdBy
+    });
     if (!meeting) {
       throw new NotFoundException(`Meeting with ID ${id} not found`);
     }

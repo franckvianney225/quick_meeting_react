@@ -4,6 +4,8 @@ import AuthGuard from '@/components/AuthGuard';
 import { ProfileHeader } from './components/ProfileHeader';
 import { ProfileSidebar } from './components/ProfileSidebar';
 import { ProfileTabContent } from './components/ProfileTabContent';
+import { AvatarUploadModal } from './components/AvatarUploadModal';
+import { AuthService } from '@/lib/auth';
 
 function ProfilePage() {
   const [user, setUser] = useState({
@@ -12,6 +14,7 @@ function ProfilePage() {
     phone: '+33 6 12 34 56 78',
     role: 'Administrateur',
     department: 'Ministère de l\'Intérieur',
+    position: '',
     avatar: '/default-avatar.jpg',
     joinedDate: '15 janvier 2023',
     lastLogin: '2 heures'
@@ -22,6 +25,7 @@ function ProfilePage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,10 +37,39 @@ function ProfilePage() {
       setIsRefreshing(true);
       setRefreshError(null);
       try {
-        const response = await fetch('/api/user/profile');
+        const currentUser = AuthService.getUser();
+        if (!currentUser) {
+          throw new Error('Utilisateur non connecté');
+        }
+
+        const response = await fetch(`http://localhost:3001/users/${currentUser.id}/profile`, {
+          headers: AuthService.getAuthHeaders()
+        });
+        
         if (!response.ok) throw new Error('Erreur de chargement');
         const data = await response.json();
-        setUser(data);
+        setUser({
+          ...data,
+          phone: data.phone || '',
+          department: data.department || '',
+          position: data.position || '',
+          role: data.role || 'Utilisateur',
+          avatar: data.avatar && data.avatar !== '/default-avatar.jpg'
+            ? `http://localhost:3001${data.avatar}`
+            : data.avatar,
+          joinedDate: data.created_at ? new Date(data.created_at).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }) : 'Date inconnue',
+          lastLogin: data.last_login ? new Date(data.last_login).toLocaleString('fr-FR', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'Jamais'
+        });
       } catch (error) {
         setRefreshError(error instanceof Error ? error.message : 'Erreur inconnue');
         console.error('Erreur:', error);
@@ -50,17 +83,32 @@ function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      // Enregistrer les modifications
-      const response = await fetch('/api/user/profile', {
+      const currentUser = AuthService.getUser();
+      if (!currentUser) {
+        throw new Error('Utilisateur non connecté');
+      }
+
+      // Préparer les données pour l'API
+      const profileData = {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        department: user.department,
+        position: user.position
+      };
+
+      const response = await fetch(`http://localhost:3001/users/${currentUser.id}/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...AuthService.getAuthHeaders()
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(profileData)
       });
       
       if (!response.ok) {
-        throw new Error('Erreur lors de la sauvegarde');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de la sauvegarde');
       }
       
       setIsEditing(false);
@@ -80,8 +128,42 @@ function ProfilePage() {
   };
 
   const handleAvatarEdit = () => {
-    // Logique pour modifier l'avatar
-    console.log('Modifier avatar');
+    setIsAvatarModalOpen(true);
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    try {
+      const currentUser = AuthService.getUser();
+      if (!currentUser) {
+        throw new Error('Utilisateur non connecté');
+      }
+
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch(`http://localhost:3001/users/${currentUser.id}/avatar`, {
+        method: 'POST',
+        headers: AuthService.getAuthHeaders(),
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'upload de l\'avatar');
+      }
+
+      const result = await response.json();
+      
+      // Mettre à jour l'avatar localement avec l'URL complète
+      const fullAvatarUrl = `http://localhost:3001${result.avatarUrl}`;
+      setUser(prev => ({ ...prev, avatar: fullAvatarUrl }));
+      
+      // Rafraîchir les données
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      console.error('Erreur lors de l\'upload de l\'avatar:', error);
+      throw error;
+    }
   };
 
   return (
@@ -129,6 +211,14 @@ function ProfilePage() {
             />
           </div>
         </div>
+  
+        {/* Modal d'upload d'avatar */}
+        <AvatarUploadModal
+          isOpen={isAvatarModalOpen}
+          onClose={() => setIsAvatarModalOpen(false)}
+          onUpload={handleAvatarUpload}
+          currentAvatar={user.avatar}
+        />
       </div>
     </div>
   );

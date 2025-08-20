@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { Meeting } from '../meeting/meeting.entity';
 export declare class User {
     id: number;
     name: string;
@@ -14,4 +15,5 @@ export declare class User {
     entreprise_id: number | null;
     created_at: Date;
     updated_at: Date;
+    meetings: Meeting[];
 }

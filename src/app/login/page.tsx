@@ -115,10 +115,23 @@ export default function LoginPage() {
         {/* Informations de test */}
         <div className="mt-8 p-4 bg-orange-50 border border-orange-200 rounded-lg">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Compte de test :</h4>
-          <div className="space-y-1 text-xs text-gray-600">
+          <div className="space-y-1 text-xs text-gray-600 mb-3">
             <div><strong>Email:</strong> admin@ministere.gov</div>
             <div><strong>Mot de passe:</strong> admin123</div>
           </div>
+          
+          {/* Bouton de nettoyage du localStorage */}
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.clear();
+              alert('LocalStorage nettoyé. Veuillez vous reconnecter.');
+              window.location.reload();
+            }}
+            className="w-full py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium text-xs"
+          >
+            🔄 Nettoyer le cache d'authentification
+          </button>
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ import {
 import { type Meeting } from './MeetingCard';
 import { MeetingForm } from './MeetingForm';
 import { ParticipantsList } from './Participants/ParticipantsList';
+import { AuthService } from '@/lib/auth';
 
 interface MeetingDetailsProps {
   meeting: Meeting;
@@ -87,7 +88,9 @@ export const MeetingDetails = ({
         setIsSubmitting(false);
       }, 5000); // 5 secondes max
 
-      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
+      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`, {
+        headers: AuthService.getAuthHeaders()
+      });
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des participants');
       }
@@ -154,7 +157,9 @@ export const MeetingDetails = ({
   useEffect(() => {
     const fetchParticipantCount = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`);
+        const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`, {
+          headers: AuthService.getAuthHeaders()
+        });
         if (response.ok) {
           const participants = await response.json();
           setParticipantCount(participants.length);

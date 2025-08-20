@@ -4,6 +4,7 @@ import {
   EnvelopeIcon,
   PhoneIcon,
   Cog6ToothIcon,
+  BriefcaseIcon,
   PencilIcon,
   CheckIcon,
   XMarkIcon
@@ -14,6 +15,7 @@ interface User {
   email: string;
   phone: string;
   department: string;
+  position?: string; // Nouveau champ "poste"
 }
 
 interface ProfileFormProps {
@@ -143,6 +145,28 @@ export const ProfileForm = ({ user, isEditing, onInputChange, onEdit, onSave, on
             ) : (
               <div className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
                 {user.department}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Poste */}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">Poste</label>
+          <div className="relative">
+            <BriefcaseIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            {isEditing ? (
+              <input
+                type="text"
+                name="position"
+                value={user.position || ''}
+                onChange={onInputChange}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                placeholder="Votre poste/fonction"
+              />
+            ) : (
+              <div className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
+                {user.position || 'Non spécifié'}
               </div>
             )}
           </div>

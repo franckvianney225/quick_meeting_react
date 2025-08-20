@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Meeting = void 0;
 const typeorm_1 = require("typeorm");
 const participant_entity_1 = require("../participant/participant.entity");
+const user_entity_1 = require("../user/user.entity");
 let Meeting = class Meeting {
 };
 exports.Meeting = Meeting;
@@ -63,6 +64,15 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
     __metadata("design:type", Date)
 ], Meeting.prototype, "updatedAt", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, user => user.meetings, { eager: true, nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'created_by' }),
+    __metadata("design:type", user_entity_1.User)
+], Meeting.prototype, "createdBy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'created_by', nullable: true }),
+    __metadata("design:type", Number)
+], Meeting.prototype, "createdById", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => participant_entity_1.Participant, participant => participant.meeting),
     __metadata("design:type", Array)

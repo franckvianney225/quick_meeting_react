@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Participant } from '../participant/participant.entity';
+import { User } from '../user/user.entity';
 
 @Entity()
 export class Meeting {
@@ -39,6 +40,13 @@ export class Meeting {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
+
+  @ManyToOne(() => User, user => user.meetings, { eager: true, nullable: true })
+  @JoinColumn({ name: 'created_by' })
+  createdBy!: User | null;
+
+  @Column({ name: 'created_by', nullable: true })
+  createdById!: number | null;
 
   @OneToMany(() => Participant, participant => participant.meeting)
   participants!: Participant[];

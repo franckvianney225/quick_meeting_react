@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { 
-  CalendarIcon, 
-  MapPinIcon, 
-  UserGroupIcon, 
+import {
+  CalendarIcon,
+  MapPinIcon,
+  UserGroupIcon,
   QrCodeIcon,
   PencilIcon,
   TrashIcon,
@@ -14,6 +14,7 @@ import {
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import AttendanceListPDF, { generateAttendancePDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
+import { AuthService } from '@/lib/auth';
 
 export interface Meeting {
   id: number; // ID maintenant obligatoire
@@ -85,7 +86,9 @@ export const MeetingCard = ({
 
   const handleAttendanceList = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants?order=DESC`);
+      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants?order=DESC`, {
+        headers: AuthService.getAuthHeaders()
+      });
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des participants');
       }

@@ -49,7 +49,8 @@ let AuthService = class AuthService {
                 email: user.email,
                 role: user.role,
                 status: user.status,
-                lastLogin: new Date().toISOString()
+                lastLogin: new Date().toISOString(),
+                avatar: user.avatar
             }
         };
     }

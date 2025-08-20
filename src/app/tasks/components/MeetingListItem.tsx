@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { type Meeting } from './MeetingCard';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
+import { AuthService } from '@/lib/auth';
 
 // Ajouter startDate à l'interface Meeting
 interface ExtendedMeeting extends Meeting {
@@ -56,7 +57,9 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   const handleAttendanceList = async (meetingId: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants?order=DESC`);
+      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants?order=DESC`, {
+        headers: AuthService.getAuthHeaders()
+      });
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des participants');
       }

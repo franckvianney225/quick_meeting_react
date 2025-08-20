@@ -7,6 +7,7 @@ export interface User {
   role: string;
   status: string;
   lastLogin: Date | null;
+  avatar?: string;
 }
 
 export interface AuthResponse {
@@ -61,8 +62,47 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
   }
 
+  static clearAllAuthData(): void {
+    console.log('Nettoyage de toutes les données d\'authentification...');
+    console.log('Avant nettoyage - localStorage:', Object.keys(localStorage));
+    
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    // Nettoyer également les éventuels autres éléments liés à l'authentification
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('auth') || key?.includes('token') || key?.includes('user'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => {
+      console.log('Suppression de la clé:', key);
+      localStorage.removeItem(key);
+    });
+    
+    console.log('Après nettoyage - localStorage:', Object.keys(localStorage));
+    console.log('Toutes les données d\'authentification ont été nettoyées');
+  }
+
   static getAuthHeaders(): HeadersInit {
     const token = this.getToken();
     return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
+  static isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  static validateToken(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    
+    return !this.isTokenExpired(token);
   }
 }

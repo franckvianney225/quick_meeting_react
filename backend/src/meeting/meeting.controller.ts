@@ -1,7 +1,17 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: number;
+    email: string;
+    role: string;
+  };
+}
 
 interface ParticipantResponse {
   id: number;
@@ -25,39 +35,57 @@ export class MeetingController {
   ) {}
 
   @Get()
-  async findAll(): Promise<Meeting[]> {
-    return this.service.findAll();
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Req() req: AuthenticatedRequest): Promise<Meeting[]> {
+    const userId = req.user?.id;
+    return this.service.findAll(userId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Meeting> {
-    return this.service.findOne(id);
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: number, @Req() req: AuthenticatedRequest): Promise<Meeting> {
+    const meeting = await this.service.findOne(id);
+    if (meeting.createdById !== req.user?.id) {
+      throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+    }
+    return meeting;
   }
 
   @Post()
-  async create(@Body() meetingData: {
-    title: string;
-    description?: string;
-    status: 'active' | 'completed' | 'inactive';
-    location: string;
-    max_participants?: number;
-    start_date?: string;
-    startDate?: string;
-  }): Promise<Meeting> {
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() meetingData: {
+      title: string;
+      description?: string;
+      status: 'active' | 'completed' | 'inactive';
+      location: string;
+      max_participants?: number;
+      start_date?: string;
+      startDate?: string;
+    },
+    @Req() req: AuthenticatedRequest
+  ): Promise<Meeting> {
     // Normaliser les noms de champs
     const normalizedData = {
       ...meetingData,
       startDate: meetingData.start_date || meetingData.startDate
     };
-    return this.service.create(normalizedData);
+    const userId = req.user?.id;
+    return this.service.create(normalizedData, userId);
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: number,
-    @Body() meetingData: Partial<Meeting>
+    @Body() meetingData: Partial<Meeting>,
+    @Req() req: AuthenticatedRequest
   ): Promise<Meeting> {
     try {
+      const meeting = await this.service.findOne(id);
+      if (meeting.createdById !== req.user?.id) {
+        throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+      }
       console.log(`Updating meeting ${id} with data:`, meetingData);
       return await this.service.update(id, meetingData);
     } catch (err) {
@@ -70,7 +98,12 @@ export class MeetingController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number): Promise<void> {
+  @UseGuards(JwtAuthGuard)
+  async remove(@Param('id') id: number, @Req() req: AuthenticatedRequest): Promise<void> {
+    const meeting = await this.service.findOne(id);
+    if (meeting.createdById !== req.user?.id) {
+      throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+    }
     return this.service.remove(id);
   }
 
@@ -99,10 +132,16 @@ export class MeetingController {
   }
 
   @Get(':id/participants')
+  @UseGuards(JwtAuthGuard)
   async getMeetingParticipants(
-    @Param('id') id: number
+    @Param('id') id: number,
+    @Req() req: AuthenticatedRequest
   ): Promise<ParticipantResponse[]> {
     try {
+      const meeting = await this.service.findOne(id);
+      if (meeting.createdById !== req.user?.id) {
+        throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+      }
       return await this.service.getMeetingParticipants(id);
     } catch (err) {
       throw new HttpException(

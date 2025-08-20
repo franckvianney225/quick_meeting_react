@@ -16,26 +16,37 @@ exports.MeetingController = void 0;
 const common_1 = require("@nestjs/common");
 const meeting_service_1 = require("./meeting.service");
 const pdf_service_1 = require("../pdf/pdf.service");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let MeetingController = class MeetingController {
     constructor(service, pdfService) {
         this.service = service;
         this.pdfService = pdfService;
     }
-    async findAll() {
-        return this.service.findAll();
+    async findAll(req) {
+        const userId = req.user?.id;
+        return this.service.findAll(userId);
     }
-    async findOne(id) {
-        return this.service.findOne(id);
+    async findOne(id, req) {
+        const meeting = await this.service.findOne(id);
+        if (meeting.createdById !== req.user?.id) {
+            throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+        }
+        return meeting;
     }
-    async create(meetingData) {
+    async create(meetingData, req) {
         const normalizedData = {
             ...meetingData,
             startDate: meetingData.start_date || meetingData.startDate
         };
-        return this.service.create(normalizedData);
+        const userId = req.user?.id;
+        return this.service.create(normalizedData, userId);
     }
-    async update(id, meetingData) {
+    async update(id, meetingData, req) {
         try {
+            const meeting = await this.service.findOne(id);
+            if (meeting.createdById !== req.user?.id) {
+                throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+            }
             console.log(`Updating meeting ${id} with data:`, meetingData);
             return await this.service.update(id, meetingData);
         }
@@ -44,7 +55,11 @@ let MeetingController = class MeetingController {
             throw new common_1.HttpException(err.message || 'Erreur lors de la mise à jour', common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async remove(id) {
+    async remove(id, req) {
+        const meeting = await this.service.findOne(id);
+        if (meeting.createdById !== req.user?.id) {
+            throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+        }
         return this.service.remove(id);
     }
     async handleParticipantRegistration(code, participantData) {
@@ -56,8 +71,12 @@ let MeetingController = class MeetingController {
             throw new common_1.HttpException(err.message || "Erreur lors de l'enregistrement", common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async getMeetingParticipants(id) {
+    async getMeetingParticipants(id, req) {
         try {
+            const meeting = await this.service.findOne(id);
+            if (meeting.createdById !== req.user?.id) {
+                throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+            }
             return await this.service.getMeetingParticipants(id);
         }
         catch (err) {
@@ -77,37 +96,47 @@ let MeetingController = class MeetingController {
 exports.MeetingController = MeetingController;
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "create", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "remove", null);
 __decorate([
@@ -120,9 +149,11 @@ __decorate([
 ], MeetingController.prototype, "handleParticipantRegistration", null);
 __decorate([
     (0, common_1.Get)(':id/participants'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "getMeetingParticipants", null);
 __decorate([

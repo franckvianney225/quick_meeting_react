@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { UserModal } from './Users/UserModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { AuthService } from '@/lib/auth';
 
 interface User {
   id: number;
@@ -38,7 +39,9 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/users');
+      const response = await fetch('http://localhost:3001/users', {
+        headers: AuthService.getAuthHeaders()
+      });
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des utilisateurs');
       }
@@ -58,6 +61,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...AuthService.getAuthHeaders()
         },
         body: JSON.stringify(userData),
       });
@@ -83,6 +87,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...AuthService.getAuthHeaders()
         },
         body: JSON.stringify(userData),
       });
@@ -107,6 +112,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     try {
       const response = await fetch(`http://localhost:3001/users/${userToDelete.id}`, {
         method: 'DELETE',
+        headers: AuthService.getAuthHeaders()
       });
 
       if (!response.ok) {
@@ -125,6 +131,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     try {
       const response = await fetch(`http://localhost:3001/users/${userId}/toggle-status`, {
         method: 'PUT',
+        headers: AuthService.getAuthHeaders()
       });
 
       if (!response.ok) {

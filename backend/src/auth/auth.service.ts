@@ -51,7 +51,8 @@ export class AuthService {
         email: user.email,
         role: user.role,
         status: user.status,
-        lastLogin: new Date().toISOString() // Retourner la nouvelle date
+        lastLogin: new Date().toISOString(), // Retourner la nouvelle date
+        avatar: user.avatar // Ajouter l'avatar
       }
     };
   }

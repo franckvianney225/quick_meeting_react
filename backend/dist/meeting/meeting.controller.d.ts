@@ -1,6 +1,14 @@
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
+import { Request } from 'express';
+interface AuthenticatedRequest extends Request {
+    user: {
+        id: number;
+        email: string;
+        role: string;
+    };
+}
 interface ParticipantResponse {
     id: number;
     name: string;
@@ -17,8 +25,8 @@ export declare class MeetingController {
     private readonly service;
     private readonly pdfService;
     constructor(service: MeetingService, pdfService: PdfService);
-    findAll(): Promise<Meeting[]>;
-    findOne(id: number): Promise<Meeting>;
+    findAll(req: AuthenticatedRequest): Promise<Meeting[]>;
+    findOne(id: number, req: AuthenticatedRequest): Promise<Meeting>;
     create(meetingData: {
         title: string;
         description?: string;
@@ -27,9 +35,9 @@ export declare class MeetingController {
         max_participants?: number;
         start_date?: string;
         startDate?: string;
-    }): Promise<Meeting>;
-    update(id: number, meetingData: Partial<Meeting>): Promise<Meeting>;
-    remove(id: number): Promise<void>;
+    }, req: AuthenticatedRequest): Promise<Meeting>;
+    update(id: number, meetingData: Partial<Meeting>, req: AuthenticatedRequest): Promise<Meeting>;
+    remove(id: number, req: AuthenticatedRequest): Promise<void>;
     handleParticipantRegistration(code: string, participantData: {
         email: string;
         firstName: string;
@@ -41,7 +49,7 @@ export declare class MeetingController {
     }): Promise<{
         success: boolean;
     }>;
-    getMeetingParticipants(id: number): Promise<ParticipantResponse[]>;
+    getMeetingParticipants(id: number, req: AuthenticatedRequest): Promise<ParticipantResponse[]>;
     generateQRCode(id: number, data: {
         url: string;
         qrConfig?: {

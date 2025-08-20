@@ -14,6 +14,7 @@ export declare class AuthController {
             role: string;
             status: string;
             lastLogin: string;
+            avatar: string;
         };
     }>;
 }

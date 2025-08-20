@@ -39,11 +39,17 @@ export const ProfileSidebar = ({ user, activeTab, onTabChange, onAvatarEdit }: P
       
       <div className="relative z-10">
         <div className="relative inline-block mb-6 mt-4">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center overflow-hidden mx-auto border-4 border-white shadow-lg">
-            {user.avatar ? (
-              <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+          <div className="w-32 h-32 rounded-full flex items-center justify-center overflow-hidden mx-auto border-4 border-white shadow-lg">
+            {user.avatar && !user.avatar.includes('/default-avatar.jpg') ? (
+              <img
+                src={user.avatar}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <UserCircleIcon className="w-20 h-20 text-white" />
+              <div className="w-full h-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                <UserCircleIcon className="w-20 h-20 text-white" />
+              </div>
             )}
           </div>
           {onAvatarEdit && (

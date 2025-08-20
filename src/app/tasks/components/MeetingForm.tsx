@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { type Meeting } from './MeetingCard';
-import { 
+import { AuthService } from '@/lib/auth';
+import {
   XMarkIcon,
   CheckCircleIcon,
   ClockIcon,
@@ -36,8 +37,8 @@ interface QRConfig {
 export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }: MeetingFormProps) => {
   console.log('MeetingForm initialData:', JSON.stringify(initialData, null, 2));
   
-  const [formData, setFormData] = useState<Omit<Meeting, 'id'> & { unique_code: string }>({
-    unique_code: initialData?.unique_code || initialData?.uniqueCode || '', // Support les deux formats
+  const [formData, setFormData] = useState<Omit<Meeting, 'id'>>({
+    uniqueCode: initialData?.uniqueCode || '', // Utiliser uniquement uniqueCode
     title: initialData?.title || '',
     description: initialData?.description || '',
     status: (initialData?.status as StatusType) || 'inactive',
@@ -89,7 +90,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         ...formData,
         startDate: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
         start_date: undefined, // Supprimer l'ancien format
-        unique_code: initialData?.unique_code, // Conserver le code existant pour les modifications
+        uniqueCode: initialData?.uniqueCode, // Conserver le code existant pour les modifications
         qrConfig: qrConfig
       };
       
@@ -109,6 +110,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         method,
         headers: {
           'Content-Type': 'application/json',
+          ...AuthService.getAuthHeaders(),
         },
         body: JSON.stringify(meetingWithQR),
       });
@@ -125,8 +127,8 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       await onSave({
         ...data,
         id: data.id || initialData?.id,
-        unique_code: data.unique_code || data.uniqueCode,
-        startDate: data.start_date || data.startDate,
+        uniqueCode: data.uniqueCode,
+        startDate: data.startDate,
         // Forcer la mise à jour du code unique dans le formulaire
         qrConfig: qrConfig
       });
@@ -134,7 +136,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       // Mettre à jour localement le code unique affiché
       setFormData(prev => ({
         ...prev,
-        unique_code: data.unique_code || data.uniqueCode
+        uniqueCode: data.uniqueCode
       }));
       
       // Fermer le formulaire après un court délai pour voir la mise à jour
@@ -385,21 +387,21 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                     </div>
 
                     <div>
-                      <label htmlFor="unique_code" className="block text-sm font-medium text-gray-500 mb-1">
+                      <label htmlFor="uniqueCode" className="block text-sm font-medium text-gray-500 mb-1">
                         Code Unique (généré automatiquement)
                       </label>
                       <div className="relative">
                         <input
                           type="text"
-                          id="unique_code"
-                          name="unique_code"
-                          value={formData.unique_code}
+                          id="uniqueCode"
+                          name="uniqueCode"
+                          value={formData.uniqueCode}
                           readOnly
                           disabled
                           className="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed font-mono text-sm"
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          {formData.unique_code ? (
+                          {formData.uniqueCode ? (
                             <CheckCircleIcon className="h-4 w-4 text-green-500" />
                           ) : (
                             <ClockIcon className="h-4 w-4 text-gray-400" />
@@ -407,7 +409,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         </div>
                       </div>
                       <p className="text-xs text-gray-400 mt-1">
-                        {formData.unique_code
+                        {formData.uniqueCode
                           ? 'Code unique généré'
                           : 'En attente de génération...'}
                       </p>

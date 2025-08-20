@@ -12,8 +12,19 @@ export function useAuth() {
       const token = AuthService.getToken();
       const userData = AuthService.getUser();
       
-      setIsAuthenticated(!!token);
-      setUser(userData);
+      if (!token) {
+        // Pas de token, utilisateur non authentifié
+        setIsAuthenticated(false);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
+      // Vérifier si le token est valide (non expiré)
+      const isValid = AuthService.validateToken();
+      
+      setIsAuthenticated(isValid);
+      setUser(isValid ? userData : null);
       setLoading(false);
     };
 

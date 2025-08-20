@@ -15,6 +15,7 @@ const meeting_entity_1 = require("./meeting.entity");
 const participant_entity_1 = require("../participant/participant.entity");
 const qrcode_module_1 = require("../qrcode/qrcode.module");
 const pdf_module_1 = require("../pdf/pdf.module");
+const auth_module_1 = require("../auth/auth.module");
 let MeetingModule = class MeetingModule {
 };
 exports.MeetingModule = MeetingModule;
@@ -23,7 +24,8 @@ exports.MeetingModule = MeetingModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([meeting_entity_1.Meeting, participant_entity_1.Participant]),
             qrcode_module_1.QrCodeModule,
-            pdf_module_1.PdfModule
+            pdf_module_1.PdfModule,
+            auth_module_1.AuthModule
         ],
         controllers: [meeting_controller_1.MeetingController],
         providers: [meeting_service_1.MeetingService],

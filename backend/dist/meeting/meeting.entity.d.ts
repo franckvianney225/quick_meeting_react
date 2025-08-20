@@ -1,4 +1,5 @@
 import { Participant } from '../participant/participant.entity';
+import { User } from '../user/user.entity';
 export declare class Meeting {
     id: number;
     uniqueCode: string;
@@ -12,5 +13,7 @@ export declare class Meeting {
     qrCode: string;
     createdAt: Date;
     updatedAt: Date;
+    createdBy: User | null;
+    createdById: number | null;
     participants: Participant[];
 }

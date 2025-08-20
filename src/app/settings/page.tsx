@@ -56,7 +56,7 @@ export default function SettingsPage() {
     name: user?.name || "Utilisateur",
     role: user?.role || "Utilisateur",
     email: user?.email || "",
-    avatar: "/images/avatar.jpg" // optionnel
+    avatar: user?.avatar // Utiliser l'avatar réel de l'utilisateur
   };
 
   // Handlers pour le profil utilisateur

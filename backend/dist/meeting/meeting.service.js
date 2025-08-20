@@ -25,7 +25,7 @@ let MeetingService = class MeetingService {
         this.participantRepository = participantRepository;
         this.qrCodeService = qrCodeService;
     }
-    async create(meetingData) {
+    async create(meetingData, userId) {
         const dateString = meetingData.startDate ||
             (meetingData.start_date ? new Date(meetingData.start_date).toISOString() : undefined);
         if (!dateString) {
@@ -52,18 +52,26 @@ let MeetingService = class MeetingService {
             location: meetingData.location,
             maxParticipants: meetingData.max_participants,
             startDate: startDate,
-            uniqueCode: uniqueCode
+            uniqueCode: uniqueCode,
+            createdBy: userId ? { id: userId } : null,
+            createdById: userId || null
         });
         meeting.qrCode = await this.qrCodeService.generateMeetingQRCode(meeting.uniqueCode);
         return await this.meetingRepository.save(meeting);
     }
-    async findAll() {
+    async findAll(userId) {
+        const where = userId ? { createdById: userId } : {};
         return this.meetingRepository.find({
-            order: { createdAt: 'DESC' }
+            where,
+            order: { createdAt: 'DESC' },
+            relations: ['createdBy']
         });
     }
     async findOne(id) {
-        const meeting = await this.meetingRepository.findOne({ where: { id } });
+        const meeting = await this.meetingRepository.findOne({
+            where: { id },
+            relations: ['createdBy']
+        });
         if (!meeting) {
             throw new common_1.NotFoundException(`Meeting with ID ${id} not found`);
         }

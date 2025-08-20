@@ -1,6 +1,7 @@
 // src/entities/user.entity.ts
 import 'reflect-metadata';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Meeting } from '../meeting/meeting.entity';
 
 @Entity('users')
 export class User {
@@ -45,4 +46,7 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date = new Date();
+
+  @OneToMany(() => Meeting, meeting => meeting.createdBy)
+  meetings!: Meeting[];
 }

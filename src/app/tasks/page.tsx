@@ -7,6 +7,7 @@ import { MeetingDetails } from './components/MeetingDetails';
 import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthService } from '@/lib/auth';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -28,11 +29,84 @@ export default function TasksPage() {
     const fetchMeetings = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3001/meetings');
+        
+        // Vérifier si l'utilisateur est connecté
+        const currentUser = AuthService.getUser();
+        const token = AuthService.getToken();
+        console.log('=== DÉBUT FETCH MEETINGS ===');
+        console.log('Current user:', currentUser);
+        console.log('Token present:', !!token);
+        console.log('Token value:', token ? `${token.substring(0, 20)}...` : 'null');
+        console.log('Token valide:', AuthService.validateToken());
+        
+        // Vérifier si le token est expiré
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('Token payload:', payload);
+            console.log('Token expiration:', new Date(payload.exp * 1000));
+            console.log('Current time:', new Date());
+            console.log('Token expired:', payload.exp * 1000 < Date.now());
+            
+            // Si le token est expiré, déconnecter et rediriger
+            if (payload.exp * 1000 < Date.now()) {
+              console.log('Token expiré, déconnexion...');
+              AuthService.logout();
+              setError('Session expirée. Veuillez vous reconnecter.');
+              setTimeout(() => {
+                window.location.href = '/login';
+              }, 2000);
+              return;
+            }
+          } catch (e) {
+            console.log('Cannot parse token:', e);
+          }
+        } else {
+          // Pas de token, rediriger vers la connexion
+          console.log('Pas de token, redirection vers login...');
+          setError('Veuillez vous connecter');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+          return;
+        }
+        
+        const authHeaders = AuthService.getAuthHeaders();
+        console.log('Auth headers:', authHeaders);
+        
+        console.log('Envoi de la requête vers /meetings...');
+        const response = await fetch('http://localhost:3001/meetings', {
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          }
+        });
+        
+        console.log('Réponse reçue:', response.status, response.statusText);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
         
         if (!response.ok) {
+          console.log('Response status:', response.status);
+          
+          // Si c'est une erreur 401, afficher simplement l'erreur sans déconnecter
+          if (response.status === 401) {
+            console.log('Erreur 401 détectée (token invalide ou expiré)');
+            setError('Erreur d\'authentification. Le token est peut-être invalide ou expiré.');
+            return;
+          }
+          
+          // Essayer de récupérer le message d'erreur du backend
+          try {
+            const errorData = await response.text();
+            console.log('Error response:', errorData);
+          } catch (e) {
+            console.log('Cannot read error response');
+          }
+          
           throw new Error(`Erreur HTTP: ${response.status}`);
         }
+        
+        console.log('Requête réussie, traitement de la réponse...');
 
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
@@ -40,9 +114,12 @@ export default function TasksPage() {
         }
 
         const data = await response.json();
+        console.log('Données reçues:', data.length, 'réunions');
         setMeetings(data);
         setError(null);
+        console.log('=== FIN FETCH MEETINGS SUCCÈS ===');
       } catch (err) {
+        console.log('=== FIN FETCH MEETINGS ERREUR ===');
         setError(err instanceof Error ? err.message : 'Erreur inconnue lors du chargement des réunions');
         console.error('Erreur:', err);
       } finally {
@@ -65,7 +142,7 @@ export default function TasksPage() {
     name: user?.name || "Utilisateur",
     role: user?.role || "Utilisateur",
     email: user?.email || "",
-    avatar: "/images/avatar.jpg" // optionnel
+    avatar: user?.avatar // Utiliser l'avatar réel de l'utilisateur
   };
 
   // Handlers pour le profil utilisateur
@@ -93,7 +170,8 @@ export default function TasksPage() {
   const handleDelete = async (meetingId: number) => {
     try {
       const response = await fetch(`http://localhost:3001/meetings/${meetingId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: AuthService.getAuthHeaders()
       });
       
       if (!response.ok) {
@@ -132,7 +210,7 @@ export default function TasksPage() {
       start_date: new Date().toISOString().slice(0, 16),
       location: '',
       max_participants: 10,
-      unique_code: ''
+      uniqueCode: ''
     });
     setShowForm(true);
   };
@@ -330,12 +408,25 @@ export default function TasksPage() {
               </div>
               <p className="text-gray-600 mb-4">{error}</p>
               {!error.includes('succès') && (
-                <button
-                 onClick={() => setRefreshKey(prev => prev + 1)}
-                 className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-               >
-                  Réessayer
-                </button>
+                <div className="flex flex-col space-y-2">
+                  <button
+                    onClick={() => setRefreshKey(prev => prev + 1)}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                  >
+                    Réessayer
+                  </button>
+                  {error.includes('expirée') && (
+                    <button
+                      onClick={() => {
+                        AuthService.clearAllAuthData();
+                        window.location.href = '/login';
+                      }}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                    >
+                      Nettoyer et reconnecter
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           ) : filteredMeetings.length === 0 ? (

@@ -52,7 +52,8 @@ export default function HomePage() {
     id: user.id.toString(),
     name: user.name,
     role: user.role,
-    email: user.email
+    email: user.email,
+    avatar: user.avatar // Ajouter l'avatar
   };
 
   const recentMeetings = [

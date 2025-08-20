@@ -27,8 +27,8 @@ export declare class MeetingService {
         max_participants?: number;
         start_date?: string;
         startDate?: string;
-    }): Promise<Meeting>;
-    findAll(): Promise<Meeting[]>;
+    }, userId?: number): Promise<Meeting>;
+    findAll(userId?: number): Promise<Meeting[]>;
     findOne(id: number): Promise<Meeting>;
     findOneByCode(uniqueCode: string): Promise<Meeting | null>;
     update(id: number, meetingData: Partial<Meeting>): Promise<Meeting>;
