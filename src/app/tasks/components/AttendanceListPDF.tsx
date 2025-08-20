@@ -42,7 +42,7 @@ const AttendanceListPDF = forwardRef(({
     website: "www.ministere.gouv.ci"
   },
   onClose
-}: AttendanceListPDFProps) => {
+}: AttendanceListPDFProps, ref) => {
   const generatePDF = () => {
     const doc = new jsPDF('landscape', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
