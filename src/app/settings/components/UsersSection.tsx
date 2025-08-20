@@ -31,6 +31,9 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
 
   useEffect(() => {
     fetchUsers();
@@ -179,6 +182,27 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     setEditingUser(null);
   };
 
+  // Filtrer les utilisateurs selon le terme de recherche
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset à la première page lors d'une nouvelle recherche
+  };
+
 
   if (loading) {
     return (
@@ -244,6 +268,28 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
           </div>
         </div>
 
+        {/* Barre de recherche */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="relative w-80">
+            <input
+              type="text"
+              placeholder="Rechercher un utilisateur..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+          
+          <div className="text-sm text-gray-600">
+            {filteredUsers.length} utilisateur{filteredUsers.length !== 1 ? 's' : ''} trouvé{filteredUsers.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+
         {/* Liste des utilisateurs */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full">
@@ -257,7 +303,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -268,6 +314,67 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
                         <div className="text-sm text-gray-500">{user.email}</div>
                       </div>
+              
+                      {/* Pagination */}
+                      {filteredUsers.length > itemsPerPage && (
+                        <div className="flex items-center justify-between mt-6 px-4 py-3 bg-white border-t border-gray-200 rounded-b-lg">
+                          <div className="text-sm text-gray-700">
+                            Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredUsers.length)} sur {filteredUsers.length} utilisateurs
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handlePageChange(currentPage - 1)}
+                              disabled={currentPage === 1}
+                              className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              Précédent
+                            </button>
+                            
+                            <div className="flex items-center space-x-1">
+                              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                const page = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                                if (page > totalPages) return null;
+                                
+                                return (
+                                  <button
+                                    key={page}
+                                    onClick={() => handlePageChange(page)}
+                                    className={`w-8 h-8 text-sm rounded-md transition-colors ${
+                                      currentPage === page
+                                        ? 'bg-orange-600 text-white'
+                                        : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                  >
+                                    {page}
+                                  </button>
+                                );
+                              })}
+                              
+                              {totalPages > 5 && currentPage < totalPages - 2 && (
+                                <span className="px-2 text-gray-500">...</span>
+                              )}
+                              
+                              {totalPages > 5 && currentPage < totalPages - 1 && (
+                                <button
+                                  onClick={() => handlePageChange(totalPages)}
+                                  className="w-8 h-8 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                  {totalPages}
+                                </button>
+                              )}
+                            </div>
+                            
+                            <button
+                              onClick={() => handlePageChange(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                              className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              Suivant
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -316,17 +423,32 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
             </tbody>
           </table>
           
-          {users.length === 0 && (
+          {filteredUsers.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-lg mb-2">Aucun utilisateur</div>
-              <p className="text-gray-600 mb-4">Commencez par créer votre premier utilisateur</p>
-              <button
-                onClick={openCreateModal}
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-              >
-                <PlusIcon className="w-4 h-4" />
-                <span>Créer un utilisateur</span>
-              </button>
+              {searchTerm ? (
+                <>
+                  <div className="text-gray-400 text-lg mb-2">Aucun utilisateur trouvé</div>
+                  <p className="text-gray-600 mb-4">Aucun résultat pour &ldquo;{searchTerm}&rdquo;</p>
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    <span>Effacer la recherche</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-gray-400 text-lg mb-2">Aucun utilisateur</div>
+                  <p className="text-gray-600 mb-4">Commencez par créer votre premier utilisateur</p>
+                  <button
+                    onClick={openCreateModal}
+                    className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    <span>Créer un utilisateur</span>
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
