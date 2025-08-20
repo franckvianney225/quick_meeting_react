@@ -13,9 +13,11 @@ const meeting_entity_1 = require("./meeting/meeting.entity");
 const entreprise_entity_1 = require("./entreprise/entreprise.entity");
 const participant_entity_1 = require("./participant/participant.entity");
 const user_entity_1 = require("./user/user.entity");
+const organization_entity_1 = require("./organization/organization.entity");
 const meeting_module_1 = require("./meeting/meeting.module");
 const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
+const organization_module_1 = require("./organization/organization.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,7 +32,7 @@ exports.AppModule = AppModule = __decorate([
                     username: process.env.DB_USER,
                     password: process.env.DB_PASSWORD,
                     database: process.env.DB_NAME,
-                    entities: [meeting_entity_1.Meeting, entreprise_entity_1.Entreprise, participant_entity_1.Participant, user_entity_1.User],
+                    entities: [meeting_entity_1.Meeting, entreprise_entity_1.Entreprise, participant_entity_1.Participant, user_entity_1.User, organization_entity_1.OrganizationSettings],
                     synchronize: process.env.NODE_ENV !== 'production',
                     logging: process.env.NODE_ENV === 'development',
                 })
@@ -38,6 +40,7 @@ exports.AppModule = AppModule = __decorate([
             meeting_module_1.MeetingModule,
             user_module_1.UserModule,
             auth_module_1.AuthModule,
+            organization_module_1.OrganizationModule,
         ],
         controllers: [],
         providers: [],

@@ -38,7 +38,7 @@ export default function LoginPage() {
             <span className="text-white font-bold text-xl">QM</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Quick Meeting</h1>
-          <p className="text-gray-600">Connexion à l&apos;espace administrateur</p>
+          <p className="text-gray-600">Connexion à l&apos;espace d&apos;administration</p>
         </div>
 
         {/* Formulaire */}

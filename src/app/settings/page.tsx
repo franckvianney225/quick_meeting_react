@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SettingsLayout } from './components/SettingsLayout';
 import { SettingsSidebar } from './components/SettingsSidebar';
 import { UsersSection } from './components/UsersSection';
@@ -9,6 +9,7 @@ import { BackupSection } from './components/BackupSection';
 import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
+import { AuthService } from '@/lib/auth';
 
 interface User {
   id: number;
@@ -20,12 +21,14 @@ interface User {
 }
 
 interface OrganizationSettings {
+  id?: number;
   name: string;
   address: string;
   phone: string;
   email: string;
   website: string;
   logo: string;
+  allowedEmailDomains?: string[];
 }
 
 interface SMTPConfig {
@@ -79,13 +82,42 @@ export default function SettingsPage() {
 
   // États pour les paramètres de l'organisation
   const [orgSettings, setOrgSettings] = useState<OrganizationSettings>({
-    name: 'Ministère de l&apos;Intérieur',
-    address: '11 Rue des Saussaies, 75008 Paris',
-    phone: '+33 1 49 27 49 27',
-    email: 'contact@ministere.gov',
-    website: 'https://www.interieur.gouv.fr',
-    logo: '/logo-ministere.png'
+    name: "",
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    logo: '',
+    allowedEmailDomains: []
   });
+
+  // Charger les paramètres d'organisation depuis le backend
+  useEffect(() => {
+    const loadOrganizationSettings = async () => {
+      try {
+        const token = AuthService.getToken();
+        const response = await fetch('http://localhost:3001/organization', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const settings = await response.json();
+          if (settings) {
+            setOrgSettings(settings);
+          }
+        } else if (response.status === 404) {
+          // Aucune configuration existante, on garde les valeurs par défaut
+          console.log('Aucune configuration d\'organisation trouvée, utilisation des valeurs par défaut');
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des paramètres:', error);
+      }
+    };
+
+    loadOrganizationSettings();
+  }, []);
 
   // États pour les paramètres SMTP
   const [smtpConfig, setSmtpConfig] = useState<SMTPConfig>({
@@ -95,7 +127,7 @@ export default function SettingsPage() {
     password: '',
     encryption: 'tls',
     from_email: 'noreply@ministere.gov',
-    from_name: 'Ministère de l&apos;Intérieur'
+    from_name: "Ministère de l'Intérieur"
   });
 
   // États pour les sauvegardes

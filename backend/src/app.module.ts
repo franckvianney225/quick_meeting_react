@@ -5,9 +5,11 @@ import { Meeting } from './meeting/meeting.entity';
 import { Entreprise } from './entreprise/entreprise.entity';
 import { Participant } from './participant/participant.entity';
 import { User } from './user/user.entity';
+import { OrganizationSettings } from './organization/organization.entity';
 import { MeetingModule } from './meeting/meeting.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { OrganizationModule } from './organization/organization.module';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { AuthModule } from './auth/auth.module';
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        entities: [Meeting, Entreprise, Participant, User],
+        entities: [Meeting, Entreprise, Participant, User, OrganizationSettings],
         synchronize: process.env.NODE_ENV !== 'production',
         logging: process.env.NODE_ENV === 'development',
       })
@@ -27,6 +29,7 @@ import { AuthModule } from './auth/auth.module';
     MeetingModule,
     UserModule,
     AuthModule,
+    OrganizationModule,
   ],
   controllers: [],
   providers: [],

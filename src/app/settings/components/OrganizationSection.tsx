@@ -1,16 +1,19 @@
 'use client';
 import { useState } from 'react';
-import { 
+import {
   BuildingOffice2Icon,
   PlusIcon,
   TrashIcon,
   EnvelopeIcon,
   ShieldCheckIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
+import { AuthService } from '@/lib/auth';
 
 interface OrganizationSettings {
+  id?: number;
   name: string;
   address: string;
   phone: string;
@@ -26,10 +29,13 @@ interface OrganizationSectionProps {
 }
 
 export const OrganizationSection = ({ settings, setSettings }: OrganizationSectionProps) => {
+  const token = AuthService.getToken();
   const [newDomain, setNewDomain] = useState('');
   const [domainError, setDomainError] = useState('');
   const [testEmail, setTestEmail] = useState('');
   const [testResult, setTestResult] = useState<'valid' | 'invalid' | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // S'assurer que allowedEmailDomains existe toujours
   const allowedDomains = settings.allowedEmailDomains || [];
@@ -51,7 +57,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
     const formattedDomain = newDomain.startsWith('@') ? newDomain : `@${newDomain}`;
 
     if (!validateDomain(formattedDomain)) {
-      setDomainError('Format de domaine invalide (ex: @ministere.gouv.ci)');
+      setDomainError('Format de domaine invalide (ex: @domaine.com)');
       return;
     }
 
@@ -91,32 +97,121 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
     setTestResult(isValid ? 'valid' : 'invalid');
   };
 
-  // Domaines prédéfinis pour la Côte d'Ivoire
-  const suggestedDomains = [
-    '@telecom.gouv.ci',
-    '@transport.gouv.ci',
-    '@education.gouv.ci',
-    '@sante.gouv.ci',
-    '@interieur.gouv.ci',
-    '@finances.gouv.ci',
-    '@defense.gouv.ci',
-    '@justice.gouv.ci'
-  ];
-
-  const handleAddSuggestedDomain = (domain: string) => {
-    if (!allowedDomains.includes(domain)) {
-      setSettings({
-        ...settings,
-        allowedEmailDomains: [...allowedDomains, domain]
+  // Sauvegarder les paramètres
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    setSaveMessage(null);
+    
+    try {
+      // Utiliser PUT pour sauvegarder (gère à la fois création et mise à jour)
+      const response = await fetch('http://localhost:3001/organization', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(settings)
       });
+
+      if (response.ok) {
+        const savedSettings = await response.json();
+        // Mettre à jour l'état avec les données reçues (y compris l'ID si création)
+        setSettings(savedSettings);
+        setSaveMessage({ type: 'success', message: 'Paramètres sauvegardés avec succès !' });
+      } else {
+        const errorData = await response.json();
+        setSaveMessage({ type: 'error', message: errorData.message || 'Erreur lors de la sauvegarde' });
+      }
+    } catch (error) {
+      setSaveMessage({ type: 'error', message: 'Erreur de connexion au serveur' });
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  // Gérer l'upload du logo
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Vérifier la taille du fichier (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setSaveMessage({ type: 'error', message: 'Le fichier est trop volumineux (max 2MB)' });
+      return;
+    }
+
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+      setSaveMessage({ type: 'error', message: 'Seules les images sont acceptées' });
+      return;
+    }
+
+    // Convertir en base64 pour l'instant (dans un vrai projet, on utiliserait un upload vers un serveur)
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setSettings({ ...settings, logo: base64 });
+      setSaveMessage({ type: 'success', message: 'Logo mis à jour' });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Réinitialiser les paramètres
+  const handleReset = () => {
+    setSettings({
+      name: '',
+      address: '',
+      phone: '',
+      email: '',
+      website: '',
+      logo: '',
+      allowedEmailDomains: []
+    });
+    setSaveMessage(null);
+  };
+
+  // Vider complètement la table
+  const handleClearAll = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer TOUS les paramètres d\'organisation ? Cette action est irréversible.')) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('http://localhost:3001/organization/clear-all', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setSettings({
+          name: '',
+          address: '',
+          phone: '',
+          email: '',
+          website: '',
+          logo: '',
+          allowedEmailDomains: []
+        });
+        setSaveMessage({ type: 'success', message: 'Tous les paramètres ont été supprimés avec succès !' });
+      } else {
+        setSaveMessage({ type: 'error', message: 'Erreur lors de la suppression des paramètres' });
+      }
+    } catch (error) {
+      setSaveMessage({ type: 'error', message: 'Erreur de connexion au serveur' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
 
   return (
     <div className="p-8">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Paramètres de l&apos;organisation</h2>
-        <p className="text-gray-600">Configurez les informations de votre ministère et les domaines email autorisés</p>
+        <p className="text-gray-600">Configurez les informations de votre organisation et les domaines email autorisés</p>
       </div>
 
       <div className="space-y-8">
@@ -136,7 +231,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                   value={settings.name}
                   onChange={(e) => setSettings({...settings, name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Ministère des Télécommunications"
+                  placeholder="Nom de l'organisation"
                 />
               </div>
               
@@ -147,7 +242,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                   onChange={(e) => setSettings({...settings, address: e.target.value})}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Adresse du siège du ministère"
+                  placeholder="Adresse complète"
                 />
               </div>
               
@@ -158,7 +253,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                   value={settings.phone}
                   onChange={(e) => setSettings({...settings, phone: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="+225 XX XX XX XX"
+                  placeholder="Numéro de téléphone"
                 />
               </div>
             </div>
@@ -171,7 +266,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                   value={settings.email}
                   onChange={(e) => setSettings({...settings, email: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="contact@ministere.gouv.ci"
+                  placeholder="Email de contact"
                 />
               </div>
               
@@ -182,20 +277,40 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                   value={settings.website}
                   onChange={(e) => setSettings({...settings, website: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="https://www.ministere.gouv.ci"
+                  placeholder="Site web"
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Logo de l&apos;organisation</label>
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center border-2 border-orange-300">
-                    <BuildingOffice2Icon className="w-8 h-8 text-orange-600" />
-                  </div>
+                  {settings.logo ? (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-orange-300">
+                      <img 
+                        src={settings.logo} 
+                        alt="Logo de l'organisation"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center border-2 border-orange-300">
+                      <BuildingOffice2Icon className="w-8 h-8 text-orange-600" />
+                    </div>
+                  )}
                   <div className="flex-1">
-                    <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                    <input
+                      type="file"
+                      id="logo-upload"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                    <label 
+                      htmlFor="logo-upload"
+                      className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm inline-block"
+                    >
                       Changer le logo
-                    </button>
+                    </label>
                     <p className="text-xs text-gray-500 mt-1">Formats acceptés: PNG, JPG (max 2MB)</p>
                   </div>
                 </div>
@@ -231,7 +346,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 ${
                     domainError ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   }`}
-                  placeholder="telecom.gouv.ci ou @telecom.gouv.ci"
+                  placeholder="domaine.com ou @domaine.com"
                 />
                 {domainError && <p className="mt-1 text-sm text-red-600">{domainError}</p>}
               </div>
@@ -246,25 +361,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
           </div>
 
           {/* Domaines suggérés */}
-          <div className="mb-6">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Domaines suggérés pour la Côte d&apos;Ivoire :</h4>
-            <div className="flex flex-wrap gap-2">
-              {suggestedDomains.map((domain) => (
-                <button
-                  key={domain}
-                  onClick={() => handleAddSuggestedDomain(domain)}
-                  disabled={allowedDomains.includes(domain)}
-                  className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                    allowedDomains.includes(domain)
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                      : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-                  }`}
-                >
-                  {domain} {allowedDomains.includes(domain) && '✓'}
-                </button>
-              ))}
-            </div>
-          </div>
+
 
           {/* Liste des domaines configurés */}
           <div className="mb-6">
@@ -311,7 +408,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
                     setTestResult(null);
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="test@telecom.gouv.ci"
+                  placeholder="test@domaine.com"
                 />
               </div>
               <button
@@ -342,17 +439,53 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
         </div>
       </div>
 
+      {/* Messages de sauvegarde */}
+      {saveMessage && (
+        <div className={`p-4 rounded-lg mb-4 ${
+          saveMessage.type === 'success' 
+            ? 'bg-green-100 text-green-800 border border-green-200' 
+            : 'bg-red-100 text-red-800 border border-red-200'
+        }`}>
+          <div className="flex items-center">
+            {saveMessage.type === 'success' ? (
+              <CheckCircleIcon className="w-5 h-5 mr-2" />
+            ) : (
+              <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
+            )}
+            <span>{saveMessage.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Boutons d'action */}
       <div className="flex items-center justify-between pt-6 border-t border-gray-200">
         <div className="text-sm text-gray-500">
           * Champs obligatoires
         </div>
         <div className="flex space-x-3">
-          <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <button
+            onClick={handleReset}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             Réinitialiser
           </button>
-          <button className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-            Enregistrer les modifications
+          <button
+            onClick={handleClearAll}
+            disabled={isSaving}
+            className={`px-6 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            Vider la table
+          </button>
+          <button
+            onClick={handleSaveSettings}
+            disabled={isSaving}
+            className={`px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
           </button>
         </div>
       </div>
