@@ -13,11 +13,13 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const user_service_1 = require("../user/user.service");
+const organization_service_1 = require("../organization/organization.service");
 const bcrypt = require("bcrypt");
 let AuthService = class AuthService {
-    constructor(userService, jwtService) {
+    constructor(userService, jwtService, organizationService) {
         this.userService = userService;
         this.jwtService = jwtService;
+        this.organizationService = organizationService;
     }
     async validateUser(email, password) {
         const user = await this.userService.findByEmail(email);
@@ -30,6 +32,30 @@ let AuthService = class AuthService {
         }
         if (user.status !== 'active') {
             throw new common_1.UnauthorizedException('Votre compte est désactivé');
+        }
+        const organizationSettings = await this.organizationService.getCurrentSettings();
+        console.log('=== DOMAIN VALIDATION DEBUG ===');
+        console.log('Organization settings:', organizationSettings);
+        console.log('User email:', email);
+        if (organizationSettings && organizationSettings.allowedEmailDomains && organizationSettings.allowedEmailDomains.length > 0) {
+            const userDomain = email.split('@')[1];
+            console.log('User domain:', userDomain);
+            console.log('Allowed domains:', organizationSettings.allowedEmailDomains);
+            const isDomainAllowed = organizationSettings.allowedEmailDomains.some(allowedDomain => {
+                const cleanDomain = allowedDomain.startsWith('@') ? allowedDomain.substring(1) : allowedDomain;
+                return cleanDomain === userDomain;
+            });
+            console.log('Is domain allowed:', isDomainAllowed);
+            if (!isDomainAllowed) {
+                console.log('Domain not allowed, throwing error');
+                throw new common_1.UnauthorizedException('Votre domaine email n\'est pas autorisé pour la connexion');
+            }
+            else {
+                console.log('Domain is allowed, proceeding with login');
+            }
+        }
+        else {
+            console.log('No domain restrictions or no settings found');
         }
         const { password: _, ...result } = user;
         return result;
@@ -67,6 +93,7 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [user_service_1.UserService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        organization_service_1.OrganizationService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

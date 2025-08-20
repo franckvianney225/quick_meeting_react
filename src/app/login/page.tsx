@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,13 +10,61 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [domainError, setDomainError] = useState('');
+  const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
   const router = useRouter();
   const { login } = useAuth();
+
+  // Récupérer les domaines autorisés
+  const fetchAllowedDomains = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/organization/settings', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const settings = await response.json();
+        setAllowedDomains(settings.allowed_email_domains || []);
+      }
+    } catch (err) {
+      console.error('Erreur lors de la récupération des domaines autorisés:', err);
+    }
+  };
+
+  // Vérifier si l'email a un domaine autorisé
+  const isEmailDomainAllowed = (email: string): boolean => {
+    if (allowedDomains.length === 0) return true; // Si aucun domaine n'est configuré, tout est autorisé
+    
+    const domain = email.split('@')[1];
+    return allowedDomains.includes(domain);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    setDomainError('');
+
+    if (value && allowedDomains.length > 0) {
+      if (!isEmailDomainAllowed(value)) {
+        setDomainError('Veuillez vous connecter avec votre compte professionnel');
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setDomainError('');
+
+    // Vérifier le domaine avant de tenter la connexion
+    if (allowedDomains.length > 0 && !isEmailDomainAllowed(email)) {
+      setDomainError('Veuillez vous connecter avec votre compte professionnel');
+      setLoading(false);
+      return;
+    }
 
     try {
       await login(email, password);
@@ -27,6 +75,11 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Charger les domaines autorisés au montage du composant
+  useEffect(() => {
+    fetchAllowedDomains();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
