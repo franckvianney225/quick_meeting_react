@@ -6,6 +6,7 @@ import {
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import { getAvatarUrl } from '@/lib/api';
 
 interface UserProfileProps {
   user: {
@@ -48,7 +49,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
         <div className="relative w-12 h-12 flex-shrink-0">
           {user.avatar && !user.avatar.includes('/default-avatar.jpg') ? (
             <Image
-              src={user.avatar.includes('http') ? user.avatar : `http://localhost:3001${user.avatar}`}
+              src={getAvatarUrl(user.avatar)}
               alt={`Photo de ${user.name}`}
               width={48}
               height={48}
@@ -101,7 +102,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
                 <div className="relative w-14 h-14 flex-shrink-0">
                   {user.avatar && !user.avatar.includes('/default-avatar.jpg') ? (
                     <Image
-                      src={user.avatar.includes('http') ? user.avatar : `http://localhost:3001${user.avatar}`}
+                      src={getAvatarUrl(user.avatar)}
                       alt={`Photo de ${user.name}`}
                       width={56}
                       height={56}

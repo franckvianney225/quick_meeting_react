@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from './api';
+
 export interface User {
   id: number;
   name: string;
@@ -21,7 +23,7 @@ export class AuthService {
   private static readonly USER_KEY = 'user';
 
   static async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await fetch('http://localhost:3001/auth/login', {
+    const response = await fetch(apiUrl('/auth/login'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -122,7 +124,7 @@ export class AuthService {
       const token = this.getToken();
       if (!token) return;
 
-      const response = await fetch('http://localhost:3001/auth/profile', {
+      const response = await fetch(apiUrl('/auth/profile'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }

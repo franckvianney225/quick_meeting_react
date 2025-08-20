@@ -8,6 +8,7 @@ import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -75,7 +76,7 @@ export default function TasksPage() {
         console.log('Auth headers:', authHeaders);
 
         console.log('Envoi de la requête vers /meetings...');
-        const response = await fetch('http://localhost:3001/meetings', {
+        const response = await fetch(apiUrl('/meetings'), {
           headers: {
             'Content-Type': 'application/json',
             ...authHeaders
@@ -169,7 +170,7 @@ export default function TasksPage() {
   // Suppression d'une réunion
   const handleDelete = async (meetingId: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meetingId}`, {
+      const response = await fetch(apiUrl(`/meetings/${meetingId}`), {
         method: 'DELETE',
         headers: AuthService.getAuthHeaders()
       });

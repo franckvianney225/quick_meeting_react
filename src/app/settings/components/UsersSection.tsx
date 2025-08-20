@@ -10,6 +10,7 @@ import {
 import { UserModal } from './Users/UserModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 interface User {
   id: number;
@@ -42,7 +43,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3001/users', {
+      const response = await fetch(apiUrl('/users'), {
         headers: AuthService.getAuthHeaders()
       });
       if (!response.ok) {
@@ -60,7 +61,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
 
   const handleCreateUser = async (userData: Omit<User, 'id'> & { password: string }) => {
     try {
-      const response = await fetch('http://localhost:3001/users', {
+      const response = await fetch(apiUrl('/users'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +96,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     if (!editingUser) return { success: false, error: 'Aucun utilisateur à modifier' };
 
     try {
-      const response = await fetch(`http://localhost:3001/users/${editingUser.id}`, {
+      const response = await fetch(apiUrl(`/users/${editingUser.id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     if (!userToDelete) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/users/${userToDelete.id}`, {
+      const response = await fetch(apiUrl(`/users/${userToDelete.id}`), {
         method: 'DELETE',
         headers: AuthService.getAuthHeaders()
       });
@@ -150,7 +151,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
 
   const handleToggleUserStatus = async (userId: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/users/${userId}/toggle-status`, {
+      const response = await fetch(apiUrl(`/users/${userId}/toggle-status`), {
         method: 'PUT',
         headers: AuthService.getAuthHeaders()
       });

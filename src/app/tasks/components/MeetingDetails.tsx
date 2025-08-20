@@ -20,6 +20,7 @@ import { type Meeting } from './MeetingCard';
 import { MeetingForm } from './MeetingForm';
 import { ParticipantsList } from './Participants/ParticipantsList';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 interface MeetingDetailsProps {
   meeting: Meeting;
@@ -46,7 +47,7 @@ export const MeetingDetails = ({
         throw new Error('Code unique manquant pour générer le QR code');
       }
       
-      const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
+      const formUrl = `${window.location.origin}/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
       
       await generateMeetingQRPDF({
         meetingId: meeting.id,
@@ -88,7 +89,7 @@ export const MeetingDetails = ({
         setIsSubmitting(false);
       }, 5000); // 5 secondes max
 
-      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`, {
+      const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants`), {
         headers: AuthService.getAuthHeaders()
       });
       if (!response.ok) {
@@ -157,7 +158,7 @@ export const MeetingDetails = ({
   useEffect(() => {
     const fetchParticipantCount = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants`, {
+        const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants`), {
           headers: AuthService.getAuthHeaders()
         });
         if (response.ok) {

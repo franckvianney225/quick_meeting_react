@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
+import { apiUrl } from '@/lib/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ export default function LoginPage() {
   // Récupérer les domaines autorisés
   const fetchAllowedDomains = async () => {
     try {
-      const response = await fetch('http://localhost:3001/organization/settings', {
+      const response = await fetch(apiUrl('/organization/settings'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

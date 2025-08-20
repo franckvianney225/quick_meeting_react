@@ -14,6 +14,7 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { generateAttendancePDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 export interface Meeting {
   id: number;
@@ -64,7 +65,7 @@ export const MeetingCard = ({
         throw new Error('Code unique manquant pour générer le QR code');
       }
 
-      const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
+      const formUrl = `${window.location.origin}/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
 
       await generateMeetingQRPDF({
         meetingId: meeting.id,
@@ -84,7 +85,7 @@ export const MeetingCard = ({
 
   const handleAttendanceList = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meeting.id}/participants?order=DESC`, {
+      const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants?order=DESC`), {
         headers: AuthService.getAuthHeaders()
       });
       if (!response.ok) {

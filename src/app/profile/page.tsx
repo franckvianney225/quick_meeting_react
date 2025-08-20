@@ -6,6 +6,7 @@ import { ProfileSidebar } from './components/ProfileSidebar';
 import { ProfileTabContent } from './components/ProfileTabContent';
 import { AvatarUploadModal } from './components/AvatarUploadModal';
 import { AuthService } from '@/lib/auth';
+import { apiUrl, getAvatarUrl } from '@/lib/api';
 
 function ProfilePage() {
   const [user, setUser] = useState({
@@ -48,7 +49,7 @@ function ProfilePage() {
           throw new Error('Utilisateur non connecté');
         }
 
-        const response = await fetch(`http://localhost:3001/users/${currentUser.id}/profile`, {
+        const response = await fetch(apiUrl(`/users/${currentUser.id}/profile`), {
           headers: AuthService.getAuthHeaders()
         });
         
@@ -61,9 +62,7 @@ function ProfilePage() {
           position: data.position || '',
           civility: data.civility || '',
           role: data.role || 'Utilisateur',
-          avatar: data.avatar && data.avatar !== '/default-avatar.jpg'
-            ? `http://localhost:3001${data.avatar}`
-            : data.avatar,
+          avatar: getAvatarUrl(data.avatar),
           joinedDate: data.created_at ? new Date(data.created_at).toLocaleDateString('fr-FR', {
             year: 'numeric',
             month: 'long',
@@ -105,7 +104,7 @@ function ProfilePage() {
         civility: user.civility
       };
 
-      const response = await fetch(`http://localhost:3001/users/${currentUser.id}/profile`, {
+      const response = await fetch(apiUrl(`/users/${currentUser.id}/profile`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -149,7 +148,7 @@ function ProfilePage() {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch(`http://localhost:3001/users/${currentUser.id}/avatar`, {
+      const response = await fetch(apiUrl(`/users/${currentUser.id}/avatar`), {
         method: 'POST',
         headers: AuthService.getAuthHeaders(),
         body: formData
@@ -163,7 +162,7 @@ function ProfilePage() {
       const result = await response.json();
       
       // Mettre à jour l'avatar localement avec l'URL complète
-      const fullAvatarUrl = `http://localhost:3001${result.avatarUrl}`;
+      const fullAvatarUrl = getAvatarUrl(result.avatarUrl);
       setUser(prev => ({ ...prev, avatar: fullAvatarUrl }));
       
       // Rafraîchir les données

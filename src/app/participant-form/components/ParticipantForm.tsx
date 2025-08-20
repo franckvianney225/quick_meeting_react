@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BaseFormData } from './types';
+import { apiUrl } from '@/lib/api';
 import LegalStep from './LegalStep';
 import EmailStep from './EmailStep';
 import FormStep from './FormStep';
@@ -59,7 +60,7 @@ export function ParticipantForm() {
     try {
       const uniqueCode = searchParams.get('code')?.toUpperCase();
       if (!uniqueCode) throw new Error('Code de réunion manquant');
-      const response = await fetch(`http://localhost:3001/meetings/${uniqueCode}/participants`, {
+      const response = await fetch(apiUrl(`/meetings/${uniqueCode}/participants`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

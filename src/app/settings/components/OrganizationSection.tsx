@@ -11,6 +11,7 @@ import {
   PhotoIcon
 } from '@heroicons/react/24/outline';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 interface OrganizationSettings {
   id?: number;
@@ -104,7 +105,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
     
     try {
       // Utiliser PUT pour sauvegarder (gère à la fois création et mise à jour)
-      const response = await fetch('http://localhost:3001/organization', {
+      const response = await fetch(apiUrl('/organization'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +179,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
 
     setIsSaving(true);
     try {
-      const response = await fetch('http://localhost:3001/organization/clear-all', {
+      const response = await fetch(apiUrl('/organization/clear-all'), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

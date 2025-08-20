@@ -11,6 +11,7 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 interface User {
   id: number;
@@ -45,7 +46,7 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
   useEffect(() => {
     const fetchAllowedDomains = async () => {
       try {
-        const response = await fetch('http://localhost:3001/organization/settings', {
+        const response = await fetch(apiUrl('/organization/settings'), {
           headers: AuthService.getAuthHeaders()
         });
         if (response.ok) {

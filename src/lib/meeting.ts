@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthService } from './auth';
+import { apiUrl } from './api';
 
 export interface Meeting {
   id: number;
@@ -41,7 +42,7 @@ export interface MeetingStats {
 }
 
 export class MeetingService {
-  private static readonly BASE_URL = 'http://localhost:3001/meetings';
+  private static readonly BASE_URL = apiUrl('/meetings');
 
   static async getAllMeetings(): Promise<Meeting[]> {
     try {

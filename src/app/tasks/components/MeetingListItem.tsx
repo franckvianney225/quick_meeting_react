@@ -13,6 +13,7 @@ import {
 import { type Meeting } from './MeetingCard';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 // Ajouter startDate à l'interface Meeting
 interface ExtendedMeeting extends Meeting {
@@ -37,7 +38,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         throw new Error('Code unique manquant pour générer le QR code');
       }
 
-      const formUrl = `http://localhost:3000/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
+      const formUrl = `${window.location.origin}/participant-form?meetingId=${meeting.id}&code=${meeting.uniqueCode}`;
 
       await generateMeetingQRPDF({
         meetingId: meeting.id,
@@ -57,7 +58,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   const handleAttendanceList = async (meetingId: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants?order=DESC`, {
+      const response = await fetch(apiUrl(`/meetings/${meetingId}/participants?order=DESC`), {
         headers: AuthService.getAuthHeaders()
       });
       if (!response.ok) {

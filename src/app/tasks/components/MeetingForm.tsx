@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { type Meeting } from './MeetingCard';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 import {
   XMarkIcon,
   CheckCircleIcon,
@@ -98,8 +99,8 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       const isUpdate = initialData && initialData.id && initialData.id > 0;
       const method = isUpdate ? 'PUT' : 'POST';
       const url = isUpdate
-        ? `http://localhost:3001/meetings/${initialData.id}`
-        : 'http://localhost:3001/meetings';
+        ? apiUrl(`/meetings/${initialData.id}`)
+        : apiUrl('/meetings');
       
       console.log('Operation type:', isUpdate ? 'UPDATE' : 'CREATE');
       console.log('Meeting ID:', initialData?.id);

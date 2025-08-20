@@ -10,6 +10,7 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 export interface Participant {
   id: number;
@@ -35,7 +36,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
     const fetchParticipants = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3001/meetings/${meetingId}/participants`, {
+        const response = await fetch(apiUrl(`/meetings/${meetingId}/participants`), {
           headers: AuthService.getAuthHeaders()
         });
         

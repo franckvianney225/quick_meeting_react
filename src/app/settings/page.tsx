@@ -10,6 +10,7 @@ import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
 
 interface User {
   id: number;
@@ -96,7 +97,7 @@ export default function SettingsPage() {
     const loadOrganizationSettings = async () => {
       try {
         const token = AuthService.getToken();
-        const response = await fetch('http://localhost:3001/organization', {
+        const response = await fetch(apiUrl('/organization'), {
           headers: {
             'Authorization': `Bearer ${token}`
           }
