@@ -6,11 +6,13 @@ import { Entreprise } from './entreprise/entreprise.entity';
 import { Participant } from './participant/participant.entity';
 import { User } from './user/user.entity';
 import { OrganizationSettings } from './organization/organization.entity';
+import { EmailConfig } from './email/email-config.entity';
 import { MeetingModule } from './meeting/meeting.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { OrganizationModule } from './organization/organization.module';
 import { ParticipantModule } from './participant/participant.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { ParticipantModule } from './participant/participant.module';
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        entities: [Meeting, Entreprise, Participant, User, OrganizationSettings],
+        entities: [Meeting, Entreprise, Participant, User, OrganizationSettings, EmailConfig],
         synchronize: process.env.NODE_ENV !== 'production',
         logging: process.env.NODE_ENV === 'development',
       })
@@ -32,6 +34,7 @@ import { ParticipantModule } from './participant/participant.module';
     AuthModule,
     OrganizationModule,
     ParticipantModule,
+    EmailModule,
   ],
   controllers: [],
   providers: [],

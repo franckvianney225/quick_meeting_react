@@ -5,7 +5,8 @@ import {
   EnvelopeIcon,
   CloudArrowUpIcon,
   ShieldCheckIcon,
-  CogIcon
+  CogIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -19,7 +20,8 @@ const sections = [
   { id: 'email', label: 'Configuration Email', icon: EnvelopeIcon, color: 'green' },
   { id: 'backup', label: 'Sauvegardes', icon: CloudArrowUpIcon, color: 'purple' },
   { id: 'security', label: 'Sécurité', icon: ShieldCheckIcon, color: 'red' },
-  { id: 'system', label: 'Système', icon: CogIcon, color: 'gray' }
+  { id: 'system', label: 'Système', icon: CogIcon, color: 'gray' },
+  { id: 'credits', label: 'Credits', icon: InformationCircleIcon, color: 'indigo' }
 ];
 
 export const SettingsSidebar = ({ activeSection, setActiveSection }: SidebarProps) => {

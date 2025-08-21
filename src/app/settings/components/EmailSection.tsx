@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { apiUrl } from '@/lib/api';
 import { 
   EnvelopeIcon, 
   EyeIcon, 
@@ -32,6 +33,9 @@ interface EmailSectionProps {
 }
 
 export const EmailSection = ({ config, setConfig }: EmailSectionProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [saveMessage, setSaveMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [testEmail, setTestEmail] = useState('');
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
@@ -81,22 +85,85 @@ export const EmailSection = ({ config, setConfig }: EmailSectionProps) => {
     }
   };
 
+  // Charger la configuration au montage du composant
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
+  const loadConfig = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(apiUrl('/email/config'));
+      const result = await response.json();
+      
+      if (result.config) {
+        setConfig(result.config);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de la configuration:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    setSaveStatus('saving');
+    setSaveMessage('');
+    
+    try {
+      const response = await fetch(apiUrl('/email/config'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config),
+      });
+      
+      const result = await response.json();
+      
+      if (result.config) {
+        setSaveStatus('success');
+        setSaveMessage(result.message || 'Configuration sauvegardée avec succès');
+        setConfig(result.config);
+      } else {
+        setSaveStatus('error');
+        setSaveMessage('Erreur lors de la sauvegarde');
+      }
+    } catch (error) {
+      setSaveStatus('error');
+      setSaveMessage('Erreur de connexion au serveur');
+    }
+  };
+
   const handleTestConnection = async () => {
     setTestStatus('testing');
     setTestMessage('');
     
-    // Simulation du test de connexion
-    setTimeout(() => {
-      if (config.server && config.username && config.password) {
+    try {
+      const response = await fetch(apiUrl('/email/test-connection'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ smtpConfig: config }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
         setTestStatus('success');
-        setTestMessage('Connexion SMTP établie avec succès');
+        setTestMessage(result.message);
         setConnectionStatus('connected');
       } else {
         setTestStatus('error');
-        setTestMessage('Veuillez remplir tous les champs obligatoires');
+        setTestMessage(result.message);
         setConnectionStatus('failed');
       }
-    }, 2000);
+    } catch (error) {
+      setTestStatus('error');
+      setTestMessage('Erreur de connexion au serveur');
+      setConnectionStatus('failed');
+    }
   };
 
   const handleSendTestEmail = async () => {
@@ -107,11 +174,31 @@ export const EmailSection = ({ config, setConfig }: EmailSectionProps) => {
 
     setTestStatus('testing');
     
-    // Simulation de l'envoi d'email
-    setTimeout(() => {
-      setTestStatus('success');
-      setTestMessage(`Email de test envoyé avec succès à ${testEmail}`);
-    }, 3000);
+    try {
+      const response = await fetch(apiUrl('/email/test'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          smtpConfig: config,
+          to: testEmail
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setTestStatus('success');
+        setTestMessage(`Email de test envoyé avec succès à ${testEmail}`);
+      } else {
+        setTestStatus('error');
+        setTestMessage('Échec de l\'envoi de l\'email de test');
+      }
+    } catch (error) {
+      setTestStatus('error');
+      setTestMessage('Erreur lors de l\'envoi de l\'email de test');
+    }
   };
 
   const getPortInfo = (port: number) => {
@@ -124,6 +211,33 @@ export const EmailSection = ({ config, setConfig }: EmailSectionProps) => {
   };
 
   const portInfo = getPortInfo(config.port);
+
+  const handleReset = () => {
+    setConfig({
+      server: '',
+      port: 587,
+      username: '',
+      password: '',
+      encryption: 'tls',
+      from_email: '',
+      from_name: '',
+      timeout: 30,
+      max_retries: 3,
+    });
+    setSaveStatus('idle');
+    setSaveMessage('');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement de la configuration...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -420,14 +534,42 @@ export const EmailSection = ({ config, setConfig }: EmailSectionProps) => {
           * Champs obligatoires
         </div>
         <div className="flex space-x-3">
-          <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <button
+            onClick={handleReset}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             Réinitialiser
           </button>
-          <button className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-            Enregistrer la configuration
+          <button
+            onClick={handleSaveConfig}
+            disabled={saveStatus === 'saving'}
+            className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+          >
+            {saveStatus === 'saving' ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Sauvegarde...</span>
+              </>
+            ) : (
+              <span>Enregistrer la configuration</span>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Message de sauvegarde */}
+      {saveMessage && (
+        <div className={`mt-4 p-3 rounded-lg flex items-center space-x-2 ${
+          saveStatus === 'success' ? 'bg-green-100 text-green-800' :
+          saveStatus === 'error' ? 'bg-red-100 text-red-800' :
+          'bg-blue-100 text-blue-800'
+        }`}>
+          {saveStatus === 'success' ? <CheckCircleIcon className="w-5 h-5" /> :
+           saveStatus === 'error' ? <XCircleIcon className="w-5 h-5" /> :
+           <InformationCircleIcon className="w-5 h-5" />}
+          <span>{saveMessage}</span>
+        </div>
+      )}
     </div>
   );
 };
