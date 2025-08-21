@@ -117,9 +117,9 @@ export const MeetingCard = ({
 
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'active': return 'bg-gradient-to-r from-green-400 to-green-600 text-white border-green-400';
-      case 'completed': return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white border-blue-400';
-      case 'inactive': return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white border-gray-400';
+      case 'active': return 'bg-gradient-to-r from-green-400 to-green-600 text-white border-green-400 animate-pulse';
+      case 'completed': return 'bg-gradient-to-r from-red-400 to-red-600 text-white border-red-400';
+      case 'inactive': return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white border-blue-400';
       default: return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white border-gray-400';
     }
   };
