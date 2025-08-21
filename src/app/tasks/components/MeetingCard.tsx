@@ -54,6 +54,7 @@ export const MeetingCard = ({
   onAttendanceList
 }: MeetingCardProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUniqueCode, setShowUniqueCode] = useState(false);
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -190,7 +191,32 @@ export const MeetingCard = ({
             <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg flex items-center justify-center">
               <QrCodeIcon className="h-4 w-4 text-white" />
             </div>
-            <span className="text-sm font-medium font-mono">{meeting.uniqueCode || 'Non généré'}</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium font-mono">
+                {meeting.uniqueCode ? (showUniqueCode ? meeting.uniqueCode : '*******') : 'Non généré'}
+              </span>
+              {meeting.uniqueCode && (
+                <>
+                  <button
+                    onClick={() => setShowUniqueCode(!showUniqueCode)}
+                    className="text-purple-600 hover:text-purple-700 transition-colors"
+                    title={showUniqueCode ? 'Masquer le code' : 'Afficher le code'}
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(meeting.uniqueCode);
+                      alert('Code copié dans le presse-papier !');
+                    }}
+                    className="text-purple-600 hover:text-purple-700 transition-colors"
+                    title="Copier le code"
+                  >
+                    <ClipboardDocumentListIcon className="h-4 w-4" />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

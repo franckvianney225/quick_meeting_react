@@ -32,7 +32,7 @@ export default function AlreadyRegisteredStep({
         onClick={onBackToHome}
         className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
       >
-        Retour à l'accueil
+        Retour à l&apos;accueil
       </button>
     </div>
   );
