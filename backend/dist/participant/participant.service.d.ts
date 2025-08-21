@@ -8,4 +8,5 @@ export declare class ParticipantService {
     constructor(participantRepository: Repository<Participant>, meetingService: MeetingService);
     create(uniqueCode: string, participantData: CreateParticipantDto): Promise<Participant>;
     findAllByMeeting(meetingCode: string): Promise<Participant[]>;
+    findByEmail(email: string): Promise<Participant[]>;
 }

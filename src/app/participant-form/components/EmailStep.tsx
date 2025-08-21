@@ -1,5 +1,7 @@
 'use client';
+import { useState } from 'react';
 import type { EmailStepProps } from './types';
+import { apiUrl } from '@/lib/api';
 
 export default function EmailStep({
   email,
@@ -7,10 +9,39 @@ export default function EmailStep({
   onNext,
   onBack
 }: EmailStepProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) onNext();
+    setError('');
+    
+    if (!email.trim()) return;
+
+    setIsLoading(true);
+    try {
+      // Vérifier si l'email existe déjà dans la base de données
+      const response = await fetch(apiUrl(`/participants/search?email=${encodeURIComponent(email)}`), {
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const existingParticipants = await response.json();
+        if (existingParticipants.length > 0) {
+          // Transmettre les informations du participant existant
+          onNext(existingParticipants[0]);
+          return;
+        }
+      }
+      
+      // Si aucun participant trouvé, continuer normalement
+      onNext();
+    } catch (err) {
+      console.error('Erreur lors de la vérification email:', err);
+      setError('Erreur lors de la vérification de l\'email');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -30,19 +61,26 @@ export default function EmailStep({
             required
           />
         </div>
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         <div className="flex justify-between">
           <button
             type="button"
             onClick={onBack}
-            className="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 transition-colors"
+            disabled={isLoading}
+            className="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 transition-colors disabled:opacity-50"
           >
             Retour
           </button>
           <button
             type="submit"
-            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+            disabled={isLoading || !email.trim()}
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            Suivant
+            {isLoading ? 'Vérification...' : 'Suivant'}
           </button>
         </div>
       </form>

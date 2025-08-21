@@ -15,7 +15,8 @@ export class ParticipantController {
   }
 
   @Get()
-  async findAllByMeeting(@Param('meetingCode') meetingCode: string) {
-    return this.service.findAllByMeeting(meetingCode);
+  async findAllByMeeting(@Param('uniqueCode') uniqueCode: string) {
+    return this.service.findAllByMeeting(uniqueCode);
   }
+
 }

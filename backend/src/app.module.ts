@@ -10,6 +10,7 @@ import { MeetingModule } from './meeting/meeting.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { OrganizationModule } from './organization/organization.module';
+import { ParticipantModule } from './participant/participant.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OrganizationModule } from './organization/organization.module';
     UserModule,
     AuthModule,
     OrganizationModule,
+    ParticipantModule,
   ],
   controllers: [],
   providers: [],

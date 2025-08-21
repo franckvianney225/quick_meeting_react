@@ -4,5 +4,5 @@ export declare class ParticipantController {
     private readonly service;
     constructor(service: ParticipantService);
     create(uniqueCode: string, participantData: CreateParticipantDto): Promise<import("./participant.entity").Participant>;
-    findAllByMeeting(meetingCode: string): Promise<import("./participant.entity").Participant[]>;
+    findAllByMeeting(uniqueCode: string): Promise<import("./participant.entity").Participant[]>;
 }

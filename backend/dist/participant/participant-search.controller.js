@@ -12,39 +12,30 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ParticipantController = void 0;
+exports.ParticipantSearchController = void 0;
 const common_1 = require("@nestjs/common");
 const participant_service_1 = require("./participant.service");
-const create_participant_dto_1 = require("./dto/create-participant.dto");
-let ParticipantController = class ParticipantController {
-    constructor(service) {
-        this.service = service;
+let ParticipantSearchController = class ParticipantSearchController {
+    constructor(participantService) {
+        this.participantService = participantService;
     }
-    async create(uniqueCode, participantData) {
-        return this.service.create(uniqueCode, participantData);
-    }
-    async findAllByMeeting(uniqueCode) {
-        return this.service.findAllByMeeting(uniqueCode);
+    async findByEmail(email) {
+        if (!email) {
+            throw new Error('Email parameter is required');
+        }
+        return this.participantService.findByEmail(email);
     }
 };
-exports.ParticipantController = ParticipantController;
+exports.ParticipantSearchController = ParticipantSearchController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Param)('uniqueCode')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, create_participant_dto_1.CreateParticipantDto]),
-    __metadata("design:returntype", Promise)
-], ParticipantController.prototype, "create", null);
-__decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Param)('uniqueCode')),
+    (0, common_1.Get)('search'),
+    __param(0, (0, common_1.Query)('email')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], ParticipantController.prototype, "findAllByMeeting", null);
-exports.ParticipantController = ParticipantController = __decorate([
-    (0, common_1.Controller)('meetings/:uniqueCode/participants'),
+], ParticipantSearchController.prototype, "findByEmail", null);
+exports.ParticipantSearchController = ParticipantSearchController = __decorate([
+    (0, common_1.Controller)('participants'),
     __metadata("design:paramtypes", [participant_service_1.ParticipantService])
-], ParticipantController);
-//# sourceMappingURL=participant.controller.js.map
+], ParticipantSearchController);
+//# sourceMappingURL=participant-search.controller.js.map

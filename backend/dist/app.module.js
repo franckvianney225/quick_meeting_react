@@ -18,6 +18,7 @@ const meeting_module_1 = require("./meeting/meeting.module");
 const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
 const organization_module_1 = require("./organization/organization.module");
+const participant_module_1 = require("./participant/participant.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
             user_module_1.UserModule,
             auth_module_1.AuthModule,
             organization_module_1.OrganizationModule,
+            participant_module_1.ParticipantModule,
         ],
         controllers: [],
         providers: [],

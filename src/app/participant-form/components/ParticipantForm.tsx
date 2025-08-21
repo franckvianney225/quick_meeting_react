@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BaseFormData } from './types';
+import { BaseFormData, type ExistingParticipant } from './types';
 import { apiUrl } from '@/lib/api';
 import LegalStep from './LegalStep';
 import EmailStep from './EmailStep';
@@ -52,6 +52,21 @@ export function ParticipantForm() {
     agreedToTerms: false
   });
 
+  const handleEmailNext = (existingParticipant?: ExistingParticipant) => {
+    if (existingParticipant) {
+      // Pré-remplir les données avec les informations du participant existant
+      setFormData(prev => ({
+        ...prev,
+        email: existingParticipant.email,
+        firstName: existingParticipant.prenom,
+        lastName: existingParticipant.name,
+        company: existingParticipant.organisation,
+        position: existingParticipant.fonction
+      }));
+    }
+    setCurrentStep(prev => prev + 1);
+  };
+
   const nextStep = () => setCurrentStep(prev => prev + 1);
   const prevStep = () => setCurrentStep(prev => prev - 1);
 
@@ -98,10 +113,10 @@ export function ParticipantForm() {
         />
       )}
       {currentStep === 2 && (
-        <EmailStep 
+        <EmailStep
           email={formData.email}
           onChange={(email) => setFormData(prev => ({...prev, email}))}
-          onNext={nextStep}
+          onNext={handleEmailNext}
           onBack={prevStep}
         />
       )}

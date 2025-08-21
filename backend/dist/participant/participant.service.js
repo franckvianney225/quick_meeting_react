@@ -45,6 +45,13 @@ let ParticipantService = class ParticipantService {
             order: { createdAt: 'ASC' }
         });
     }
+    async findByEmail(email) {
+        return this.participantRepository.find({
+            where: { email },
+            relations: ['meeting'],
+            order: { createdAt: 'DESC' }
+        });
+    }
 };
 exports.ParticipantService = ParticipantService;
 exports.ParticipantService = ParticipantService = __decorate([

@@ -1,5 +1,9 @@
 export declare class CreateParticipantDto {
-    name: string;
     email: string;
+    firstName: string;
+    lastName: string;
+    company: string;
+    position: string;
+    signature: string;
     phone: string;
 }

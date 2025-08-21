@@ -38,4 +38,12 @@ export class ParticipantService {
       order: { createdAt: 'ASC' } // Tri par date de création ascendante
     });
   }
+
+  async findByEmail(email: string) {
+    return this.participantRepository.find({
+      where: { email },
+      relations: ['meeting'],
+      order: { createdAt: 'DESC' } // Récupérer le participant le plus récent
+    });
+  }
 }

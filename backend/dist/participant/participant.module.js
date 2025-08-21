@@ -8,14 +8,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParticipantModule = void 0;
 const common_1 = require("@nestjs/common");
+const typeorm_1 = require("@nestjs/typeorm");
 const participant_service_1 = require("./participant.service");
 const participant_controller_1 = require("./participant.controller");
+const participant_search_controller_1 = require("./participant-search.controller");
+const participant_entity_1 = require("./participant.entity");
+const meeting_module_1 = require("../meeting/meeting.module");
 let ParticipantModule = class ParticipantModule {
 };
 exports.ParticipantModule = ParticipantModule;
 exports.ParticipantModule = ParticipantModule = __decorate([
     (0, common_1.Module)({
-        controllers: [participant_controller_1.ParticipantController],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([participant_entity_1.Participant]),
+            meeting_module_1.MeetingModule
+        ],
+        controllers: [participant_controller_1.ParticipantController, participant_search_controller_1.ParticipantSearchController],
         providers: [participant_service_1.ParticipantService],
         exports: [participant_service_1.ParticipantService]
     })

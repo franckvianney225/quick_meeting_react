@@ -340,7 +340,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                    {/* <div>
                       <label htmlFor="start_date" className="block text-sm font-medium text-gray-700 mb-1">
                         Date et Heure*
                       </label>
@@ -353,7 +353,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         required
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
                       />
-                    </div>
+                    </div> */}
 
                     <div>
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
@@ -366,23 +366,6 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         value={formData.location}
                         onChange={handleChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="max_participants" className="block text-sm font-medium text-gray-700 mb-1">
-                        Participants Max
-                      </label>
-                      <input
-                        type="number"
-                        id="max_participants"
-                        name="max_participants"
-                        value={formData.max_participants}
-                        onChange={handleChange}
-                        min="1"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
@@ -415,6 +398,25 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                           : 'En attente de génération...'}
                       </p>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* <div>
+                      <label htmlFor="max_participants" className="block text-sm font-medium text-gray-700 mb-1">
+                        Participants Max
+                      </label>
+                      <input
+                        type="number"
+                        id="max_participants"
+                        name="max_participants"
+                        value={formData.max_participants}
+                        onChange={handleChange}
+                        min="1"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                      />
+                    </div> */}
+
+                    
                   </div>
                 </div>
               )}
@@ -597,7 +599,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       </div>
                     )}
 
-                    <div>
+                    {/* <div>
                       <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 mb-1">
                         <PhotoIcon className="h-4 w-4 inline mr-2" />
                         Logo à intégrer (URL de limage)
@@ -613,7 +615,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       <p className="text-xs text-gray-500 mt-1">
                         Le logo sera centré dans le QR Code. Recommandé: format carré, taille max 20% du QR Code.
                       </p>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               )}

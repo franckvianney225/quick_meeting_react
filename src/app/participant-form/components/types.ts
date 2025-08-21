@@ -3,10 +3,19 @@ export interface LegalStepProps {
   onDisagree: () => void;
 }
 
+export interface ExistingParticipant {
+  email: string;
+  name: string;
+  prenom: string;
+  phone: string;
+  fonction: string;
+  organisation: string;
+}
+
 export interface EmailStepProps {
   email: string;
   onChange: (email: string) => void;
-  onNext: () => void;
+  onNext: (existingParticipant?: ExistingParticipant) => void;
   onBack: () => void;
 }
 
