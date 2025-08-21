@@ -51,9 +51,19 @@ export function useAuth() {
     const handleStorageChange = () => {
       checkAuth();
     };
-
+  
+    // Écouter aussi les événements personnalisés pour les mises à jour d'authentification
+    const handleAuthUpdate = () => {
+      checkAuth();
+    };
+  
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('authUpdate', handleAuthUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('authUpdate', handleAuthUpdate);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -65,6 +75,9 @@ export function useAuth() {
       setUser(data.user);
       setIsAuthenticated(true);
       
+      // Déclencher un événement pour notifier les autres instances de useAuth
+      window.dispatchEvent(new CustomEvent('authUpdate'));
+      
       return data;
     } catch (error) {
       throw error;
@@ -75,6 +88,9 @@ export function useAuth() {
     AuthService.logout();
     setUser(null);
     setIsAuthenticated(false);
+    
+    // Déclencher un événement pour notifier les autres instances de useAuth
+    window.dispatchEvent(new CustomEvent('authUpdate'));
   };
 
   return {

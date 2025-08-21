@@ -1,0 +1,80 @@
+Cahier des charges — ENTIDR
+1. Présentation du projet
+ENTIDR est une plateforme modulaire d'entreprise basée sur Odoo pour le backend et sa base de données, avec un frontend en React + Tailwind CSS.
+Le projet doit permettre de gérer des addons (ex. : RH, Finance, etc.), qui contiendront leurs propres vues, modèles, contrôleurs, etc.
+
+Le but est d'avoir une plateforme évolutive avec :
+
+Installation / désinstallation d'addons via l'interface.
+
+Organisation claire dans un seul dossier src/.
+
+Utilisation de Tailwind CSS pour tout le design.
+
+Une structure frontend robuste, avec une séparation nette des vues de base et des addons.
+
+2. Stack Technique
+Frontend : React + TypeScript + Tailwind CSS
+
+Backend : Odoo
+
+Base de données : PostgreSQL (via Odoo)
+
+Structure : Monorepo avec un seul dossier src/
+
+Gestion d’addons : système inspiré d’Odoo
+
+3. Structure du projet
+graphql
+Copier
+Modifier
+src/
+│
+├── core/                 # Fonctions globales du framework ENTIDR
+│   ├── config/           # Configuration globale
+│   ├── router/           # Routing principal
+│   ├── services/         # Services globaux (auth, API calls vers Odoo)
+│   └── utils/            # Helpers/utilitaires globaux
+│
+├── views/                # Vues de base (non liées aux addons)
+│   ├── dashboard/        # Vue du dashboard principal
+│   ├── auth/             # Authentification (login, register, forgot password)
+│   └── settings/         # Paramètres généraux
+│
+├── addons/               # Tous les addons ici
+│   ├── hr/               # Addon RH
+│   │   ├── models/       # Modèles de données
+│   │   ├── controllers/  # Logique métier
+│   │   ├── views/        # Interfaces utilisateur spécifiques à HR
+│   │   └── services/     # Services spécifiques à HR
+│   │
+│   └── finance/          # Addon Finance
+│       ├── models/
+│       ├── controllers/
+│       ├── views/
+│       └── services/
+│
+├── components/           # Composants UI réutilisables
+│   ├── Button.tsx
+│   ├── Modal.tsx
+│   └── Navbar.tsx
+│
+├── styles/               # Fichiers de styles globaux Tailwind
+│   └── index.css
+│
+├── main.tsx              # Point d’entrée React
+└── index.html            # Template HTML
+4. Fonctionnalités principales
+🔐 Authentification : Login, inscription, récupération de mot de passe.
+
+🧩 Gestion des Addons : Installation, activation/désactivation, suppression depuis l’interface.
+
+🗂️ Gestion des modules HR et Finance :
+
+HR : gestion des congés, employés, feuilles de temps.
+
+Finance : facturation, dépenses, rapports.
+
+⚙️ Paramétrage global : Configuration des préférences systèmes via l’interface admin.
+
+🎨 Design : UI moderne avec Tailwind CSS, responsive mobile et desktop.

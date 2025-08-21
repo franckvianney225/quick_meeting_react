@@ -20,8 +20,8 @@ services:
   # Backend NestJS
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: meeting_backend
     ports:
       - "3001:3001"

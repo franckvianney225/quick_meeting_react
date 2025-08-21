@@ -83,64 +83,57 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 flex relative overflow-hidden">
+    <div className="min-h-screen bg-orange-50 flex relative overflow-hidden">
       {/* Éléments décoratifs */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/30 to-green-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/30 to-orange-200/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-100/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-100/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       {/* Colonne gauche - Texte de bienvenue */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-start p-12 bg-gradient-to-br from-orange-400/90 via-orange-300/90 to-green-400/90 text-white relative z-10 backdrop-blur-sm">
-        <div className="absolute inset-0 bg-black/5"></div>
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-start p-12 bg-orange-300 text-white relative z-10">
         <div className="relative z-10 max-w-lg">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm border border-white/30 mb-6">
-              <div className="w-2 h-2 bg-green-300 rounded-full mr-2 animate-pulse"></div>
-              <span className="text-sm font-medium">Système sécurisé</span>
-            </div>
-          </div>
 
-          <h1 className="text-6xl font-bold mb-8 leading-tight bg-gradient-to-r from-white via-orange-100 to-green-100 bg-clip-text text-transparent">
+          <h1 className="text-6xl font-bold mb-8 leading-tight text-white">
             BIENVENUE AU <br />MINISTÈRE
           </h1>
 
-          <p className="text-xl mb-10 text-orange-50/90 leading-relaxed font-light">
+          <p className="text-xl mb-10 text-white leading-relaxed font-light">
             Plateforme moderne de gestion des réunions et suivi des participants pour l'administration publique
           </p>
 
           <div className="space-y-5">
             <div className="flex items-center group">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-300/80 to-green-400/80 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-green-300/30 transition-all duration-300">
+              <div className="w-10 h-10 bg-orange-400 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-orange-400/30 transition-all duration-300">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <span className="text-orange-50/90 font-medium">Gestion centralisée des réunions</span>
+              <span className="text-orange-50 font-medium">Gestion centralisée des réunions</span>
             </div>
             <div className="flex items-center group">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-300/80 to-orange-400/80 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-orange-300/30 transition-all duration-300">
+              <div className="w-10 h-10 bg-orange-400 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-orange-400/30 transition-all duration-300">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <span className="text-orange-50/90 font-medium">Suivi des participants en temps réel</span>
+              <span className="text-orange-50 font-medium">Suivi des participants en temps réel</span>
             </div>
             <div className="flex items-center group">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-300/80 to-green-400/80 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-green-300/30 transition-all duration-300">
+              <div className="w-10 h-10 bg-orange-400 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-orange-400/30 transition-all duration-300">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h.01M12 12h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8z" />
                 </svg>
               </div>
-              <span className="text-orange-50/90 font-medium">Génération automatique de QR codes</span>
+              <span className="text-orange-50 font-medium">Génération automatique de QR codes</span>
             </div>
             <div className="flex items-center group">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-300/80 to-orange-400/80 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-orange-300/30 transition-all duration-300">
+              <div className="w-10 h-10 bg-orange-400 rounded-xl flex items-center justify-center mr-4 shadow-lg group-hover:shadow-orange-400/30 transition-all duration-300">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <span className="text-orange-50/90 font-medium">Rapports et statistiques détaillés</span>
+              <span className="text-orange-50 font-medium">Rapports et statistiques détaillés</span>
             </div>
           </div>
         </div>
@@ -153,7 +146,7 @@ export default function LoginPage() {
 
           {/* Logo et titre */}
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-400/80 via-orange-300/80 to-green-400/80 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="w-16 h-16 bg-orange-500 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
               <span className="text-white font-bold text-xl">QM</span>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
@@ -171,12 +164,12 @@ export default function LoginPage() {
                 Adresse email
               </label>
               <div className="relative group">
-                <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-400 transition-colors duration-200" />
+                <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
                 <input
                   type="email"
                   value={email}
                   onChange={handleEmailChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-500 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
                   placeholder="admin@ministere.gov"
                   required
                 />
@@ -194,19 +187,19 @@ export default function LoginPage() {
                 Mot de passe
               </label>
               <div className="relative group">
-                <LockClosedIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-400 transition-colors duration-200" />
+                <LockClosedIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
+                  className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-500 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-400 transition-colors duration-200 p-1 hover:bg-orange-50 rounded-lg"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors duration-200 p-1 hover:bg-orange-50 rounded-lg"
                 >
                   {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </button>
@@ -230,7 +223,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-orange-400/90 to-green-400/90 text-white rounded-2xl hover:from-orange-500/90 hover:to-green-500/90 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full py-3 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -244,9 +237,9 @@ export default function LoginPage() {
           </form>
 
           {/* Informations de test */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-orange-50/60 to-green-50/60 backdrop-blur-sm border border-orange-200/40 rounded-2xl">
+          <div className="mt-6 p-4 bg-orange-50/60 backdrop-blur-sm border border-orange-200/40 rounded-2xl">
             <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-              <svg className="w-4 h-4 mr-2 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Compte de test
@@ -264,7 +257,7 @@ export default function LoginPage() {
                 alert('LocalStorage nettoyé. Veuillez vous reconnecter.');
                 window.location.reload();
               }}
-              className="w-full py-2 bg-gradient-to-r from-red-100 to-red-200 text-red-700 rounded-xl hover:from-red-200 hover:to-red-300 transition-all duration-300 font-medium text-xs border border-red-300/50 hover:border-red-400/50"
+              className="w-full py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all duration-300 font-medium text-xs border border-red-300/50 hover:border-red-400/50"
             >
               🔄 Nettoyer le cache d'authentification
             </button>

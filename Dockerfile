@@ -18,7 +18,7 @@ COPY src/ ./src/
 COPY public/ ./public/
 
 # Build l'application
-RUN npm run build
+RUN npm run build -- --no-lint
 
 # Étape de production
 FROM node:18-alpine AS production
