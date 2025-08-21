@@ -50,5 +50,9 @@ export declare class MeetingService {
         };
         size?: number;
     }): Promise<Buffer>;
+    getMeetingStatusByCode(code: string): Promise<{
+        status: string;
+        title: string;
+    }>;
 }
 export {};

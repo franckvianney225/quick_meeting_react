@@ -179,4 +179,16 @@ export class MeetingController {
       );
     }
   }
+
+  @Get('status/:code')
+  async getMeetingStatus(@Param('code') code: string): Promise<{ status: string; title: string }> {
+    try {
+      return await this.service.getMeetingStatusByCode(code);
+    } catch (err) {
+      throw new HttpException(
+        err.message || 'Erreur lors de la vérification du statut',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
 }

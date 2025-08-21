@@ -10,6 +10,8 @@ import FormStep from './FormStep';
 import SignatureStep from './SignatureStep';
 import ValidationStep from './ValidationStep';
 import AlreadyRegisteredStep from './AlreadyRegisteredStep';
+import MeetingNotStartedStep from './MeetingNotStartedStep';
+import MeetingCompletedStep from './MeetingCompletedStep';
 import type {
   LegalStepProps,
   EmailStepProps,
@@ -23,6 +25,8 @@ export function ParticipantForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isValidLink, setIsValidLink] = useState(false);
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+  const [meetingStatus, setMeetingStatus] = useState<'active' | 'inactive' | 'completed' | 'loading' | 'error'>('loading');
+  const [meetingTitle, setMeetingTitle] = useState('');
 
   useEffect(() => {
     const meetingId = searchParams.get('meetingId');
@@ -42,7 +46,28 @@ export function ParticipantForm() {
       return;
     }
 
-    setIsValidLink(true);
+    // Vérifier le statut de la réunion
+    const checkMeetingStatus = async () => {
+      try {
+        const response = await fetch(apiUrl(`/meetings/status/${code}`), {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const { status, title } = await response.json();
+          setMeetingStatus(status);
+          setMeetingTitle(title);
+          setIsValidLink(status === 'active');
+        } else {
+          setMeetingStatus('error');
+        }
+      } catch (err) {
+        console.error('Erreur lors de la vérification du statut:', err);
+        setMeetingStatus('error');
+      }
+    };
+
+    checkMeetingStatus();
   }, [searchParams]);
   const [formData, setFormData] = useState<BaseFormData>({
     email: '',
@@ -108,8 +133,55 @@ export function ParticipantForm() {
     window.location.href = '/';
   };
 
+  if (meetingStatus === 'loading') {
+    return (
+      <div className="bg-white rounded-lg shadow p-6 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Vérification du statut de la réunion...</p>
+      </div>
+    );
+  }
+
+  if (meetingStatus === 'error') {
+    return (
+      <div className="bg-white rounded-lg shadow p-6 text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur</h2>
+        <p className="text-gray-600 mb-4">Impossible de vérifier le statut de la réunion.</p>
+        <button
+          onClick={() => window.location.href = '/'}
+          className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
+        >
+          Retour à l&apos;accueil
+        </button>
+      </div>
+    );
+  }
+
+  if (meetingStatus === 'inactive') {
+    return (
+      <MeetingNotStartedStep
+        meetingName={meetingTitle}
+        onBackToHome={() => window.location.href = '/'}
+      />
+    );
+  }
+
+  if (meetingStatus === 'completed') {
+    return (
+      <MeetingCompletedStep
+        meetingName={meetingTitle}
+        onBackToHome={() => window.location.href = '/'}
+      />
+    );
+  }
+
   if (!isValidLink) {
-    return null; // Ou un composant de chargement
+    return null;
   }
 
   return (

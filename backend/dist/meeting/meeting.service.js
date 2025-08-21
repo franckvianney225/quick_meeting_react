@@ -160,6 +160,18 @@ let MeetingService = class MeetingService {
             throw new Error('Failed to generate QR code');
         }
     }
+    async getMeetingStatusByCode(code) {
+        const meeting = await this.meetingRepository.findOne({
+            where: { uniqueCode: code.toUpperCase() }
+        });
+        if (!meeting) {
+            throw new Error('Réunion non trouvée');
+        }
+        return {
+            status: meeting.status,
+            title: meeting.title
+        };
+    }
 };
 exports.MeetingService = MeetingService;
 exports.MeetingService = MeetingService = __decorate([

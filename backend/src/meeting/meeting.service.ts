@@ -223,4 +223,19 @@ export class MeetingService {
       throw new Error('Failed to generate QR code');
     }
   }
+
+  async getMeetingStatusByCode(code: string): Promise<{ status: string; title: string }> {
+    const meeting = await this.meetingRepository.findOne({
+      where: { uniqueCode: code.toUpperCase() }
+    });
+
+    if (!meeting) {
+      throw new Error('Réunion non trouvée');
+    }
+
+    return {
+      status: meeting.status,
+      title: meeting.title
+    };
+  }
 }

@@ -60,5 +60,9 @@ export declare class MeetingController {
             size?: number;
         };
     }): Promise<Buffer>;
+    getMeetingStatus(code: string): Promise<{
+        status: string;
+        title: string;
+    }>;
 }
 export {};
