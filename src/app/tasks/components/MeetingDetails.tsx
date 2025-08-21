@@ -14,7 +14,8 @@ import {
   QrCodeIcon,
   UsersIcon,
   DocumentTextIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import { type Meeting } from './MeetingCard';
 import { MeetingForm } from './MeetingForm';
@@ -40,6 +41,7 @@ export const MeetingDetails = ({
   const [showEditForm, setShowEditForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
+  const [showUniqueCode, setShowUniqueCode] = useState(false);
   
   const handleGenerateQR = async () => {
     try {
@@ -210,9 +212,28 @@ export const MeetingDetails = ({
                     <span className="text-sm font-medium">{statusConfig.label}</span>
                   </div>
                   {meeting.uniqueCode && (
-                    <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
-                      {meeting.uniqueCode}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
+                        {showUniqueCode ? meeting.uniqueCode : '*******'}
+                      </span>
+                      <button
+                        onClick={() => setShowUniqueCode(!showUniqueCode)}
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                        title={showUniqueCode ? 'Masquer le code' : 'Afficher le code'}
+                      >
+                        <EyeIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(meeting.uniqueCode);
+                          alert('Code copié dans le presse-papier !');
+                        }}
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                        title="Copier le code"
+                      >
+                        <ClipboardDocumentListIcon className="h-4 w-4" />
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -321,9 +342,28 @@ export const MeetingDetails = ({
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Code accès</h3>
                       {meeting.uniqueCode ? (
-                        <p className="text-gray-600 font-mono bg-gray-100 px-3 py-2 rounded-lg text-sm inline-block">
-                          {meeting.uniqueCode}
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-gray-600 font-mono bg-gray-100 px-3 py-2 rounded-lg text-sm inline-block">
+                            {showUniqueCode ? meeting.uniqueCode : '*******'}
+                          </p>
+                          <button
+                            onClick={() => setShowUniqueCode(!showUniqueCode)}
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
+                            title={showUniqueCode ? 'Masquer le code' : 'Afficher le code'}
+                          >
+                            <EyeIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(meeting.uniqueCode);
+                              alert('Code copié dans le presse-papier !');
+                            }}
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
+                            title="Copier le code"
+                          >
+                            <ClipboardDocumentListIcon className="h-4 w-4" />
+                          </button>
+                        </div>
                       ) : (
                         <p className="text-gray-600">Code non défini</p>
                       )}
