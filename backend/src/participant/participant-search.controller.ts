@@ -12,4 +12,17 @@ export class ParticipantSearchController {
     }
     return this.participantService.findByEmail(email);
   }
+
+  @Get('check-registration')
+  async checkRegistration(
+    @Query('email') email: string,
+    @Query('meetingCode') meetingCode: string
+  ) {
+    if (!email || !meetingCode) {
+      throw new Error('Email and meetingCode parameters are required');
+    }
+    
+    const isRegistered = await this.participantService.isAlreadyRegistered(email, meetingCode);
+    return { isRegistered };
+  }
 }

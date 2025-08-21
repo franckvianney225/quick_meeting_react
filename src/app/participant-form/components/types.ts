@@ -15,7 +15,7 @@ export interface ExistingParticipant {
 export interface EmailStepProps {
   email: string;
   onChange: (email: string) => void;
-  onNext: (existingParticipant?: ExistingParticipant) => void;
+  onNext: (existingParticipant?: ExistingParticipant, isAlreadyRegistered?: boolean) => void;
   onBack: () => void;
 }
 

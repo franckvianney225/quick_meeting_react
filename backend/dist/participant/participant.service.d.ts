@@ -9,4 +9,5 @@ export declare class ParticipantService {
     create(uniqueCode: string, participantData: CreateParticipantDto): Promise<Participant>;
     findAllByMeeting(meetingCode: string): Promise<Participant[]>;
     findByEmail(email: string): Promise<Participant[]>;
+    isAlreadyRegistered(email: string, meetingCode: string): Promise<boolean>;
 }

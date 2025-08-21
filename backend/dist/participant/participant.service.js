@@ -52,6 +52,19 @@ let ParticipantService = class ParticipantService {
             order: { createdAt: 'DESC' }
         });
     }
+    async isAlreadyRegistered(email, meetingCode) {
+        const meeting = await this.meetingService.findOneByCode(meetingCode);
+        if (!meeting) {
+            return false;
+        }
+        const existingParticipant = await this.participantRepository.findOne({
+            where: {
+                email,
+                meeting: { id: meeting.id }
+            }
+        });
+        return !!existingParticipant;
+    }
 };
 exports.ParticipantService = ParticipantService;
 exports.ParticipantService = ParticipantService = __decorate([

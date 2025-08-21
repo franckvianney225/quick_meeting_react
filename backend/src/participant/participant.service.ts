@@ -46,4 +46,20 @@ export class ParticipantService {
       order: { createdAt: 'DESC' } // Récupérer le participant le plus récent
     });
   }
+
+  async isAlreadyRegistered(email: string, meetingCode: string): Promise<boolean> {
+    const meeting = await this.meetingService.findOneByCode(meetingCode);
+    if (!meeting) {
+      return false;
+    }
+
+    const existingParticipant = await this.participantRepository.findOne({
+      where: {
+        email,
+        meeting: { id: meeting.id }
+      }
+    });
+
+    return !!existingParticipant;
+  }
 }

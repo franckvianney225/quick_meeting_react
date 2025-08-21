@@ -9,6 +9,7 @@ import EmailStep from './EmailStep';
 import FormStep from './FormStep';
 import SignatureStep from './SignatureStep';
 import ValidationStep from './ValidationStep';
+import AlreadyRegisteredStep from './AlreadyRegisteredStep';
 import type {
   LegalStepProps,
   EmailStepProps,
@@ -21,6 +22,7 @@ export function ParticipantForm() {
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [isValidLink, setIsValidLink] = useState(false);
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
 
   useEffect(() => {
     const meetingId = searchParams.get('meetingId');
@@ -52,7 +54,13 @@ export function ParticipantForm() {
     agreedToTerms: false
   });
 
-  const handleEmailNext = (existingParticipant?: ExistingParticipant) => {
+  const handleEmailNext = (existingParticipant?: ExistingParticipant, isAlreadyRegistered?: boolean) => {
+    if (isAlreadyRegistered) {
+      // Le participant est déjà inscrit à cette réunion
+      setIsAlreadyRegistered(true);
+      return;
+    }
+    
     if (existingParticipant) {
       // Pré-remplir les données avec les informations du participant existant
       setFormData(prev => ({
@@ -106,42 +114,54 @@ export function ParticipantForm() {
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      {currentStep === 1 && (
-        <LegalStep 
-          onAgree={nextStep}
-          onDisagree={() => window.location.href = '/'}
-        />
-      )}
-      {currentStep === 2 && (
-        <EmailStep
+      {isAlreadyRegistered ? (
+        <AlreadyRegisteredStep
           email={formData.email}
-          onChange={(email) => setFormData(prev => ({...prev, email}))}
-          onNext={handleEmailNext}
-          onBack={prevStep}
+          onBackToHome={() => {
+            setIsAlreadyRegistered(false);
+            window.location.href = '/';
+          }}
         />
-      )}
-      {currentStep === 3 && (
-        <FormStep
-          formData={formData}
-          onChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-          onNext={nextStep}
-          onBack={prevStep}
-        />
-      )}
-      {currentStep === 4 && (
-        <SignatureStep 
-          signature={formData.signature}
-          onChange={(signature) => setFormData(prev => ({...prev, signature}))}
-          onSubmit={handleSubmit}
-          onBack={prevStep}
-        />
-      )}
-      {currentStep === 5 && (
-        <ValidationStep
-          firstName={formData.firstName}
-          lastName={formData.lastName}
-          onBack={handleBackToHome}
-        />
+      ) : (
+        <>
+          {currentStep === 1 && (
+            <LegalStep
+              onAgree={nextStep}
+              onDisagree={() => window.location.href = '/'}
+            />
+          )}
+          {currentStep === 2 && (
+            <EmailStep
+              email={formData.email}
+              onChange={(email) => setFormData(prev => ({...prev, email}))}
+              onNext={handleEmailNext}
+              onBack={prevStep}
+            />
+          )}
+          {currentStep === 3 && (
+            <FormStep
+              formData={formData}
+              onChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+              onNext={nextStep}
+              onBack={prevStep}
+            />
+          )}
+          {currentStep === 4 && (
+            <SignatureStep
+              signature={formData.signature}
+              onChange={(signature) => setFormData(prev => ({...prev, signature}))}
+              onSubmit={handleSubmit}
+              onBack={prevStep}
+            />
+          )}
+          {currentStep === 5 && (
+            <ValidationStep
+              firstName={formData.firstName}
+              lastName={formData.lastName}
+              onBack={handleBackToHome}
+            />
+          )}
+        </>
       )}
     </div>
   );

@@ -25,6 +25,13 @@ let ParticipantSearchController = class ParticipantSearchController {
         }
         return this.participantService.findByEmail(email);
     }
+    async checkRegistration(email, meetingCode) {
+        if (!email || !meetingCode) {
+            throw new Error('Email and meetingCode parameters are required');
+        }
+        const isRegistered = await this.participantService.isAlreadyRegistered(email, meetingCode);
+        return { isRegistered };
+    }
 };
 exports.ParticipantSearchController = ParticipantSearchController;
 __decorate([
@@ -34,6 +41,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ParticipantSearchController.prototype, "findByEmail", null);
+__decorate([
+    (0, common_1.Get)('check-registration'),
+    __param(0, (0, common_1.Query)('email')),
+    __param(1, (0, common_1.Query)('meetingCode')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], ParticipantSearchController.prototype, "checkRegistration", null);
 exports.ParticipantSearchController = ParticipantSearchController = __decorate([
     (0, common_1.Controller)('participants'),
     __metadata("design:paramtypes", [participant_service_1.ParticipantService])

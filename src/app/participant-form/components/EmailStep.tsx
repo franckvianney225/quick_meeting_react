@@ -20,7 +20,26 @@ export default function EmailStep({
 
     setIsLoading(true);
     try {
-      // Vérifier si l'email existe déjà dans la base de données
+      // D'abord vérifier si l'email est déjà inscrit à cette réunion
+      const searchParams = new URLSearchParams(window.location.search);
+      const meetingCode = searchParams.get('code');
+      
+      if (meetingCode) {
+        const checkResponse = await fetch(apiUrl(`/participants/check-registration?email=${encodeURIComponent(email)}&meetingCode=${meetingCode}`), {
+          credentials: 'include'
+        });
+
+        if (checkResponse.ok) {
+          const { isRegistered } = await checkResponse.json();
+          if (isRegistered) {
+            // Le participant est déjà inscrit à cette réunion
+            onNext(undefined, true); // Passer true pour indiquer qu'il est déjà inscrit
+            return;
+          }
+        }
+      }
+
+      // Ensuite vérifier si l'email existe déjà dans la base de données (pour pré-remplissage)
       const response = await fetch(apiUrl(`/participants/search?email=${encodeURIComponent(email)}`), {
         credentials: 'include'
       });
@@ -29,13 +48,13 @@ export default function EmailStep({
         const existingParticipants = await response.json();
         if (existingParticipants.length > 0) {
           // Transmettre les informations du participant existant
-          onNext(existingParticipants[0]);
+          onNext(existingParticipants[0], false);
           return;
         }
       }
       
       // Si aucun participant trouvé, continuer normalement
-      onNext();
+      onNext(undefined, false);
     } catch (err) {
       console.error('Erreur lors de la vérification email:', err);
       setError('Erreur lors de la vérification de l\'email');
