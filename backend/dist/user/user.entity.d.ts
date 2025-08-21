@@ -16,5 +16,7 @@ export declare class User {
     entreprise_id: number | null;
     created_at: Date;
     updated_at: Date;
+    activation_token: string | null;
+    activation_token_expires: Date | null;
     meetings: Meeting[];
 }

@@ -3,7 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { OrganizationService } from '../organization/organization.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class UserService {
@@ -11,6 +13,7 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private organizationService: OrganizationService,
+    private emailService: EmailService,
   ) {}
 
   async findAll(): Promise<User[]> {
@@ -50,13 +53,34 @@ export class UserService {
       }
     }
 
-    // Hasher le mot de passe
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, 10);
+    // Générer un token d'activation
+    const activationToken = crypto.randomBytes(32).toString('hex');
+    const activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 heures
+
+    // Créer l'utilisateur avec statut "pending" et sans mot de passe
+    const user = this.userRepository.create({
+      ...userData,
+      password: '', // Pas de mot de passe initial
+      status: 'pending',
+      activation_token: activationToken,
+      activation_token_expires: activationTokenExpires
+    });
+
+    const savedUser = await this.userRepository.save(user);
+
+    // Envoyer l'email d'invitation
+    try {
+      await this.emailService.sendInvitationEmail(
+        savedUser.email,
+        savedUser.name,
+        activationToken
+      );
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email d\'invitation:', error);
+      // On ne throw pas l'erreur pour ne pas bloquer la création de l'utilisateur
     }
 
-    const user = this.userRepository.create(userData);
-    return this.userRepository.save(user);
+    return savedUser;
   }
 
   async update(id: number, userData: Partial<User>): Promise<User> {
@@ -111,5 +135,59 @@ export class UserService {
     await this.userRepository.update(id, {
       last_login: new Date()
     });
+  }
+
+  async activateAccount(token: string, password: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { activation_token: token }
+    });
+
+    if (!user) {
+      throw new NotFoundException('Token d\'activation invalide');
+    }
+
+    if (user.activation_token_expires && user.activation_token_expires < new Date()) {
+      throw new ForbiddenException('Le token d\'activation a expiré');
+    }
+
+    if (user.status !== 'pending') {
+      throw new ForbiddenException('Ce compte a déjà été activé');
+    }
+
+    // Hasher le nouveau mot de passe
+    user.password = await bcrypt.hash(password, 10);
+    user.status = 'active';
+    user.activation_token = null;
+    user.activation_token_expires = null;
+
+    return this.userRepository.save(user);
+  }
+
+  async resendInvitation(userId: number): Promise<void> {
+    const user = await this.findOne(userId);
+    
+    if (user.status !== 'pending') {
+      throw new ForbiddenException('Seuls les comptes en attente peuvent recevoir une nouvelle invitation');
+    }
+
+    // Générer un nouveau token
+    const activationToken = crypto.randomBytes(32).toString('hex');
+    const activationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    user.activation_token = activationToken;
+    user.activation_token_expires = activationTokenExpires;
+    await this.userRepository.save(user);
+
+    // Renvoyer l'email d'invitation
+    try {
+      await this.emailService.sendInvitationEmail(
+        user.email,
+        user.name,
+        activationToken
+      );
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email d\'invitation:', error);
+      throw new Error('Erreur lors de l\'envoi de l\'email');
+    }
   }
 }

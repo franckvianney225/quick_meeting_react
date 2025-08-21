@@ -20,7 +20,7 @@ let User = class User {
         this.email = '';
         this.password = '';
         this.role = 'user';
-        this.status = 'active';
+        this.status = 'pending';
         this.avatar = null;
         this.phone = null;
         this.department = null;
@@ -30,6 +30,8 @@ let User = class User {
         this.entreprise_id = null;
         this.created_at = new Date();
         this.updated_at = new Date();
+        this.activation_token = null;
+        this.activation_token_expires = null;
     }
 };
 exports.User = User;
@@ -54,7 +56,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 20, default: 'active' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 20, default: 'pending' }),
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
 __decorate([
@@ -93,6 +95,14 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "updated_at", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "activation_token", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
+    __metadata("design:type", Date)
+], User.prototype, "activation_token_expires", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => meeting_entity_1.Meeting, meeting => meeting.createdBy),
     __metadata("design:type", Array)

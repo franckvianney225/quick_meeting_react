@@ -30,4 +30,5 @@ export declare class EmailService {
         message: string;
     }>;
     private htmlToText;
+    sendInvitationEmail(email: string, name: string, activationToken: string): Promise<void>;
 }

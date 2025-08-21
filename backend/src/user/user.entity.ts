@@ -20,8 +20,8 @@ export class User {
   @Column({ type: 'varchar', length: 20, default: 'user' })
   role: string = 'user';
 
-  @Column({ type: 'varchar', length: 20, default: 'active' })
-  status: string = 'active';
+  @Column({ type: 'varchar', length: 20, default: 'pending' })
+  status: string = 'pending';
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   avatar: string | null = null;
@@ -49,6 +49,12 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date = new Date();
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  activation_token: string | null = null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  activation_token_expires: Date | null = null;
 
   @OneToMany(() => Meeting, meeting => meeting.createdBy)
   meetings!: Meeting[];

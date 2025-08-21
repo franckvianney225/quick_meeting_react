@@ -59,7 +59,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     }
   };
 
-  const handleCreateUser = async (userData: Omit<User, 'id'> & { password: string }) => {
+  const handleCreateUser = async (userData: Omit<User, 'id'>) => {
     try {
       const response = await fetch(apiUrl('/users'), {
         method: 'POST',
@@ -92,7 +92,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
     }
   };
 
-  const handleEditUser = async (userData: Omit<User, 'id'> & { password: string }) => {
+  const handleEditUser = async (userData: Omit<User, 'id'>) => {
     if (!editingUser) return { success: false, error: 'Aucun utilisateur à modifier' };
 
     try {

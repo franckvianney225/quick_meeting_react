@@ -25,7 +25,7 @@ interface User {
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (userData: Omit<User, 'id'> & { password: string }) => Promise<{ success: boolean; error?: string }>;
+  onSave: (userData: Omit<User, 'id'>) => Promise<{ success: boolean; error?: string }>;
   editingUser?: User | null;
 }
 
@@ -33,12 +33,10 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
   const [formData, setFormData] = useState({
     name: editingUser?.name || '',
     email: editingUser?.email || '',
-    password: '',
     role: editingUser?.role || 'Utilisateur',
     status: editingUser?.status || 'active' as 'active' | 'inactive'
   });
   
-  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
 
@@ -69,7 +67,6 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
       setFormData({
         name: editingUser.name || '',
         email: editingUser.email || '',
-        password: '', // Toujours vide pour l'édition
         role: editingUser.role || 'Utilisateur',
         status: editingUser.status || 'active'
       });
@@ -78,7 +75,6 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
       setFormData({
         name: '',
         email: '',
-        password: '',
         role: 'Utilisateur',
         status: 'active'
       });
@@ -109,11 +105,8 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
       }
     }
     
-    if (!editingUser && !formData.password) {
-      newErrors.password = 'Le mot de passe est requis';
-    } else if (formData.password && formData.password.length < 8) {
-      newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
-    }
+    // Le mot de passe n'est plus requis pour la création
+    // L'utilisateur recevra un email d'invitation pour définir son mot de passe
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -155,7 +148,6 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
     setFormData({
       name: '',
       email: '',
-      password: '',
       role: 'Utilisateur',
       status: 'active'
     });
@@ -252,32 +244,6 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
 
-              {/* Mot de passe */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mot de passe {editingUser ? '(laisser vide pour ne pas changer)' : '*'}
-                </label>
-                <div className="relative">
-                  <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
-                      errors.password ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
-                  </button>
-                </div>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-              </div>
 
               {/* Rôle */}
               <div>
@@ -338,7 +304,7 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
                 type="submit"
                 className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
               >
-                {editingUser ? 'Mettre à jour' : 'Créer l\'utilisateur'}
+                {editingUser ? 'Mettre à jour' : "Envoyer l&apos;invitation"}
               </button>
             </div>
           </form>

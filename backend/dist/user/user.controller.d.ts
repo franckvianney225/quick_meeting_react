@@ -16,4 +16,14 @@ export declare class UserController {
     uploadAvatar(id: number, file: Express.Multer.File): Promise<{
         avatarUrl: string;
     }>;
+    activateAccount(body: {
+        token: string;
+        password: string;
+    }): Promise<{
+        message: string;
+        user: User;
+    }>;
+    resendInvitation(id: number): Promise<{
+        message: string;
+    }>;
 }

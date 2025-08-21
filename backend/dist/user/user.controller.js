@@ -149,6 +149,42 @@ let UserController = class UserController {
             throw new common_1.HttpException('Erreur lors de l\'upload de l\'avatar', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    async activateAccount(body) {
+        try {
+            const user = await this.service.activateAccount(body.token, body.password);
+            return {
+                message: 'Compte activé avec succès',
+                user
+            };
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('Token d\'activation invalide')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
+            }
+            if (error instanceof Error && error.message.includes('token d\'activation a expiré')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_REQUEST);
+            }
+            if (error instanceof Error && error.message.includes('déjà été activé')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_REQUEST);
+            }
+            throw new common_1.HttpException('Erreur lors de l\'activation du compte', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    async resendInvitation(id) {
+        try {
+            await this.service.resendInvitation(id);
+            return { message: 'Invitation renvoyée avec succès' };
+        }
+        catch (error) {
+            if (error instanceof Error && error.message.includes('en attente')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_REQUEST);
+            }
+            if (error instanceof Error && error.message.includes('Erreur lors de l\'envoi de l\'email')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            throw new common_1.HttpException('Erreur lors de l\'envoi de l\'invitation', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -235,6 +271,20 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "uploadAvatar", null);
+__decorate([
+    (0, common_1.Post)('activate'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "activateAccount", null);
+__decorate([
+    (0, common_1.Post)(':id/resend-invitation'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "resendInvitation", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [user_service_1.UserService])

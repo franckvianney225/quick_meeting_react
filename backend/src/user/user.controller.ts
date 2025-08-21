@@ -220,4 +220,50 @@ export class UserController {
       );
     }
   }
+
+  @Post('activate')
+  async activateAccount(
+    @Body() body: { token: string; password: string }
+  ): Promise<{ message: string; user: User }> {
+    try {
+      const user = await this.service.activateAccount(body.token, body.password);
+      return {
+        message: 'Compte activé avec succès',
+        user
+      };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Token d\'activation invalide')) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+      if (error instanceof Error && error.message.includes('token d\'activation a expiré')) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      if (error instanceof Error && error.message.includes('déjà été activé')) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException(
+        'Erreur lors de l\'activation du compte',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Post(':id/resend-invitation')
+  async resendInvitation(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+    try {
+      await this.service.resendInvitation(id);
+      return { message: 'Invitation renvoyée avec succès' };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('en attente')) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+      if (error instanceof Error && error.message.includes('Erreur lors de l\'envoi de l\'email')) {
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      throw new HttpException(
+        'Erreur lors de l\'envoi de l\'invitation',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 }

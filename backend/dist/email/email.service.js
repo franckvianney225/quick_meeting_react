@@ -121,6 +121,79 @@ let EmailService = EmailService_1 = class EmailService {
             .replace(/\n{3,}/g, '\n\n')
             .trim();
     }
+    async sendInvitationEmail(email, name, activationToken) {
+        const config = await this.getConfig();
+        if (!config) {
+            throw new Error('Configuration SMTP non trouvée');
+        }
+        const activationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/activate-account?token=${activationToken}`;
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+              .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
+              .button { display: inline-block; background: #f97316; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+              .footer { text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>QuickMeeting</h1>
+                <p>Gestion de réunions simplifiée</p>
+              </div>
+              <div class="content">
+                <h2>Bonjour ${name},</h2>
+                <p>Vous avez été invité à rejoindre la plateforme QuickMeeting.</p>
+                <p>Pour activer votre compte et définir votre mot de passe, cliquez sur le bouton ci-dessous :</p>
+                
+                <p style="text-align: center; margin: 30px 0;">
+                  <a href="${activationLink}" class="button">Activer mon compte</a>
+                </p>
+                
+                <p>Ce lien d'activation expirera dans 24 heures.</p>
+                
+                <p>Si le bouton ne fonctionne pas, vous pouvez copier-coller ce lien dans votre navigateur :</p>
+                <p style="word-break: break-all; background: #e5e7eb; padding: 10px; border-radius: 5px; font-size: 12px;">
+                  ${activationLink}
+                </p>
+                
+                <p>Cordialement,<br>L'équipe QuickMeeting</p>
+              </div>
+              <div class="footer">
+                <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        const textContent = `
+          Bonjour ${name},
+          
+          Vous avez été invité à rejoindre la plateforme QuickMeeting.
+          
+          Pour activer votre compte et définir votre mot de passe, cliquez sur le lien suivant :
+          ${activationLink}
+          
+          Ce lien d'activation expirera dans 24 heures.
+          
+          Cordialement,
+          L'équipe QuickMeeting
+        `;
+        try {
+            await this.sendEmail(config, email, 'Invitation à rejoindre QuickMeeting', htmlContent, textContent);
+            this.logger.log(`Email d'invitation envoyé à ${email}`);
+        }
+        catch (error) {
+            this.logger.error(`Erreur lors de l'envoi de l'email d'invitation à ${email}:`, error);
+            throw new Error('Erreur lors de l\'envoi de l\'email d\'invitation');
+        }
+    }
 };
 exports.EmailService = EmailService;
 exports.EmailService = EmailService = EmailService_1 = __decorate([
