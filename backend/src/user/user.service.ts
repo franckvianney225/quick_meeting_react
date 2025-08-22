@@ -190,4 +190,42 @@ export class UserService {
       throw new Error('Erreur lors de l\'envoi de l\'email');
     }
   }
+
+  async generateResetToken(userId: number): Promise<string> {
+    const user = await this.findOne(userId);
+    
+    // Générer un token de réinitialisation
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 heure
+    
+    user.reset_token = resetToken;
+    user.reset_token_expires = resetTokenExpires;
+    
+    await this.userRepository.save(user);
+    
+    return resetToken;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.userRepository.findOne({
+      where: { reset_token: token }
+    });
+
+    if (!user) {
+      return { success: false, message: 'Token de réinitialisation invalide' };
+    }
+
+    if (user.reset_token_expires && user.reset_token_expires < new Date()) {
+      return { success: false, message: 'Le token de réinitialisation a expiré' };
+    }
+
+    // Hasher le nouveau mot de passe
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.reset_token = null;
+    user.reset_token_expires = null;
+    
+    await this.userRepository.save(user);
+
+    return { success: true, message: 'Mot de passe réinitialisé avec succès' };
+  }
 }

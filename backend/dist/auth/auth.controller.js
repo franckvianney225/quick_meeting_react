@@ -16,9 +16,13 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
+const user_service_1 = require("../user/user.service");
+const email_service_1 = require("../email/email.service");
 let AuthController = class AuthController {
-    constructor(authService) {
+    constructor(authService, userService, emailService) {
         this.authService = authService;
+        this.userService = userService;
+        this.emailService = emailService;
     }
     async login(loginDto) {
         const user = await this.authService.validateUser(loginDto.email, loginDto.password);
@@ -32,6 +36,36 @@ let AuthController = class AuthController {
         console.log('User civility:', user?.civility);
         console.log('========================');
         return user;
+    }
+    async forgotPassword(forgotPasswordDto) {
+        try {
+            const user = await this.userService.findByEmail(forgotPasswordDto.email);
+            if (!user) {
+                return { message: 'Si cet email existe dans notre système, un lien de réinitialisation a été envoyé.' };
+            }
+            const resetToken = await this.userService.generateResetToken(user.id);
+            await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+            return { message: 'Si cet email existe dans notre système, un lien de réinitialisation a été envoyé.' };
+        }
+        catch (error) {
+            console.error('Erreur lors de la demande de réinitialisation:', error);
+            return { message: 'Si cet email existe dans notre système, un lien de réinitialisation a été envoyé.' };
+        }
+    }
+    async resetPassword(resetPasswordDto) {
+        try {
+            const result = await this.userService.resetPassword(resetPasswordDto.token, resetPasswordDto.password);
+            if (!result.success) {
+                throw new common_1.BadRequestException(result.message);
+            }
+            return { message: 'Mot de passe réinitialisé avec succès' };
+        }
+        catch (error) {
+            console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+            throw new common_1.BadRequestException(error instanceof common_1.BadRequestException
+                ? error.message
+                : 'Erreur lors de la réinitialisation du mot de passe');
+        }
     }
 };
 exports.AuthController = AuthController;
@@ -51,8 +85,26 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Post)('forgot-password'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Post)('reset-password'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resetPassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        user_service_1.UserService,
+        email_service_1.EmailService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

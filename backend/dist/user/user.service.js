@@ -153,6 +153,31 @@ let UserService = class UserService {
             throw new Error('Erreur lors de l\'envoi de l\'email');
         }
     }
+    async generateResetToken(userId) {
+        const user = await this.findOne(userId);
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpires = new Date(Date.now() + 1 * 60 * 60 * 1000);
+        user.reset_token = resetToken;
+        user.reset_token_expires = resetTokenExpires;
+        await this.userRepository.save(user);
+        return resetToken;
+    }
+    async resetPassword(token, newPassword) {
+        const user = await this.userRepository.findOne({
+            where: { reset_token: token }
+        });
+        if (!user) {
+            return { success: false, message: 'Token de réinitialisation invalide' };
+        }
+        if (user.reset_token_expires && user.reset_token_expires < new Date()) {
+            return { success: false, message: 'Le token de réinitialisation a expiré' };
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.reset_token = null;
+        user.reset_token_expires = null;
+        await this.userRepository.save(user);
+        return { success: true, message: 'Mot de passe réinitialisé avec succès' };
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

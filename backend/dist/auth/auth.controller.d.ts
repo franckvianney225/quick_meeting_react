@@ -1,9 +1,13 @@
 import { AuthService } from './auth.service';
 import { User } from '../user/user.entity';
 import { Request } from 'express';
+import { UserService } from '../user/user.service';
+import { EmailService } from '../email/email.service';
 export declare class AuthController {
     private authService;
-    constructor(authService: AuthService);
+    private userService;
+    private emailService;
+    constructor(authService: AuthService, userService: UserService, emailService: EmailService);
     login(loginDto: {
         email: string;
         password: string;
@@ -21,4 +25,15 @@ export declare class AuthController {
         };
     }>;
     getProfile(req: Request): Promise<User>;
+    forgotPassword(forgotPasswordDto: {
+        email: string;
+    }): Promise<{
+        message: string;
+    }>;
+    resetPassword(resetPasswordDto: {
+        token: string;
+        password: string;
+    }): Promise<{
+        message: string;
+    }>;
 }

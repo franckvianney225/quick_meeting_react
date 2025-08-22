@@ -32,6 +32,8 @@ let User = class User {
         this.updated_at = new Date();
         this.activation_token = null;
         this.activation_token_expires = null;
+        this.reset_token = null;
+        this.reset_token_expires = null;
     }
 };
 exports.User = User;
@@ -103,6 +105,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Date)
 ], User.prototype, "activation_token_expires", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "reset_token", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
+    __metadata("design:type", Date)
+], User.prototype, "reset_token_expires", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => meeting_entity_1.Meeting, meeting => meeting.createdBy),
     __metadata("design:type", Array)

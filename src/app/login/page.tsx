@@ -13,6 +13,10 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [domainError, setDomainError] = useState('');
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -77,6 +81,46 @@ export default function LoginPage() {
     }
   };
 
+  // Gérer la réinitialisation du mot de passe
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetMessage(null);
+
+    try {
+      const response = await fetch(apiUrl('/auth/forgot-password'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setResetMessage({
+          type: 'success',
+          text: 'Un email de réinitialisation a été envoyé à votre adresse.'
+        });
+        setResetEmail('');
+        setTimeout(() => setShowResetForm(false), 3000);
+      } else {
+        setResetMessage({
+          type: 'error',
+          text: data.message || 'Erreur lors de l&apos;envoi de l&apos;email de réinitialisation.'
+        });
+      }
+    } catch (err) {
+      setResetMessage({
+        type: 'error',
+        text: 'Erreur de connexion. Veuillez réessayer.'
+      });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   // Charger les domaines autorisés au montage du composant
   useEffect(() => {
     fetchAllowedDomains();
@@ -99,7 +143,7 @@ export default function LoginPage() {
           </h1>
 
           <p className="text-xl mb-10 text-white leading-relaxed font-light">
-            Plateforme moderne de gestion des réunions et suivi des participants pour l'administration publique
+            Plateforme moderne de gestion des réunions et suivi des participants pour l&apos;administration publique
           </p>
 
           <div className="space-y-5">
@@ -152,7 +196,7 @@ export default function LoginPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
               Quick Meeting
             </h2>
-            <p className="text-gray-600 text-sm font-medium">Connexion à l'espace d'administration</p>
+            <p className="text-gray-600 text-sm font-medium">Connexion à l&apos;espace d&apos;administration</p>
           </div>
 
           {/* Formulaire */}
@@ -234,7 +278,83 @@ export default function LoginPage() {
                 'Se connecter'
               )}
             </button>
+
+            {/* Bouton de réinitialisation de mot de passe */}
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => setShowResetForm(true)}
+                className="text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors duration-200"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
           </form>
+
+          {/* Formulaire de réinitialisation de mot de passe */}
+          {showResetForm && (
+            <div className="mt-6 p-6 bg-white/90 backdrop-blur-xl rounded-3xl border border-gray-200/60 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                Réinitialiser votre mot de passe
+              </h3>
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Adresse email
+                  </label>
+                  <div className="relative group">
+                    <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
+                    <input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-500 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
+                      placeholder="Votre adresse email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {resetMessage && (
+                  <div className={`p-3 rounded-2xl text-sm font-medium ${
+                    resetMessage.type === 'success'
+                      ? 'bg-green-50/80 border border-green-200 text-green-700'
+                      : 'bg-red-50/80 border border-red-200 text-red-700'
+                  }`}>
+                    {resetMessage.text}
+                  </div>
+                )}
+
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="flex-1 py-3 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {resetLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        Envoi...
+                      </div>
+                    ) : (
+                      'Envoyer le lien'
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowResetForm(false);
+                      setResetEmail('');
+                      setResetMessage(null);
+                    }}
+                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* Informations de test */}
           <div className="mt-6 p-4 bg-orange-50/60 backdrop-blur-sm border border-orange-200/40 rounded-2xl">
@@ -259,7 +379,7 @@ export default function LoginPage() {
               }}
               className="w-full py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all duration-300 font-medium text-xs border border-red-300/50 hover:border-red-400/50"
             >
-              🔄 Nettoyer le cache d'authentification
+              🔄 Nettoyer le cache d&apos;authentification
             </button>
           </div>
         </div>

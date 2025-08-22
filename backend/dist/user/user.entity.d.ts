@@ -18,5 +18,7 @@ export declare class User {
     updated_at: Date;
     activation_token: string | null;
     activation_token_expires: Date | null;
+    reset_token: string | null;
+    reset_token_expires: Date | null;
     meetings: Meeting[];
 }

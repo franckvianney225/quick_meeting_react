@@ -56,6 +56,12 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   activation_token_expires: Date | null = null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  reset_token: string | null = null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  reset_token_expires: Date | null = null;
+
   @OneToMany(() => Meeting, meeting => meeting.createdBy)
   meetings!: Meeting[];
 }

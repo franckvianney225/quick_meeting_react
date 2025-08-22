@@ -17,4 +17,9 @@ export declare class UserService {
     updateLastLogin(id: number): Promise<void>;
     activateAccount(token: string, password: string): Promise<User>;
     resendInvitation(userId: number): Promise<void>;
+    generateResetToken(userId: number): Promise<string>;
+    resetPassword(token: string, newPassword: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
 }

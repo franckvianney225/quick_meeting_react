@@ -31,4 +31,5 @@ export declare class EmailService {
     }>;
     private htmlToText;
     sendInvitationEmail(email: string, name: string, activationToken: string): Promise<void>;
+    sendPasswordResetEmail(email: string, resetToken: string): Promise<void>;
 }
