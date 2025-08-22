@@ -178,6 +178,20 @@ let UserService = class UserService {
         await this.userRepository.save(user);
         return { success: true, message: 'Mot de passe réinitialisé avec succès' };
     }
+    async changePassword(userId, currentPassword, newPassword) {
+        const user = await this.findOne(userId);
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isCurrentPasswordValid) {
+            return { success: false, message: 'Le mot de passe actuel est incorrect' };
+        }
+        const isSamePassword = await bcrypt.compare(newPassword, user.password);
+        if (isSamePassword) {
+            return { success: false, message: 'Le nouveau mot de passe doit être différent de l\'ancien' };
+        }
+        user.password = await bcrypt.hash(newPassword, 10);
+        await this.userRepository.save(user);
+        return { success: true, message: 'Mot de passe mis à jour avec succès' };
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

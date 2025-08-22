@@ -22,4 +22,8 @@ export declare class UserService {
         success: boolean;
         message: string;
     }>;
+    changePassword(userId: number, currentPassword: string, newPassword: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
 }

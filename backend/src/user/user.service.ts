@@ -228,4 +228,26 @@ export class UserService {
 
     return { success: true, message: 'Mot de passe réinitialisé avec succès' };
   }
+
+  async changePassword(userId: number, currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.findOne(userId);
+    
+    // Vérifier le mot de passe actuel
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return { success: false, message: 'Le mot de passe actuel est incorrect' };
+    }
+
+    // Vérifier que le nouveau mot de passe est différent de l'ancien
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return { success: false, message: 'Le nouveau mot de passe doit être différent de l\'ancien' };
+    }
+
+    // Hasher le nouveau mot de passe
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.userRepository.save(user);
+
+    return { success: true, message: 'Mot de passe mis à jour avec succès' };
+  }
 }

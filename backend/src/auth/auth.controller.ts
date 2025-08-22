@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, BadRequestException, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from '../user/user.entity';
@@ -66,6 +66,37 @@ export class AuthController {
         success: false,
         message: 'Une erreur est survenue lors de lenvoi du lien de reinitialisation.'
       };
+    }
+  }
+
+  @Put('change-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Req() req: Request,
+    @Body() changePasswordDto: { currentPassword: string; newPassword: string }
+  ) {
+    try {
+      const user = req.user as User;
+      
+      const result = await this.userService.changePassword(
+        user.id,
+        changePasswordDto.currentPassword,
+        changePasswordDto.newPassword
+      );
+
+      if (!result.success) {
+        throw new BadRequestException(result.message);
+      }
+
+      return { message: result.message };
+    } catch (error) {
+      console.error('Erreur lors du changement de mot de passe:', error);
+      throw new BadRequestException(
+        error instanceof BadRequestException
+          ? error.message
+          : 'Erreur lors du changement de mot de passe'
+      );
     }
   }
 

@@ -67,6 +67,22 @@ let AuthController = class AuthController {
             };
         }
     }
+    async changePassword(req, changePasswordDto) {
+        try {
+            const user = req.user;
+            const result = await this.userService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
+            if (!result.success) {
+                throw new common_1.BadRequestException(result.message);
+            }
+            return { message: result.message };
+        }
+        catch (error) {
+            console.error('Erreur lors du changement de mot de passe:', error);
+            throw new common_1.BadRequestException(error instanceof common_1.BadRequestException
+                ? error.message
+                : 'Erreur lors du changement de mot de passe');
+        }
+    }
     async resetPassword(resetPasswordDto) {
         try {
             const result = await this.userService.resetPassword(resetPasswordDto.token, resetPasswordDto.password);
@@ -108,6 +124,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Put)('change-password'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Post)('reset-password'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
