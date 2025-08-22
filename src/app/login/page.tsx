@@ -29,7 +29,7 @@ export default function LoginPage() {
         }
       });
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         const settings = await response.json();
         setAllowedDomains(settings.allowed_email_domains || []);
       }
@@ -98,7 +98,7 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         setResetMessage({
           type: 'success',
           text: 'Un email de réinitialisation a été envoyé à votre adresse.'

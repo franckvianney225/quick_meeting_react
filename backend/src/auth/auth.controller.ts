@@ -24,7 +24,6 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req: Request): Promise<User> {
-    // Le guard JWT injecte l'utilisateur dans la requête
     const user = req.user as User;
     console.log('=== PROFILE ENDPOINT ===');
     console.log('User from request:', user);
@@ -41,20 +40,32 @@ export class AuthController {
       const user = await this.userService.findByEmail(forgotPasswordDto.email);
       
       if (!user) {
-        // Pour des raisons de sécurité, on ne révèle pas si l'email existe ou non
-        return { message: 'Si cet email existe dans notre système, un lien de réinitialisation a été envoyé.' };
+        return {
+          success: false,
+          message: 'Desole, cet email nest pas enregistre dans notre systeme.'
+        };
       }
 
-      // Générer un token de réinitialisation
+      if (user.status !== 'active') {
+        return {
+          success: false,
+          message: 'Votre compte nest pas encore active. Veuillez verifier vos emails pour le lien dactivation.'
+        };
+      }
+
       const resetToken = await this.userService.generateResetToken(user.id);
-      
-      // Envoyer l'email de réinitialisation
       await this.emailService.sendPasswordResetEmail(user.email, resetToken);
       
-      return { message: 'Si cet email existe dans notre système, un lien de réinitialisation a été envoyé.' };
+      return {
+        success: true,
+        message: 'Un lien de reinitialisation a ete envoye a votre adresse email.'
+      };
     } catch (error) {
-      console.error('Erreur lors de la demande de réinitialisation:', error);
-      return { message: 'Si cet email existe dans notre système, un lien de réinitialisation a été envoyé.' };
+      console.error('Erreur lors de la demande de reinitialisation:', error);
+      return {
+        success: false,
+        message: 'Une erreur est survenue lors de lenvoi du lien de reinitialisation.'
+      };
     }
   }
 
@@ -68,13 +79,13 @@ export class AuthController {
         throw new BadRequestException(result.message);
       }
       
-      return { message: 'Mot de passe réinitialisé avec succès' };
+      return { message: 'Mot de passe reinitialise avec succes' };
     } catch (error) {
-      console.error('Erreur lors de la réinitialisation du mot de passe:', error);
+      console.error('Erreur lors de la reinitialisation du mot de passe:', error);
       throw new BadRequestException(
         error instanceof BadRequestException
           ? error.message
-          : 'Erreur lors de la réinitialisation du mot de passe'
+          : 'Erreur lors de la reinitialisation du mot de passe'
       );
     }
   }
