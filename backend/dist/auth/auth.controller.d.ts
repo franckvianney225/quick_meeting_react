@@ -43,4 +43,10 @@ export declare class AuthController {
     }): Promise<{
         message: string;
     }>;
+    adminResetPassword(adminResetPasswordDto: {
+        email: string;
+    }): Promise<{
+        success: boolean;
+        message: string;
+    }>;
 }

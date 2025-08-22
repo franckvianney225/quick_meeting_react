@@ -120,4 +120,36 @@ export class AuthController {
       );
     }
   }
+
+  @Post('admin/reset-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async adminResetPassword(@Body() adminResetPasswordDto: { email: string }) {
+    try {
+      const user = await this.userService.findByEmail(adminResetPasswordDto.email);
+      
+      if (!user) {
+        throw new BadRequestException('Utilisateur non trouvé');
+      }
+
+      if (user.status !== 'active') {
+        throw new BadRequestException('Le compte de l\'utilisateur n\'est pas actif');
+      }
+
+      const resetToken = await this.userService.generateResetToken(user.id);
+      await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+      
+      return {
+        success: true,
+        message: `Email de réinitialisation envoyé avec succès à ${user.email}`
+      };
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de réinitialisation par admin:', error);
+      throw new BadRequestException(
+        error instanceof BadRequestException
+          ? error.message
+          : 'Erreur lors de l\'envoi de l\'email de réinitialisation'
+      );
+    }
+  }
 }

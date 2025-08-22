@@ -98,6 +98,29 @@ let AuthController = class AuthController {
                 : 'Erreur lors de la reinitialisation du mot de passe');
         }
     }
+    async adminResetPassword(adminResetPasswordDto) {
+        try {
+            const user = await this.userService.findByEmail(adminResetPasswordDto.email);
+            if (!user) {
+                throw new common_1.BadRequestException('Utilisateur non trouvé');
+            }
+            if (user.status !== 'active') {
+                throw new common_1.BadRequestException('Le compte de l\'utilisateur n\'est pas actif');
+            }
+            const resetToken = await this.userService.generateResetToken(user.id);
+            await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+            return {
+                success: true,
+                message: `Email de réinitialisation envoyé avec succès à ${user.email}`
+            };
+        }
+        catch (error) {
+            console.error('Erreur lors de l\'envoi de l\'email de réinitialisation par admin:', error);
+            throw new common_1.BadRequestException(error instanceof common_1.BadRequestException
+                ? error.message
+                : 'Erreur lors de l\'envoi de l\'email de réinitialisation');
+        }
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -142,6 +165,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "resetPassword", null);
+__decorate([
+    (0, common_1.Post)('admin/reset-password'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "adminResetPassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService,

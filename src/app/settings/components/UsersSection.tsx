@@ -5,7 +5,8 @@ import {
   PencilIcon,
   TrashIcon,
   CheckCircleIcon,
-  XCircleIcon
+  XCircleIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import { UserModal } from './Users/UserModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -34,6 +35,7 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sendingResetEmail, setSendingResetEmail] = useState<number | null>(null);
   const itemsPerPage = 30;
 
   useEffect(() => {
@@ -165,6 +167,33 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
       setUsers(users.map(u => u.id === userId ? updatedUser : u));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du changement de statut');
+    }
+  };
+
+  const handleSendResetPassword = async (userId: number, userEmail: string) => {
+    try {
+      setSendingResetEmail(userId);
+      const response = await fetch(apiUrl('/auth/admin/reset-password'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...AuthService.getAuthHeaders()
+        },
+        body: JSON.stringify({ email: userEmail })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'envoi de l\'email de réinitialisation');
+      }
+
+      // Afficher un message de succès
+      setError(null);
+      alert(`Email de réinitialisation envoyé avec succès à ${userEmail}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi de l\'email de réinitialisation');
+    } finally {
+      setSendingResetEmail(null);
     }
   };
 
@@ -403,14 +432,26 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <button 
+                      <button
                         onClick={() => openEditModal(user)}
                         className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
                         title="Modifier"
                       >
                         <PencilIcon className="w-4 h-4" />
                       </button>
-                      <button 
+                      <button
+                        onClick={() => handleSendResetPassword(user.id, user.email)}
+                        disabled={sendingResetEmail === user.id}
+                        className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Envoyer un email de réinitialisation"
+                      >
+                        {sendingResetEmail === user.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                        ) : (
+                          <EnvelopeIcon className="w-4 h-4" />
+                        )}
+                      </button>
+                      <button
                         onClick={() => setUserToDelete(user)}
                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
                         title="Supprimer"
