@@ -320,6 +320,110 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+
+        {/* Modal de réinitialisation de mot de passe */}
+        {isResetMode && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md border border-white/40">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Réinitialiser le mot de passe</h3>
+                <button
+                  onClick={() => {
+                    setIsResetMode(false);
+                    setResetMessage(null);
+                    setResetEmail('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 hover:bg-gray-100 rounded-lg"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <p className="text-gray-600 text-sm mb-6">
+                Entrez votre adresse email pour recevoir un lien de réinitialisation.
+              </p>
+
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Adresse email
+                  </label>
+                  <div className="relative group">
+                    <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition-colors duration-200" />
+                    <input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-500 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
+                      placeholder="votre@email.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {resetMessage && (
+                  <div className={`p-3 rounded-2xl border ${
+                    resetMessage.type === 'success'
+                      ? 'bg-green-50/80 border-green-200'
+                      : 'bg-red-50/80 border-red-200'
+                  } backdrop-blur-sm animate-in slide-in-from-top-2 duration-300`}>
+                    <div className="flex items-center">
+                      <svg className={`w-4 h-4 mr-2 ${
+                        resetMessage.type === 'success' ? 'text-green-500' : 'text-red-500'
+                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={
+                          resetMessage.type === 'success'
+                            ? "M5 13l4 4L19 7"
+                            : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        } />
+                      </svg>
+                      <div className={`text-sm font-medium ${
+                        resetMessage.type === 'success' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {resetMessage.type === 'success' ? 'Succès' : 'Erreur'}
+                      </div>
+                    </div>
+                    <div className={`text-sm mt-1 ${
+                      resetMessage.type === 'success' ? 'text-green-700' : 'text-red-700'
+                    }`}>
+                      {resetMessage.text}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsResetMode(false);
+                      setResetMessage(null);
+                      setResetEmail('');
+                    }}
+                    className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-semibold"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="flex-1 py-3 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {resetLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        Envoi...
+                      </div>
+                    ) : (
+                      'Envoyer'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
