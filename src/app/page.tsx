@@ -223,11 +223,22 @@ export default function HomePage() {
                     <span className={`
                       px-4 py-2 rounded-full text-xs font-bold transition-all duration-300
                       ${meeting.status === 'active' || meeting.status === 'scheduled'
-                        ? 'bg-gradient-to-r from-green-400 to-green-600 text-white shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-r from-gray-400 to-gray-600 text-white shadow-md hover:shadow-lg'
+                        ? 'bg-green-500 text-white shadow-md hover:shadow-lg'
+                        : meeting.status === 'inactive'
+                        ? 'bg-blue-500 text-white shadow-md hover:shadow-lg'
+                        : meeting.status === 'completed'
+                        ? 'bg-red-500 text-white shadow-md hover:shadow-lg'
+                        : 'bg-gray-500 text-white shadow-md hover:shadow-lg'
                       }
                     `}>
-                      {meeting.status === 'active' || meeting.status === 'scheduled' ? 'Active' : 'Terminée'}
+                      {meeting.status === 'active' || meeting.status === 'scheduled'
+                        ? 'Active'
+                        : meeting.status === 'inactive'
+                        ? 'En attente'
+                        : meeting.status === 'completed'
+                        ? 'Terminée'
+                        : 'Inconnu'
+                      }
                     </span>
                   </div>
                 </div>
