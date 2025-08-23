@@ -298,7 +298,7 @@ export default function TasksPage() {
           {/* Header avec profil utilisateur */}
           <div className="flex items-center justify-between mb-8">
             <div className="space-y-3">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-orange-700 to-green-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-black">
                 Gestion des Réunions
               </h1>
               <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
@@ -332,7 +332,7 @@ export default function TasksPage() {
               <div className="text-gray-600 text-sm font-medium">Réunions Actives</div>
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-4">
                 <PlusIcon className="w-6 h-6 text-white" />
               </div>
               <div className="text-3xl font-bold text-gray-900">
@@ -363,7 +363,7 @@ export default function TasksPage() {
                     onClick={() => setViewMode('grid')}
                     className={`p-3 rounded-lg transition-all duration-300 ${
                       viewMode === 'grid'
-                        ? 'bg-gradient-to-r from-orange-500 to-green-600 text-white shadow-md'
+                        ? 'bg-orange-500 text-white shadow-md'
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                     title="Vue grille"
@@ -374,7 +374,7 @@ export default function TasksPage() {
                     onClick={() => setViewMode('list')}
                     className={`p-3 rounded-lg transition-all duration-300 ${
                       viewMode === 'list'
-                        ? 'bg-gradient-to-r from-orange-500 to-green-600 text-white shadow-md'
+                        ? 'bg-orange-500 text-white shadow-md'
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
                     title="Vue liste"
@@ -399,7 +399,7 @@ export default function TasksPage() {
 
                 <button
                   onClick={handleCreateNew}
-                  className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
+                  className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
                 >
                   <PlusIcon className="h-5 w-5" />
                   <span>Nouvelle Réunion</span>

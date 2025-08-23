@@ -126,7 +126,7 @@ export default function HomePage() {
         {/* Header avec profil utilisateur */}
         <div className="flex items-center justify-between mb-8">
           <div className="space-y-3">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-orange-700 to-green-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-black">
               Bonjour 👋 {user.civility ? `${user.civility} ` : ''}
               <br/>
               {user.name}
@@ -156,6 +156,13 @@ export default function HomePage() {
             trend={0}
           />
           <StatCard
+            title="Réunion inactive"
+            value={stats.inactiveMeetings}
+            icon={ClockIcon}
+            color="gray"
+            trend={0}
+          />
+          <StatCard
             title="Réunions Actives"
             value={stats.activeMeetings}
             icon={ClockIcon}
@@ -163,17 +170,10 @@ export default function HomePage() {
             trend={0}
           />
           <StatCard
-            title="Réunion inactive"
-            value={stats.inactiveMeetings}
-            icon={ClockIcon}
-            color="red"
-            trend={0}
-          />
-          <StatCard
             title="Terminées"
             value={stats.completedMeetings}
             icon={CheckCircleIcon}
-            color="orange"
+            color="red"
             trend={0}
           />
         </div>
@@ -182,14 +182,14 @@ export default function HomePage() {
         <Card>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-green-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
                 <CalendarIcon className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Réunions Récentes</h2>
             </div>
             <Link
               href="/tasks"
-              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-green-600 text-white font-medium rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+              className="inline-flex items-center px-4 py-2 bg-orange-500 text-white font-medium rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               Voir tout →
             </Link>
@@ -234,7 +234,7 @@ export default function HomePage() {
               ))
             ) : (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <CalendarIcon className="w-8 h-8 text-white" />
                 </div>
                 <p className="text-gray-500 text-lg font-medium">Aucune réunion trouvée</p>

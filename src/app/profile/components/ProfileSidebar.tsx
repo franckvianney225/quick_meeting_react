@@ -36,7 +36,7 @@ export const ProfileSidebar = ({ user, activeTab, onTabChange, onAvatarEdit }: P
   return (
     <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8 text-center sticky top-4 relative overflow-hidden">
       {/* Accent coloré en arrière-plan */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-r from-orange-500 via-orange-600 to-green-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-24 bg-orange-500"></div>
 
       <div className="relative z-10">
         <div className="relative inline-block mb-6 mt-6">
@@ -56,7 +56,7 @@ export const ProfileSidebar = ({ user, activeTab, onTabChange, onAvatarEdit }: P
           {onAvatarEdit && (
             <button
               onClick={onAvatarEdit}
-              className="absolute bottom-0 right-0 bg-gradient-to-r from-orange-500 to-green-600 hover:from-orange-600 hover:to-green-700 rounded-full p-3 shadow-lg border-2 border-white transition-all duration-300 hover:scale-110"
+              className="absolute bottom-0 right-0 bg-orange-500 hover:bg-orange-600 rounded-full p-3 shadow-lg border-2 border-white transition-all duration-300 hover:scale-110"
             >
               <CameraIcon className="w-4 h-4 text-white" />
             </button>
