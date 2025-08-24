@@ -12,6 +12,7 @@ interface Participant {
   organization: string;
   phone?: string;
   registeredAt?: string;
+  signature?: string;
 }
 
 interface AttendanceListPDFProps {
@@ -200,8 +201,28 @@ const AttendanceListPDF = forwardRef(({
       doc.text(contact, xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
       xPos += colWidths[6];
       
-      // Case signature (vide)
+      // Case signature - afficher la signature si elle existe
       doc.rect(xPos, yPos - 4, colWidths[7], rowHeight);
+      
+      // Ajouter la signature si elle existe (format data URL)
+      if (participant.signature) {
+        try {
+          // Réduire la taille de la signature pour qu'elle tienne dans la case
+          const signatureWidth = colWidths[7] - 4;
+          const signatureHeight = rowHeight - 4;
+          doc.addImage(
+            participant.signature,
+            'PNG',
+            xPos + 2,
+            yPos - 2,
+            signatureWidth,
+            signatureHeight
+          );
+        } catch (error) {
+          console.warn('Erreur chargement signature:', error);
+          // En cas d'erreur, on laisse la case vide
+        }
+      }
       
       // Ligne de séparation
       doc.setDrawColor(200, 200, 200);
@@ -267,8 +288,10 @@ export function generateAttendancePDF(props: AttendanceListPDFProps) {
     <AttendanceListPDF
       {...props}
       onClose={() => {
-        root.unmount();
-        document.body.removeChild(pdfContainer);
+        setTimeout(() => {
+          root.unmount();
+          document.body.removeChild(pdfContainer);
+        }, 0);
       }}
     />
   );
