@@ -7,10 +7,12 @@ import {
   BriefcaseIcon,
   MagnifyingGlassIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
+import * as XLSX from 'xlsx';
 
 export interface Participant {
   id: number;
@@ -182,9 +184,59 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
 
   const showPagination = filteredParticipants.length > itemsPerPage;
 
+  // Fonction d'exportation CSV
+  const exportToCSV = () => {
+    const headers = ['Nom', 'Prénom', 'Email', 'Téléphone', 'Fonction', 'Organisation', 'Date de signature', 'Localisation'];
+    const csvData = filteredParticipants.map(participant => [
+      participant.lastName,
+      participant.firstName,
+      participant.email,
+      participant.phone,
+      participant.function,
+      participant.organization,
+      participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible',
+      participant.location || 'Non disponible'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.map(field => `"${field}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `participants_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Fonction d'exportation XLSX
+  const exportToXLSX = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredParticipants.map(participant => ({
+        'Nom': participant.lastName,
+        'Prénom': participant.firstName,
+        'Email': participant.email,
+        'Téléphone': participant.phone,
+        'Fonction': participant.function,
+        'Organisation': participant.organization,
+        'Date de signature': participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible',
+        'Localisation': participant.location || 'Non disponible'
+      }))
+    );
+    
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Participants');
+    XLSX.writeFile(workbook, `participants_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-      {/* Barre de recherche et informations */}
+      {/* Barre de recherche et actions d'exportation */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="relative max-w-md">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -197,12 +249,33 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           />
         </div>
         
-        {/* Informations de pagination */}
-        {showPagination && (
-          <div className="text-sm text-gray-600">
-            Affichage de {startIndex + 1} à {Math.min(endIndex, filteredParticipants.length)} sur {filteredParticipants.length} participants
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Boutons d'exportation */}
+          <button
+            onClick={exportToCSV}
+            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            title="Exporter en CSV"
+          >
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            <span>CSV</span>
+          </button>
+          
+          <button
+            onClick={exportToXLSX}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            title="Exporter en XLSX"
+          >
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            <span>XLSX</span>
+          </button>
+          
+          {/* Informations de pagination */}
+          {showPagination && (
+            <div className="text-sm text-gray-600 ml-4">
+              Affichage de {startIndex + 1} à {Math.min(endIndex, filteredParticipants.length)} sur {filteredParticipants.length} participants
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Liste des participants */}
