@@ -583,7 +583,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       </label>
                     </div>
 
-                    {qrConfig.includeText && (
+                    {/* {qrConfig.includeText && (
                       <div>
                         <label htmlFor="customText" className="block text-sm font-medium text-gray-700 mb-1">
                           Texte personnalisé (optionnel)
@@ -597,7 +597,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
                         />
                       </div>
-                    )}
+                    )} */}
 
                     {/* <div>
                       <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 mb-1">
