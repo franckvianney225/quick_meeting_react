@@ -67,11 +67,24 @@ export const generateMeetingQRPDF = async ({
     // Generate QR code as data URL avec les options de configuration
     const qrDataUrl = await QRCode.toDataURL(qrValue, qrOptions);
     
-    // Calculer la taille d'affichage dans le PDF (réduite pour s'adapter)
-    const displaySize = Math.min(config.size, 200);
+    // Calculer la taille d'affichage dans le PDF avec échelle progressive
+    const actualSize = config.size || 256; // Valeur par défaut si undefined
+    let displaySize;
+    if (actualSize <= 128) {
+      displaySize = actualSize; // Taille normale pour les petits QR codes
+    } else if (actualSize <= 256) {
+      displaySize = 150; // Légèrement réduit pour 256px
+    } else if (actualSize <= 512) {
+      displaySize = 180; // Réduit pour 512px
+    } else {
+      displaySize = 250; // Taille maximale pour les très grands QR codes (1024px)
+    }
+    
+    // Centrer le QR code horizontalement
+    const xPosition = 105 - (displaySize / 2);
     
     // Add QR code to PDF
-    doc.addImage(qrDataUrl, 'PNG', 105 - (displaySize / 2), 50, displaySize, displaySize);
+    doc.addImage(qrDataUrl, 'PNG', xPosition, 50, displaySize, displaySize);
     
     // Add instruction text
     doc.setFontSize(12);
