@@ -2,7 +2,7 @@
 const nextConfig = {
   images: {
     // Pour dev local simple
-    domains: ['localhost', '164.160.40.182'], 
+    domains: ['localhost', '192.168.1.77'], 
     
     // Si tu veux utiliser remotePatterns pour plus de contrôle
     remotePatterns: [

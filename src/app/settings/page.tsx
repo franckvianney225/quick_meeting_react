@@ -104,9 +104,20 @@ export default function SettingsPage() {
         });
 
         if (response.ok) {
-          const settings = await response.json();
-          if (settings) {
-            setOrgSettings(settings);
+          // Vérifier si la réponse a du contenu avant de parser le JSON
+          const responseText = await response.text();
+          if (responseText && responseText.trim() !== '') {
+            try {
+              const settings = JSON.parse(responseText);
+              if (settings) {
+                setOrgSettings(settings);
+              }
+            } catch (parseError) {
+              console.error('Erreur lors du parsing JSON:', parseError);
+              console.log('Contenu de la réponse:', responseText);
+            }
+          } else {
+            console.log('Réponse vide de l\'API, utilisation des valeurs par défaut');
           }
         } else if (response.status === 404) {
           // Aucune configuration existante, on garde les valeurs par défaut
