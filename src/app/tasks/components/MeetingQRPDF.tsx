@@ -53,20 +53,6 @@ export const generateMeetingQRPDF = async ({
     doc.setFontSize(20);
     doc.text(meetingTitle, 105, 30, { align: 'center' });
     
-    // Options pour la génération du QR Code basées sur la configuration
-    const qrOptions = {
-      width: config.size,
-      margin: config.includeMargin ? 2 : 0,
-      color: {
-        dark: config.foregroundColor,
-        light: config.backgroundColor
-      },
-      errorCorrectionLevel: config.errorCorrectionLevel
-    };
-    
-    // Generate QR code as data URL avec les options de configuration
-    const qrDataUrl = await QRCode.toDataURL(qrValue, qrOptions);
-    
     // Calculer la taille d'affichage dans le PDF avec échelle progressive
     const actualSize = config.size || 256; // Valeur par défaut si undefined
     let displaySize;
@@ -80,10 +66,24 @@ export const generateMeetingQRPDF = async ({
       displaySize = 250; // Taille maximale pour les très grands QR codes (1024px)
     }
     
+    // Options pour la génération du QR Code - générer directement à la taille d'affichage finale
+    const qrOptions = {
+      width: displaySize, // Générer à la taille d'affichage finale pour meilleure netteté
+      margin: config.includeMargin ? 2 : 0,
+      color: {
+        dark: config.foregroundColor,
+        light: config.backgroundColor
+      },
+      errorCorrectionLevel: config.errorCorrectionLevel
+    };
+    
+    // Generate QR code as data URL avec les options de configuration
+    const qrDataUrl = await QRCode.toDataURL(qrValue, qrOptions);
+    
     // Centrer le QR code horizontalement
     const xPosition = 105 - (displaySize / 2);
     
-    // Add QR code to PDF
+    // Add QR code to PDF - utiliser la même taille que la génération pour éviter le redimensionnement
     doc.addImage(qrDataUrl, 'PNG', xPosition, 50, displaySize, displaySize);
     
     // Add instruction text
