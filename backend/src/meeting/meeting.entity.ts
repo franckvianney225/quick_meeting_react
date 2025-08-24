@@ -35,6 +35,18 @@ export class Meeting {
   @Column({ name: 'qr_code', nullable: true })
   qrCode!: string;
 
+  @Column({ name: 'qr_config', type: 'json', nullable: true })
+  qrConfig!: {
+    backgroundColor?: string;
+    foregroundColor?: string;
+    size?: number;
+    includeMargin?: boolean;
+    errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+    includeText?: boolean;
+    customText?: string;
+    logoUrl?: string;
+  } | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

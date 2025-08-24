@@ -40,6 +40,16 @@ export class MeetingService {
     max_participants?: number;
     start_date?: string;
     startDate?: string;
+    qrConfig?: {
+      backgroundColor?: string;
+      foregroundColor?: string;
+      size?: number;
+      includeMargin?: boolean;
+      errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+      includeText?: boolean;
+      customText?: string;
+      logoUrl?: string;
+    };
   }, userId?: number): Promise<Meeting> {
     // Normaliser le nom du champ date (support ancien et nouveau format)
     const dateString = meetingData.startDate ||
@@ -77,6 +87,7 @@ export class MeetingService {
       maxParticipants: meetingData.max_participants,
       startDate: startDate,
       uniqueCode: uniqueCode,
+      qrConfig: meetingData.qrConfig || null,
       createdBy: userId ? { id: userId } : null,
       createdById: userId || null
     });

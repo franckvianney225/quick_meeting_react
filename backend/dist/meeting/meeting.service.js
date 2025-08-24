@@ -53,6 +53,7 @@ let MeetingService = class MeetingService {
             maxParticipants: meetingData.max_participants,
             startDate: startDate,
             uniqueCode: uniqueCode,
+            qrConfig: meetingData.qrConfig || null,
             createdBy: userId ? { id: userId } : null,
             createdById: userId || null
         });

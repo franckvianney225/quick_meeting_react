@@ -38,6 +38,16 @@ export declare class MeetingController {
         max_participants?: number;
         start_date?: string;
         startDate?: string;
+        qrConfig?: {
+            backgroundColor?: string;
+            foregroundColor?: string;
+            size?: number;
+            includeMargin?: boolean;
+            errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+            includeText?: boolean;
+            customText?: string;
+            logoUrl?: string;
+        };
     }, req: AuthenticatedRequest): Promise<Meeting>;
     update(id: number, meetingData: Partial<Meeting>, req: AuthenticatedRequest): Promise<Meeting>;
     remove(id: number, req: AuthenticatedRequest): Promise<void>;

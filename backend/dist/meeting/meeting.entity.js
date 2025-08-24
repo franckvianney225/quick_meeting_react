@@ -57,6 +57,10 @@ __decorate([
     __metadata("design:type", String)
 ], Meeting.prototype, "qrCode", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'qr_config', type: 'json', nullable: true }),
+    __metadata("design:type", Object)
+], Meeting.prototype, "qrConfig", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
     __metadata("design:type", Date)
 ], Meeting.prototype, "createdAt", void 0);

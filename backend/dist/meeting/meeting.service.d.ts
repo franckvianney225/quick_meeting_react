@@ -30,6 +30,16 @@ export declare class MeetingService {
         max_participants?: number;
         start_date?: string;
         startDate?: string;
+        qrConfig?: {
+            backgroundColor?: string;
+            foregroundColor?: string;
+            size?: number;
+            includeMargin?: boolean;
+            errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+            includeText?: boolean;
+            customText?: string;
+            logoUrl?: string;
+        };
     }, userId?: number): Promise<Meeting>;
     findAll(userId?: number): Promise<Meeting[]>;
     findOne(id: number): Promise<Meeting>;

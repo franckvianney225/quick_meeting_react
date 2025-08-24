@@ -25,12 +25,12 @@ type StatusType = 'active' | 'completed' | 'inactive';
 
 // Interface pour la configuration QR Code
 interface QRConfig {
-  backgroundColor: string;
-  foregroundColor: string;
-  size: number;
-  includeMargin: boolean;
-  errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H';
-  includeText: boolean;
+  backgroundColor?: string;
+  foregroundColor?: string;
+  size?: number;
+  includeMargin?: boolean;
+  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+  includeText?: boolean;
   customText?: string;
   logoUrl?: string;
 }
@@ -51,7 +51,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
   });
 
   // Configuration QR Code
-  const [qrConfig, setQRConfig] = useState<QRConfig>({
+  const [qrConfig, setQRConfig] = useState<QRConfig>(initialData?.qrConfig || {
     backgroundColor: '#FFFFFF',
     foregroundColor: '#000000',
     size: 256,

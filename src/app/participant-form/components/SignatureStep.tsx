@@ -69,11 +69,14 @@ export default function SignatureStep({
     }
   };
 
+  const [showSignatureError, setShowSignatureError] = useState(false);
+
   const handleSubmit = () => {
     if (!hasSigned) {
-      alert('Veuillez signer avant de soumettre');
+      setShowSignatureError(true);
       return;
     }
+    setShowSignatureError(false);
     onSubmit();
   };
 
@@ -96,6 +99,14 @@ export default function SignatureStep({
         >
           Effacer la signature
         </button>
+        {showSignatureError && (
+          <div className="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+            <svg className="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            La signature est obligatoire pour confirmer votre présence.
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between">
@@ -109,8 +120,7 @@ export default function SignatureStep({
         <button
           type="button"
           onClick={handleSubmit}
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
-          disabled={!hasSigned}
+          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Signer et valider
         </button>

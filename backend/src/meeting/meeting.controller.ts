@@ -65,6 +65,16 @@ export class MeetingController {
       max_participants?: number;
       start_date?: string;
       startDate?: string;
+      qrConfig?: {
+        backgroundColor?: string;
+        foregroundColor?: string;
+        size?: number;
+        includeMargin?: boolean;
+        errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
+        includeText?: boolean;
+        customText?: string;
+        logoUrl?: string;
+      };
     },
     @Req() req: AuthenticatedRequest
   ): Promise<Meeting> {

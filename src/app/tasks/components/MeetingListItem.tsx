@@ -44,6 +44,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         meetingId: meeting.id,
         meetingTitle: meeting.title,
         qrValue: formUrl,
+        qrConfig: meeting.qrConfig,
         fileName: `${meeting.title}_Code_QR.pdf`,
         onError: (error: Error) => {
           console.error('Erreur génération PDF:', error);
