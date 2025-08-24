@@ -21,9 +21,14 @@ export class ParticipantService {
 
     const participant = this.participantRepository.create({
       ...participantData,
-      meeting,
-      submittedAt: new Date() // Date/heure actuelle
+      meeting
     });
+    
+    // S'assurer que submittedAt est défini avec la date/heure actuelle
+    participant.submittedAt = new Date();
+    
+    // Définir la date de signature avec la date/heure actuelle
+    participant.signatureDate = new Date();
 
     return this.participantRepository.save(participant);
   }

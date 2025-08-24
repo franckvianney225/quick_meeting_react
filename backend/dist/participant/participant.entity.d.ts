@@ -11,4 +11,5 @@ export declare class Participant {
     meeting: Meeting;
     createdAt: Date;
     submittedAt: Date;
+    signatureDate?: Date;
 }

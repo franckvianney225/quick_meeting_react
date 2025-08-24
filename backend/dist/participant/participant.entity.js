@@ -70,6 +70,10 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'submitted_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' }),
     __metadata("design:type", Date)
 ], Participant.prototype, "submittedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'signature_date', type: 'timestamp', nullable: true }),
+    __metadata("design:type", Date)
+], Participant.prototype, "signatureDate", void 0);
 exports.Participant = Participant = __decorate([
     (0, typeorm_1.Entity)()
 ], Participant);

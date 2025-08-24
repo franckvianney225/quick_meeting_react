@@ -24,6 +24,8 @@ interface ParticipantResponse {
   signature: string;
   meetingId: number;
   registeredAt: string;
+  submittedAt?: string;
+  signatureDate?: string;
 }
 import { Participant } from '../participant/participant.entity';
 

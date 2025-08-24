@@ -20,6 +20,8 @@ interface ParticipantResponse {
     signature: string;
     meetingId: number;
     registeredAt: string;
+    submittedAt?: string;
+    signatureDate?: string;
 }
 export declare class MeetingController {
     private readonly service;

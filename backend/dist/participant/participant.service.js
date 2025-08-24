@@ -30,9 +30,10 @@ let ParticipantService = class ParticipantService {
         }
         const participant = this.participantRepository.create({
             ...participantData,
-            meeting,
-            submittedAt: new Date()
+            meeting
         });
+        participant.submittedAt = new Date();
+        participant.signatureDate = new Date();
         return this.participantRepository.save(participant);
     }
     async findAllByMeeting(meetingCode) {

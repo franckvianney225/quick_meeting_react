@@ -120,7 +120,9 @@ let MeetingService = class MeetingService {
             organisation: p.organisation,
             signature: p.signature,
             meetingId: p.meeting?.id || 0,
-            registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString()
+            registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString(),
+            submittedAt: p.submittedAt?.toISOString(),
+            signatureDate: p.signatureDate?.toISOString()
         }));
     }
     async registerParticipant(meetingCode, participantData) {

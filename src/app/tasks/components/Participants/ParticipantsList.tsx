@@ -19,6 +19,9 @@ export interface Participant {
   email: string;
   function: string;
   organization: string;
+  submittedAt?: string | null;
+  signatureDate?: string | null;
+  createdAt?: string | null;
   registeredAt?: string | null;
 }
 
@@ -58,6 +61,8 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           fonction: string;
           organisation: string;
           createdAt?: string;
+          submittedAt?: string;
+          signatureDate?: string;
           registeredAt?: string;
         }
 
@@ -68,7 +73,10 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           email: p.email,
           function: p.fonction,
           organization: p.organisation,
-          registeredAt: p.createdAt || p.registeredAt
+          submittedAt: p.submittedAt,
+          signatureDate: p.signatureDate,
+          createdAt: p.createdAt,
+          registeredAt: p.signatureDate || p.createdAt || p.submittedAt || p.registeredAt
         }));
         setParticipants(mappedParticipants);
         setError(null);
@@ -223,7 +231,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fonction
+                    Fonction/Emploi
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Organisation
@@ -265,7 +273,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {participant.registeredAt ? formatDate(participant.registeredAt) : 'Non disponible'}
+                      {participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible'}
                     </td>
                   </tr>
                 ))}

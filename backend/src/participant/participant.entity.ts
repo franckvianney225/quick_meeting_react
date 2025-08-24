@@ -36,4 +36,7 @@ export class Participant {
 
   @Column({ name: 'submitted_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   submittedAt!: Date;
+
+  @Column({ name: 'signature_date', type: 'timestamp', nullable: true })
+  signatureDate?: Date;
 }

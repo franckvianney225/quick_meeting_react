@@ -7,7 +7,7 @@ class AddSubmittedAtToParticipant1755522057502 {
     }
     async up(queryRunner) {
         await queryRunner.query(`
-            ALTER TABLE participant 
+            ALTER TABLE participant
             ADD COLUMN submitted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
         `);
     }

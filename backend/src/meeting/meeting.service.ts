@@ -14,6 +14,8 @@ interface ParticipantResponse {
   signature: string;
   meetingId: number;
   registeredAt: string;
+  submittedAt?: string;
+  signatureDate?: string;
 }
 import { Participant } from '../participant/participant.entity';
 import { v4 as uuidv4 } from 'uuid';
@@ -157,7 +159,9 @@ export class MeetingService {
       organisation: p.organisation,
       signature: p.signature,
       meetingId: p.meeting?.id || 0,
-      registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString()
+      registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString(),
+      submittedAt: p.submittedAt?.toISOString(),
+      signatureDate: p.signatureDate?.toISOString()
     }));
   }
 
