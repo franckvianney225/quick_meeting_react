@@ -98,7 +98,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
   }, [meetingId]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
+  const itemsPerPage = 50;
 
   // Filtrer les participants
   const filteredParticipants = useMemo(() => {
