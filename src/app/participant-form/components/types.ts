@@ -48,6 +48,7 @@ export interface BaseFormData {
   position: string;
   signature: string;
   agreedToTerms: boolean;
+  location?: string;
 }
 
 export interface FormData extends BaseFormData {

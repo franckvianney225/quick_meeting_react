@@ -12,4 +12,5 @@ export declare class Participant {
     createdAt: Date;
     submittedAt: Date;
     signatureDate?: Date;
+    location?: string;
 }

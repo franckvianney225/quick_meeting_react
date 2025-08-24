@@ -6,4 +6,5 @@ export declare class CreateParticipantDto {
     position: string;
     signature: string;
     phone: string;
+    location?: string;
 }

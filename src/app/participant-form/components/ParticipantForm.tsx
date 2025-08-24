@@ -76,8 +76,132 @@ export function ParticipantForm() {
     company: '',
     position: '',
     signature: '',
-    agreedToTerms: false
+    agreedToTerms: false,
+    location: ''
   });
+
+  // Capturer automatiquement la géolocalisation au chargement du composant
+  useEffect(() => {
+    const captureGeolocation = async () => {
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+          });
+          
+          const { latitude, longitude, accuracy } = position.coords;
+          const coordinates = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
+          
+          // Vérifier la précision du GPS - plus strict pour Abidjan
+          const isAccurate = accuracy < 50; // Précision de moins de 50m pour Abidjan
+          
+          console.log('Précision GPS:', accuracy, 'mètres - Precise:', isAccurate);
+          
+          // Utiliser OpenStreetMap avec des paramètres optimisés pour l'Afrique
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+            
+            if (!response.ok) throw new Error('Erreur API OpenStreetMap');
+            
+            const data = await response.json();
+            
+            let locationName = coordinates;
+            let specificLocation = '';
+            
+            if (data.display_name) {
+              // Essayer d'obtenir le nom le plus spécifique possible
+              if (data.address) {
+                // Priorité: quartier > banlieue > ville
+                if (data.address.suburb) {
+                  specificLocation = data.address.suburb;
+                } else if (data.address.neighbourhood) {
+                  specificLocation = data.address.neighbourhood;
+                } else if (data.address.city_district) {
+                  specificLocation = data.address.city_district;
+                } else if (data.address.town) {
+                  specificLocation = data.address.town;
+                } else if (data.address.city) {
+                  specificLocation = data.address.city;
+                }
+                
+                // Pour Abidjan, on peut avoir des arrondissements spécifiques
+                if (data.address.city === 'Abidjan' && data.address.suburb) {
+                  specificLocation = data.address.suburb + ', Abidjan';
+                }
+              }
+              
+              locationName = specificLocation || data.display_name;
+              
+              // Ajouter un indicateur de précision
+              if (!isAccurate) {
+                locationName += ' (Localisation approximative)';
+              }
+            }
+            
+            setFormData(prev => ({ ...prev, location: locationName }));
+          } catch (geocodeError) {
+            console.warn('Erreur de géocodage inverse:', geocodeError);
+            setFormData(prev => ({
+              ...prev,
+              location: isAccurate ? coordinates : coordinates + ' (Localisation approximative)'
+            }));
+          }
+        } catch (error) {
+          console.warn('Impossible de capturer la géolocalisation:', error);
+          // En cas d'erreur, on peut essayer d'obtenir l'adresse IP pour une localisation approximative
+          try {
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            const coordinates = `${data.latitude},${data.longitude}`;
+            
+            // La géolocalisation par IP est toujours approximative
+            try {
+              const geoResponse = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=10`
+              );
+              const geoData = await geoResponse.json();
+              
+              let locationName = 'Localisation par IP (approximative)';
+              
+              if (geoData.display_name) {
+                // Pour IP, on se limite à la ville/region pour éviter la fausse précision
+                if (geoData.address) {
+                  if (geoData.address.city) {
+                    locationName = `${geoData.address.city} (Localisation IP approximative)`;
+                  } else if (geoData.address.town) {
+                    locationName = `${geoData.address.town} (Localisation IP approximative)`;
+                  } else if (geoData.address.state) {
+                    locationName = `${geoData.address.state} (Localisation IP approximative)`;
+                  } else {
+                    locationName = `${geoData.display_name} (Localisation IP approximative)`;
+                  }
+                }
+              }
+              
+              setFormData(prev => ({ ...prev, location: locationName }));
+            } catch (geoError) {
+              console.warn('Erreur de géocodage inverse via IP:', geoError);
+              setFormData(prev => ({ ...prev, location: 'Localisation indisponible (IP)' }));
+            }
+          } catch (ipError) {
+            console.warn('Impossible de capturer la localisation via IP:', ipError);
+            setFormData(prev => ({ ...prev, location: 'Localisation indisponible' }));
+          }
+        }
+      } else {
+        console.warn('Géolocalisation non supportée par le navigateur');
+        setFormData(prev => ({ ...prev, location: 'Géolocalisation non supportée' }));
+      }
+    };
+
+    captureGeolocation();
+  }, []);
 
   const handleEmailNext = (existingParticipant?: ExistingParticipant, isAlreadyRegistered?: boolean) => {
     if (isAlreadyRegistered) {

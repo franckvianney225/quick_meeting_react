@@ -16,6 +16,7 @@ interface ParticipantResponse {
   registeredAt: string;
   submittedAt?: string;
   signatureDate?: string;
+  location?: string;
 }
 import { Participant } from '../participant/participant.entity';
 import { v4 as uuidv4 } from 'uuid';
@@ -161,7 +162,8 @@ export class MeetingService {
       meetingId: p.meeting?.id || 0,
       registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString(),
       submittedAt: p.submittedAt?.toISOString(),
-      signatureDate: p.signatureDate?.toISOString()
+      signatureDate: p.signatureDate?.toISOString(),
+      location: p.location
     }));
   }
 
@@ -175,6 +177,7 @@ export class MeetingService {
       position?: string;
       signature: string;
       agreedToTerms: boolean;
+      location?: string;
     }
   ): Promise<boolean> {
     const meeting = await this.findOneByCode(meetingCode);
@@ -190,6 +193,7 @@ export class MeetingService {
       fonction: participantData.position || '',
       organisation: participantData.company || '',
       signature: participantData.signature,
+      location: participantData.location,
       meeting: meeting
     });
 

@@ -26,6 +26,7 @@ interface ParticipantResponse {
   registeredAt: string;
   submittedAt?: string;
   signatureDate?: string;
+  location?: string;
 }
 import { Participant } from '../participant/participant.entity';
 
@@ -120,6 +121,7 @@ export class MeetingController {
       position?: string;
       signature: string;
       agreedToTerms: boolean;
+      location?: string;
     }
   ): Promise<{success: boolean}> {
     try {

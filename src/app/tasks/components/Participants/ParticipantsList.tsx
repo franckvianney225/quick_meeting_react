@@ -23,6 +23,7 @@ export interface Participant {
   signatureDate?: string | null;
   createdAt?: string | null;
   registeredAt?: string | null;
+  location?: string | null;
 }
 
 interface ParticipantsListProps {
@@ -64,6 +65,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           submittedAt?: string;
           signatureDate?: string;
           registeredAt?: string;
+          location?: string;
         }
 
         const mappedParticipants = data.map((p: ApiParticipant) => ({
@@ -76,7 +78,8 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           submittedAt: p.submittedAt,
           signatureDate: p.signatureDate,
           createdAt: p.createdAt,
-          registeredAt: p.signatureDate || p.createdAt || p.submittedAt || p.registeredAt
+          registeredAt: p.signatureDate || p.createdAt || p.submittedAt || p.registeredAt,
+          location: p.location
         }));
         setParticipants(mappedParticipants);
         setError(null);
@@ -239,6 +242,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date de signature
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Localisation
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -274,6 +280,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {participant.location || 'Non disponible'}
                     </td>
                   </tr>
                 ))}

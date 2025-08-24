@@ -122,7 +122,8 @@ let MeetingService = class MeetingService {
             meetingId: p.meeting?.id || 0,
             registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString(),
             submittedAt: p.submittedAt?.toISOString(),
-            signatureDate: p.signatureDate?.toISOString()
+            signatureDate: p.signatureDate?.toISOString(),
+            location: p.location
         }));
     }
     async registerParticipant(meetingCode, participantData) {
@@ -138,6 +139,7 @@ let MeetingService = class MeetingService {
             fonction: participantData.position || '',
             organisation: participantData.company || '',
             signature: participantData.signature,
+            location: participantData.location,
             meeting: meeting
         });
         await this.participantRepository.save(participant);

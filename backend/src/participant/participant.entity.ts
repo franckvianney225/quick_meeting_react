@@ -39,4 +39,7 @@ export class Participant {
 
   @Column({ name: 'signature_date', type: 'timestamp', nullable: true })
   signatureDate?: Date;
+
+  @Column({ name: 'location', type: 'text', nullable: true })
+  location?: string;
 }

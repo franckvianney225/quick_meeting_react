@@ -13,6 +13,7 @@ interface ParticipantResponse {
     registeredAt: string;
     submittedAt?: string;
     signatureDate?: string;
+    location?: string;
 }
 import { Participant } from '../participant/participant.entity';
 import { QrCodeService } from '../qrcode/qrcode.service';
@@ -44,6 +45,7 @@ export declare class MeetingService {
         position?: string;
         signature: string;
         agreedToTerms: boolean;
+        location?: string;
     }): Promise<boolean>;
     generateQRCode(meetingId: number, url: string, config?: {
         color?: {
