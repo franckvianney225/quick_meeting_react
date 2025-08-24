@@ -175,6 +175,7 @@ export class MeetingService {
       lastName: string;
       company?: string;
       position?: string;
+      phone: string;
       signature: string;
       agreedToTerms: boolean;
       location?: string;
@@ -189,7 +190,7 @@ export class MeetingService {
       name: participantData.lastName,
       prenom: participantData.firstName,
       email: participantData.email,
-      phone: '', // Champ obligatoire non fourni dans le formulaire
+      phone: participantData.phone,
       fonction: participantData.position || '',
       organisation: participantData.company || '',
       signature: participantData.signature,

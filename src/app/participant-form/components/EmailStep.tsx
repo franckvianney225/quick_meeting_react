@@ -30,10 +30,15 @@ export default function EmailStep({
         });
 
         if (checkResponse.ok) {
-          const { isRegistered } = await checkResponse.json();
-          if (isRegistered) {
-            // Le participant est déjà inscrit à cette réunion
-            onNext(undefined, true); // Passer true pour indiquer qu'il est déjà inscrit
+          const result = await checkResponse.json();
+          if (result.isRegistered) {
+            if (result.participant) {
+              // Le participant est déjà inscrit et on a ses informations
+              onNext(result.participant, true);
+            } else {
+              // Le participant est déjà inscrit mais on n'a pas ses informations
+              onNext(undefined, true);
+            }
             return;
           }
         }

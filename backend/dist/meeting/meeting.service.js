@@ -135,7 +135,7 @@ let MeetingService = class MeetingService {
             name: participantData.lastName,
             prenom: participantData.firstName,
             email: participantData.email,
-            phone: '',
+            phone: participantData.phone,
             fonction: participantData.position || '',
             organisation: participantData.company || '',
             signature: participantData.signature,

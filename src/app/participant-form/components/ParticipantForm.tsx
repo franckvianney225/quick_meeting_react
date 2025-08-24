@@ -75,6 +75,7 @@ export function ParticipantForm() {
     lastName: '',
     company: '',
     position: '',
+    phone: '',
     signature: '',
     agreedToTerms: false,
     location: ''
@@ -219,6 +220,7 @@ export function ParticipantForm() {
         lastName: existingParticipant.name,
         company: existingParticipant.organisation,
         position: existingParticipant.fonction,
+        phone: existingParticipant.phone || '',
         signature: existingParticipant.signature
       }));
     }

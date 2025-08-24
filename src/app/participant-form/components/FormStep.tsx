@@ -10,6 +10,7 @@ interface FormData {
   position: string;
   company: string;
   email: string;
+  phone: string;
 }
 
 interface FormStepProps {
@@ -33,7 +34,8 @@ export default function FormStep({
       lastName: '',
       position: '',
       company: '',
-      email: ''
+      email: '',
+      phone: ''
     }
   );
 
@@ -176,6 +178,28 @@ export default function FormStep({
                 placeholder="votre.email@exemple.com"
                 required
               />
+            </div>
+  
+            {/* Téléphone sur toute la largeur */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                Téléphone
+              </label>
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  placeholder="Votre numéro de téléphone"
+                  required
+                />
+              </div>
             </div>
           </div>
 

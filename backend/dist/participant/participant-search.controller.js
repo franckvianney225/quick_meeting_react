@@ -30,7 +30,34 @@ let ParticipantSearchController = class ParticipantSearchController {
             throw new Error('Email and meetingCode parameters are required');
         }
         const isRegistered = await this.participantService.isAlreadyRegistered(email, meetingCode);
-        return { isRegistered };
+        if (isRegistered) {
+            const meeting = await this.participantService['meetingService'].findOneByCode(meetingCode);
+            if (!meeting) {
+                throw new Error('Réunion non trouvée');
+            }
+            const existingParticipant = await this.participantService['participantRepository'].findOne({
+                where: {
+                    email,
+                    meeting: { id: meeting.id }
+                },
+                relations: ['meeting']
+            });
+            if (existingParticipant) {
+                return {
+                    isRegistered: true,
+                    participant: {
+                        email: existingParticipant.email,
+                        name: existingParticipant.name,
+                        prenom: existingParticipant.prenom,
+                        phone: existingParticipant.phone,
+                        fonction: existingParticipant.fonction,
+                        organisation: existingParticipant.organisation,
+                        signature: existingParticipant.signature
+                    }
+                };
+            }
+        }
+        return { isRegistered: false };
     }
 };
 exports.ParticipantSearchController = ParticipantSearchController;

@@ -47,6 +47,7 @@ export declare class MeetingController {
         lastName: string;
         company?: string;
         position?: string;
+        phone: string;
         signature: string;
         agreedToTerms: boolean;
         location?: string;

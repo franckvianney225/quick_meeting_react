@@ -17,6 +17,7 @@ export interface Participant {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
   function: string;
   organization: string;
   submittedAt?: string | null;
@@ -59,6 +60,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           name: string;
           prenom: string;
           email: string;
+          phone: string;
           fonction: string;
           organisation: string;
           createdAt?: string;
@@ -73,6 +75,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           firstName: p.prenom,
           lastName: p.name,
           email: p.email,
+          phone: p.phone,
           function: p.fonction,
           organization: p.organisation,
           submittedAt: p.submittedAt,
@@ -104,6 +107,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
         (participant.firstName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (participant.lastName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (participant.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (participant.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (participant.function?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (participant.organization?.toLowerCase() || '').includes(searchTerm.toLowerCase());
       
@@ -234,6 +238,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Téléphone
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Fonction/Emploi
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -264,6 +271,11 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                       <div className="flex items-center text-sm text-gray-900">
                         <EnvelopeIcon className="w-4 h-4 mr-2 text-gray-400" />
                         {participant.email}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-900">
+                        {participant.phone}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
