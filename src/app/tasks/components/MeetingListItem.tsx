@@ -123,14 +123,16 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
     <>
       <tr className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300">
         {/* Réunion */}
-        <td className="px-6 py-4 md:col-span-2">
-          <h3 className="font-bold text-gray-900 mb-1 hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
+        <td className="px-6 py-4 w-2/12">
+          <h3 className="font-bold text-gray-900 mb-1 hover:text-orange-600 transition-colors duration-200">
+            {meeting.title.length > 40 ? `${meeting.title.substring(0, 40)}...` : meeting.title}
+          </h3>
           <p className="text-sm text-gray-600 line-clamp-1">{meeting.description}</p>
           <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-full">{meeting.uniqueCode}</span>
         </td>
 
         {/* Date */}
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 w-2/12">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
               <CalendarIcon className="h-4 w-4 text-white" />
@@ -140,7 +142,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         </td>
 
         {/* Lieu */}
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 w-2/12">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
               <MapPinIcon className="h-4 w-4 text-white" />
@@ -150,7 +152,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         </td>
 
         {/* Participants */}
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 w-1/12">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
               <UserGroupIcon className="h-4 w-4 text-white" />
@@ -160,14 +162,14 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         </td>
 
         {/* Status */}
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 w-1/12">
           <span className={`px-4 py-2 rounded-xl text-xs font-bold ${getStatusColor(meeting.status)}`}>
             {getStatusLabel(meeting.status)}
           </span>
         </td>
 
         {/* Actions */}
-        <td className="px-6 py-4 md:col-span-2">
+        <td className="px-6 py-4 w-4/12">
           <div className="flex items-center space-x-2">
             <button
               onClick={() => onView(meeting.id)}

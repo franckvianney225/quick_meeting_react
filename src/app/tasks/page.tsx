@@ -484,16 +484,16 @@ export default function TasksPage() {
               {/* Vue Liste */}
               {viewMode === 'list' && (
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
-                  <table className="w-full">
+                  <table className="w-full table-fixed">
                     {/* Header du tableau */}
                     <thead>
                       <tr className="bg-gradient-to-r from-orange-50/80 to-green-50/80 border-b border-orange-200/30">
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 md:col-span-2">Réunion</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date création</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Lieu</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Participants</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 md:col-span-2">Actions</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-3/12">Réunion</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-2/12">Date création</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-2/12">Lieu</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-1/12">Participants</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-1/12">Status</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-2/12">Actions</th>
                       </tr>
                     </thead>
 

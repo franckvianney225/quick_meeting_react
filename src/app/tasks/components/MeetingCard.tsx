@@ -155,7 +155,9 @@ export const MeetingCard = ({
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-orange-600 transition-colors duration-200">
+              {meeting.title.length > 50 ? `${meeting.title.substring(0, 50)}...` : meeting.title}
+            </h3>
             <p className="text-gray-600 text-sm line-clamp-2">{meeting.description}</p>
           </div>
           <span className={`px-4 py-2 rounded-xl text-xs font-bold border ${getStatusColor(meeting.status)}`}>
