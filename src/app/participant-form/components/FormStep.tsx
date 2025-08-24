@@ -39,6 +39,10 @@ export default function FormStep({
     }
   );
 
+  // État pour suivre les champs touchés et les erreurs de validation
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const updatedData = {
@@ -50,12 +54,80 @@ export default function FormStep({
     if (onChange) {
       onChange(updatedData);
     }
+
+    // Marquer le champ comme touché
+    if (!touchedFields[name]) {
+      setTouchedFields(prev => ({ ...prev, [name]: true }));
+    }
+
+    // Valider le champ immédiatement
+    validateField(name, value);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setTouchedFields(prev => ({ ...prev, [name]: true }));
+    validateField(name, value);
+  };
+
+  const validateField = (fieldName: string, value: string) => {
+    let error = '';
+    
+    if (!value.trim()) {
+      error = 'Ce champ est requis';
+    } else if (fieldName === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+      error = 'Format d\'email invalide';
+    } else if (fieldName === 'phone' && !/^[+\d\s\-()]{10,20}$/.test(value)) {
+      error = 'Format de téléphone invalide';
+    }
+
+    setErrors(prev => ({ ...prev, [fieldName]: error }));
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    // Valider tous les champs requis
+    const requiredFields: (keyof FormData)[] = ['firstName', 'lastName', 'position', 'company', 'email', 'phone'];
+    
+    requiredFields.forEach(field => {
+      const value = localFormData[field];
+      if (!value.trim()) {
+        newErrors[field] = 'Ce champ est requis';
+        isValid = false;
+      } else if (field === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+        newErrors[field] = 'Format d\'email invalide';
+        isValid = false;
+      } else if (field === 'phone' && !/^[+\d\s\-()]{10,20}$/.test(value)) {
+        newErrors[field] = 'Format de téléphone invalide';
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    
+    // Marquer tous les champs comme touchés pour afficher les erreurs
+    const allFieldsTouched = requiredFields.reduce((acc, field) => {
+      acc[field] = true;
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    setTouchedFields(prev => ({ ...prev, ...allFieldsTouched }));
+
+    return isValid;
   };
 
   const formData = localFormData;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      // Empêcher la navigation si le formulaire est invalide
+      return;
+    }
+    
     console.log('Form data:', formData);
     onNext();
   };
@@ -93,11 +165,19 @@ export default function FormStep({
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  onBlur={handleBlur}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                    touchedFields.firstName && errors.firstName
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-black'
+                  }`}
                   placeholder="Votre nom"
                   required
                 />
               </div>
+              {touchedFields.firstName && errors.firstName && (
+                <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+              )}
             </div>
 
             {/* Prénom */}
@@ -113,11 +193,19 @@ export default function FormStep({
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  onBlur={handleBlur}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                    touchedFields.lastName && errors.lastName
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-black'
+                  }`}
                   placeholder="Votre prénom"
                   required
                 />
               </div>
+              {touchedFields.lastName && errors.lastName && (
+                <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+              )}
             </div>
 
             {/* Fonction */}
@@ -133,11 +221,19 @@ export default function FormStep({
                   name="position"
                   value={formData.position}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  onBlur={handleBlur}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                    touchedFields.position && errors.position
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-black'
+                  }`}
                   placeholder="Votre fonction"
                   required
                 />
               </div>
+              {touchedFields.position && errors.position && (
+                <p className="mt-1 text-sm text-red-600">{errors.position}</p>
+              )}
             </div>
 
             {/* Organisation */}
@@ -153,11 +249,19 @@ export default function FormStep({
                   name="company"
                   value={formData.company}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  onBlur={handleBlur}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                    touchedFields.company && errors.company
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-black'
+                  }`}
                   placeholder="Votre organisation"
                   required
                 />
               </div>
+              {touchedFields.company && errors.company && (
+                <p className="mt-1 text-sm text-red-600">{errors.company}</p>
+              )}
             </div>
           </div>
 
@@ -173,8 +277,8 @@ export default function FormStep({
                 id="email"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                readOnly
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                 placeholder="votre.email@exemple.com"
                 required
               />
@@ -195,12 +299,20 @@ export default function FormStep({
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  onBlur={handleBlur}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                    touchedFields.phone && errors.phone
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-black'
+                  }`}
                   placeholder="Votre numéro de téléphone"
                   required
                 />
               </div>
             </div>
+            {touchedFields.phone && errors.phone && (
+              <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
           </div>
 
           {/* Boutons */}

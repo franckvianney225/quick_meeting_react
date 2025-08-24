@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
 import type { SignatureStepProps } from './types';
+import SignaturePad from 'signature_pad';
 
 export default function SignatureStep({
   signature,
@@ -9,69 +10,64 @@ export default function SignatureStep({
   onBack
 }: SignatureStepProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isSigning, setIsSigning] = useState(false);
+  const signaturePadRef = useRef<SignaturePad | null>(null);
+  const [hasSigned, setHasSigned] = useState(!!signature);
 
-  // Effet pour charger la signature existante sur le canvas
+  // Initialiser SignaturePad
   useEffect(() => {
-    if (signature && canvasRef.current) {
+    if (canvasRef.current) {
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      
+      // Ajuster la taille du canvas pour les écrans haute résolution
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext('2d')?.scale(ratio, ratio);
 
-      const img = new Image();
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
-      img.src = signature;
+      signaturePadRef.current = new SignaturePad(canvas, {
+        minWidth: 1,
+        maxWidth: 3,
+        penColor: 'rgb(0, 0, 0)',
+        backgroundColor: 'rgb(248, 250, 252)'
+      });
+
+      // Charger la signature existante si elle existe
+      if (signature) {
+        signaturePadRef.current.fromDataURL(signature);
+      }
+
+      // Écouter les changements de signature
+      signaturePadRef.current.addEventListener('endStroke', () => {
+        if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
+          const signatureData = signaturePadRef.current.toDataURL();
+          onChange(signatureData);
+          setHasSigned(true);
+        }
+      });
+    }
+
+    return () => {
+      if (signaturePadRef.current) {
+        signaturePadRef.current.off();
+      }
+    };
+  }, [onChange]);
+
+  // Mettre à jour la signature quand elle change depuis les props
+  useEffect(() => {
+    if (signature && signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
+      signaturePadRef.current.fromDataURL(signature);
+      setHasSigned(true);
     }
   }, [signature]);
 
-  const startDrawing = (e: React.MouseEvent) => {
-    if (!canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    setIsSigning(true);
-    ctx.beginPath();
-    ctx.moveTo(
-      e.nativeEvent.offsetX,
-      e.nativeEvent.offsetY
-    );
-  };
-
-  const draw = (e: React.MouseEvent) => {
-    if (!isSigning || !canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.lineTo(
-      e.nativeEvent.offsetX,
-      e.nativeEvent.offsetY
-    );
-    ctx.stroke();
-  };
-
-  const endDrawing = () => {
-    setIsSigning(false);
-    if (canvasRef.current) {
-      onChange(canvasRef.current.toDataURL());
+  const clearSignature = () => {
+    if (signaturePadRef.current) {
+      signaturePadRef.current.clear();
+      onChange('');
+      setHasSigned(false);
     }
   };
-
-  const clearSignature = () => {
-    if (!canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    onChange('');
-  };
-
-  const hasSigned = !!signature;
 
   const handleSubmit = () => {
     if (!hasSigned) {
@@ -87,16 +83,10 @@ export default function SignatureStep({
       
       <div className="mb-6">
         <p className="text-sm mb-4">Veuillez signer dans la zone ci-dessous :</p>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg touch-none">
           <canvas
             ref={canvasRef}
-            width={500}
-            height={200}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={endDrawing}
-            onMouseLeave={endDrawing}
-            className="w-full bg-gray-50 cursor-crosshair"
+            className="w-full h-48 bg-gray-50 cursor-crosshair touch-none"
           />
         </div>
         <button

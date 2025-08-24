@@ -1,0 +1,651 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <template id="meeting_check_data" name="Reunion - Emargements">
+        <t t-call="website.layout">
+            <div id="form_sign_externe" class="oe_structure container mb-5" style="min-height: 80vh;">
+                <h1 class="text-center fw-bold mt-4">GESTION DE PRÉSENCE</h1>
+                <form id="presenceForm" action="/quick-meeting/check-in" method="POST" enctype="multipart/form-data">
+                    <!-- Étape 1 -->
+                    <div class="step" id="step1">
+                        <h2 class="text-center mt-4">Mention de Confidentialité et de Consentement</h2>
+                        <p>En apposant ma signature ci-dessous, je reconnais et accepte ce qui suit :</p>
+                        <ol>
+                            <li>Collecte des Données : Je comprends que mes informations personnelles, notamment mon nom, ma date de présence et l'heure d'arrivée et de départ, seront collectées et enregistrées électroniquement.</li>
+                            <li>Utilisation des Données : Je suis informé(e) que ces données seront utilisées uniquement à des fins de gestion de présence et de sécurité au sein du Ministère de la Transition Numérique et de la Digitalisation.</li>
+                            <li>Conservation et Sécurité : Je suis conscient(e) que mes données seront conservées de manière sécurisée et confidentielle, conformément à la politique de conservation des données du ministère, et ne seront accessibles qu'aux personnes autorisées.</li>
+                            <li>Droits : Je reconnais avoir le droit d'accéder à mes données personnelles, de demander leur rectification ou suppression, conformément à la législation en vigueur sur la protection des données personnelles.</li>
+                            <li>Consentement : Par ma signature, je donne mon consentement éclairé à la collecte et au traitement de mes données personnelles.</li>
+                        </ol>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">J'accepte</button>
+                        </div>
+                    </div>
+                
+                    <!-- Étape 2 -->
+                    <div class="step" id="step2">
+                        <div class="row container">
+                            <div class="col-12">
+                                <input name="email"  required="True" type="email" class="form-control" placeholder="Entrer votre email" />
+                            </div>
+                            <div class="col-12 mt-2 d-none">
+                                <input name="meeting_id" t-att-value="meeting.unique_code" type="text" class="form-control" placeholder="ID de la réunion" />
+                            </div>
+                            <div class="col-12 mt-2 d-none">
+                                <input type="text" name="location" id="ville" class="form-control" placeholder="Ville" />
+                            </div>
+                            <div class="col-12 mt-2 mb-3">
+                                <button type="submit" class="btn btn-primary col-12" >Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+            </div>
+            <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script> -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script type="text/javascript" src="/quick_meetings/static/src/js/check.js"></script>
+            <script type="text/javascript" src="/quick_meetings/static/src/js/location.js"></script>
+        </t>
+    </template>
+
+  <template id="meeting_new_sign" name="Reunion - Nouveau emargement">
+    <t t-call="website.layout">
+        <style>
+            .is-invalid {
+                border-color: #dc3545 !important;
+                box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+            }
+
+            .validation-message {
+                animation: fadeIn 0.3s ease-in;
+                border-radius: 5px;
+                font-size: 14px;
+                color: #dc3545;
+                margin-top: 5px;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Style pour améliorer l'apparence générale */
+            .form-control:focus {
+                border-color: #EE7929;
+                box-shadow: 0 0 0 0.2rem rgba(238, 121, 41, 0.25);
+            }
+
+            .btn-primary {
+                background-color: #EE7929;
+                border-color: #EE7929;
+            }
+
+            .btn-primary:hover {
+                background-color: #d66820;
+                border-color: #d66820;
+            }
+
+            .step {
+                min-height: 400px;
+            }
+            .signature-error {
+                animation: fadeIn 0.3s ease-in;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+            /* Animation pour la bordure d'erreur */
+            #signatureCanvas {
+                transition: border-color 0.3s ease;
+            }
+
+        </style>
+        
+        <div id="form_sign_externe" class="container mb-5">
+            <div class="row">
+                <div class="col-12 col-md-6 offset-md-3">
+                    <h1 class="text-center fw-bold mt-4">GESTION DE PRÉSENCE</h1>
+                    <form id="presenceForm" action="/quick-meeting/sign" method="POST" enctype="multipart/form-data" class="card p-4 shadow w-100">
+                        <div class="step " id="step1">
+                            <div class="row mt-3">
+                                <div class="col-12 mt-2">
+                                    <input type="text" name="nom" id="nom" class="form-control" placeholder="Nom" required="True" />
+                                    <div class="validation-message" id="nom-error" style="display: none;">Ce champ est obligatoire</div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <input type="text"  name="prenom" id="prenom" class="form-control" placeholder="Prénom" required="True" />
+                                    <div class="validation-message" id="prenom-error" style="display: none;">Ce champ est obligatoire</div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <input type="text" name="fonction" id="fonction" class="form-control" placeholder="Fonction" required="True" />
+                                    <div class="validation-message" id="fonction-error" style="display: none;">Ce champ est obligatoire</div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <input type="email" t-att-value="email" name="email" id="email" class="form-control" placeholder="Email" required="True" readonly="readonly" />
+                                    <div class="validation-message" id="email-error" style="display: none;">Ce champ est obligatoire</div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <input type="text" name="structure" id="structure" class="form-control" placeholder="Structure" required="True" />
+                                    <div class="validation-message" id="structure-error" style="display: none;">Ce champ est obligatoire</div>
+                                </div>
+                                <div class="col-12 mt-2 d-none">
+                                    <input type="text" name="meeting_id" id="reunion_id" class="form-control" t-att-value="meeting.unique_code" placeholder="Identifiant de réservation" required="True" />
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <input type="tel" name="contact" id="contact" class="form-control" placeholder="Numéro de téléphone" required="True" />
+                                    <div class="validation-message" id="contact-error" style="display: none;">Ce champ est obligatoire</div>
+                                </div>
+                                <!-- ✅ NOUVEAU CHAMP AJOUTÉ EN LECTURE SEULE -->
+                                <div class="col-12 mt-2">
+                                    <input type="text" name="last_sign_date" id="last_sign_date" class="form-control" placeholder="Date de signature" readonly="readonly" />
+                                </div>
+                                <div class="col-12 mt-2 d-none">
+                                    <input type="text" name="ville" id="ville" class="form-control" placeholder="Ville" />
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Précédent</button>
+                                <button type="button" class="btn btn-primary" onclick="nextStep()">Suivant</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Étape 3 -->
+                        <div class="step" id="step2">
+                            <div class="row">
+                                <div class="col-12 mt-2">
+                                    <div class="mb-3 text-center">
+                                        <h3 class="mt-3 fw-bold mb-4">SIGNATURE</h3>
+                                        <div class="d-flex justify-content-center mt-2">
+                                            <canvas id="signatureCanvas" style="border: 3px solid #EE7929; border-radius: 5px;"></canvas>
+                                        </div>
+                                        <button type="button" class="btn mt-2" style="background-color: #30908E; color: white;" onclick="clearSignature()">Effacer la signature</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Précédent</button>
+                                <button type="submit" class="btn btn-primary" >Enregistrer</button>
+                            </div>
+                            <input type="hidden" id="signature" name="signature" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript" src="/quick_meetings/static/src/js/location.js"></script>
+        <!-- Par ce script inline -->
+        <script type="text/javascript">
+        $(document).ready(function () {
+            var canvas = document.getElementById('signatureCanvas');
+            
+            if (canvas) {
+                canvas.width = 350;
+                canvas.height = 150;
+            }
+            
+            var signaturePad = new SignaturePad(canvas);
+
+            window.clearSignature = function () {
+                signaturePad.clear();
+                $('.signature-error').remove();
+                $('#signatureCanvas').css('border', '3px solid #EE7929');
+            };
+
+            // Fonction de validation des champs
+            function validateStep1() {
+                var isValid = true;
+                var requiredFields = ['nom', 'prenom', 'fonction', 'email', 'structure', 'contact'];
+                
+                // Réinitialiser les erreurs
+                requiredFields.forEach(function(fieldId) {
+                    $('#' + fieldId).removeClass('is-invalid');
+                    $('#' + fieldId + '-error').hide();
+                });
+                
+                // Vérifier chaque champ requis
+                requiredFields.forEach(function(fieldId) {
+                    var field = $('#' + fieldId);
+                    var value = field.val().trim();
+                    
+                    if (value === '') {
+                        field.addClass('is-invalid');
+                        $('#' + fieldId + '-error').show();
+                        isValid = false;
+                    }
+                });
+                
+                return isValid;
+            }
+
+            // Supprimer l'erreur quand l'utilisateur tape dans un champ
+            document.addEventListener('DOMContentLoaded', function() {
+                var requiredFields = ['nom', 'prenom', 'fonction', 'email', 'structure', 'contact'];
+
+                requiredFields.forEach(function(fieldId) {
+                    var field = document.getElementById(fieldId);
+                    if (field) {
+                        field.addEventListener('input', function() {
+                            var errorEl = document.getElementById(fieldId + '-error');
+                            if (this.value.trim() !== '') {
+                                this.classList.remove('is-invalid');
+                                if (errorEl) errorEl.style.display = 'none';
+                            }
+                        });
+                    }
+                });
+            });
+
+            window.nextStep = function () {
+                var currentStep = $('.step:visible');
+                
+                // Si on est à l'étape 1, valider les champs
+                if (currentStep.attr('id') === 'step1') {
+                    if (!validateStep1()) {
+                        return false; // Empêcher le passage à l'étape suivante
+                    }
+                }
+                
+                var nextStep = currentStep.next('.step');
+                if (nextStep.length) {
+                    currentStep.hide();
+                    nextStep.show();
+                }
+            };
+
+            window.prevStep = function () {
+                var currentStep = $('.step:visible');
+                var prevStep = currentStep.prev('.step');
+                if (prevStep.length) {
+                    currentStep.hide();
+                    prevStep.show();
+                }
+            };
+
+            // Supprimer l'erreur quand l'utilisateur tape dans un champ
+            $('input[required]').on('input', function() {
+                var fieldId = $(this).attr('id');
+                if ($(this).val().trim() !== '') {
+                    $(this).removeClass('is-invalid');
+                    $('#' + fieldId + '-error').hide();
+                }
+            });
+
+            $('#presenceForm').on('submit', function (e) {
+                e.preventDefault();
+
+                if (signaturePad.isEmpty()) {
+                    $('.signature-error').remove();
+                    var errorMsg = '<div class="alert alert-danger signature-error mt-2 text-center">' +
+                                '<i class="fa fa-exclamation-triangle"></i> ' +
+                                'La signature est obligatoire pour confirmer votre présence.' +
+                                '</div>';
+                    // Ajouter le message en bas du conteneur du canvas
+                    $('#signatureCanvas').parent().parent().append(errorMsg);
+                    $('#signatureCanvas').css('border', '3px solid #dc3545');
+                    return false;
+                }
+                
+                $('.signature-error').remove();
+                $('#signatureCanvas').css('border', '3px solid #EE7929');
+                
+                var signatureData = signaturePad.toDataURL('image/png');
+                $('#signature').val(signatureData);
+                
+                e.target.submit();
+            });
+
+            $('.step').hide();
+            $('#step1').show();
+        });
+        </script>
+    </t>
+</template>
+
+
+    <template id="meeting_already_signed_in" name="Reunion - Verification">
+        <t t-call="website.layout">
+            <div class="container d-flex justify-content-center align-items-center min-vh-100">
+                <div class="card p-4 shadow w-100 text-center" style="max-width: 600px;">
+                    <div class="text-center">
+                        <h2 class="fw-bold">
+                            <h2 class="fw-bold">Vous avez déja signé, merci !</h2>
+                            <img src="../quick_meetings/static/img/close.png" alt="Erreur" class="img-fluid my-4" style="max-width: 200px;" />
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+  <template id="meeting_already_signe_in" name="Reunion - Verification des informations">
+    <t t-call="website.layout">
+        <div class="container mb-5">
+            <div class="row">
+                <div class="col-12 col-md-6 offset-md-3">
+                    <h1 class="text-center fw-bold mt-4">GESTION DE PRÉSENCE</h1>
+                    <style>
+                        .is-invalid {
+                            border-color: #dc3545 !important;
+                            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+                        }
+
+                        .validation-message {
+                            animation: fadeIn 0.3s ease-in;
+                            border-radius: 5px;
+                            font-size: 14px;
+                            color: #dc3545;
+                            margin-top: 5px;
+                        }
+
+                        .signature-error {
+                            animation: fadeIn 0.3s ease-in;
+                            border-radius: 5px;
+                        }
+
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(-10px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                    </style>
+                    <form id="presenceForm" action="/quick-meeting/sign" method="POST" enctype="multipart/form-data" class="card p-4 shadow w-100">
+                
+                <!-- STEP 1 : Infos participant -->
+                <div class="step" id="step1">
+                    <div class="row mt-3">
+                        <div class="col-12 mt-2">
+                            <input type="text" name="nom" t-att-value="data.name" id="nom" class="form-control" placeholder="Nom" required="True" />
+                            <div class="validation-message" id="nom-error" style="display: none;">Ce champ est obligatoire</div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="text" t-att-value="data.last_name" name="prenom" id="prenom" class="form-control" placeholder="Prénom" required="True" />
+                            <div class="validation-message" id="prenom-error" style="display: none;">Ce champ est obligatoire</div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="text" t-att-value="data.fonction" name="fonction" id="fonction" class="form-control" placeholder="Fonction" required="True" />
+                            <div class="validation-message" id="fonction-error" style="display: none;">Ce champ est obligatoire</div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="email" t-att-value="data.email" name="email" id="email" class="form-control" placeholder="Email" required="True" readonly="readonly" />
+                            <div class="validation-message" id="email-error" style="display: none;">Ce champ est obligatoire</div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="text" t-att-value="data.structure" name="structure" id="structure" class="form-control" placeholder="Structure" required="True" />
+                            <div class="validation-message" id="structure-error" style="display: none;">Ce champ est obligatoire</div>
+                        </div>
+                        <div class="col-12 mt-2 d-none">
+                            <input type="text" name="meeting_id" id="reunion_id" class="form-control" t-att-value="meeting.unique_code" placeholder="Identifiant de réservation" required="True" />
+                        </div>
+                        <div class="col-12 mt-2">
+                            <input type="tel" t-att-value="data.contact" name="contact" id="contact" class="form-control" placeholder="Numéro de téléphone" required="True" />
+                            <div class="validation-message" id="contact-error" style="display: none;">Ce champ est obligatoire</div>
+                        </div>
+                        <div class="col-12 mt-2 d-none">
+                            <input type="text" name="ville" id="ville" class="form-control" placeholder="Ville" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Suivant</button>
+                    </div>
+                </div>
+                
+                <!-- STEP 2 : Signature -->
+                <div class="step" id="step2">
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <h3 class="fw-bold mb-3">SIGNATURE</h3>
+
+                            <!-- Si signature existe : afficher message et canvas avec signature chargée -->
+                            <t t-if="has_valid_signature">
+                                <p class="text-success mb-2">
+                                    <i class="fa fa-check-circle"></i>
+                                    Signature précédente trouvée et chargée
+                                </p>
+                                <div class="d-flex justify-content-center">
+                                    <canvas id="signatureCanvasExisting" style="border: 3px solid #28a745; border-radius: 5px;"></canvas>
+                                </div>
+                                <button type="button" class="btn mt-2" style="background-color: #30908E; color: white;" onclick="clearSignatureExisting()">Effacer la signature</button>
+                            </t>
+
+                            <!-- Si pas de signature : afficher canvas vide -->
+                            <t t-if="not has_valid_signature">
+                                <div class="d-flex justify-content-center">
+                                    <canvas id="signatureCanvasNew" style="border: 3px solid #EE7929; border-radius: 5px;"></canvas>
+                                </div>
+                                <button type="button" class="btn mt-2" style="background-color: #30908E; color: white;" onclick="clearSignatureNew()">Effacer la signature</button>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">Précédent</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                    <input type="hidden" id="signature" name="signature" t-att-value="signature_data_url or ''"/>
+                </div>
+                
+            </form>
+        </div>
+        
+        <!-- Scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script type="text/javascript" src="/quick_meetings/static/src/js/location.js"></script>
+        <script type="text/javascript">
+            let currentStep = 1;
+            let signaturePad = null;
+            
+            // Définir nextStep comme fonction globale pour le template meeting_already_signe_in
+            if (typeof window.nextStep === 'undefined') {
+                window.nextStep = function() {
+                    // Si on est à l'étape 1, valider les champs
+                    if (currentStep === 1) {
+                        if (!validateStep1()) {
+                            return; // Empêcher le passage à l'étape suivante
+                        }
+                    }
+
+                    document.getElementById('step' + currentStep).style.display = 'none';
+                    currentStep++;
+                    const nextStepEl = document.getElementById('step' + currentStep);
+                    if(nextStepEl) nextStepEl.style.display = 'block';
+                }
+            }
+            
+            // Définir prevStep comme fonction globale pour le template meeting_already_signe_in
+            if (typeof window.prevStep === 'undefined') {
+                window.prevStep = function() {
+                    document.getElementById('step' + currentStep).style.display = 'none';
+                    currentStep--;
+                    const prevStepEl = document.getElementById('step' + currentStep);
+                    if(prevStepEl) prevStepEl.style.display = 'block';
+                }
+            }
+
+            // Fonction de validation des champs
+            function validateStep1() {
+                var isValid = true;
+                var requiredFields = ['nom', 'prenom', 'fonction', 'email', 'structure', 'contact'];
+
+                // Réinitialiser les erreurs
+                requiredFields.forEach(function(fieldId) {
+                    var field = document.getElementById(fieldId);
+                    var errorEl = document.getElementById(fieldId + '-error');
+                    if (field) field.classList.remove('is-invalid');
+                    if (errorEl) errorEl.style.display = 'none';
+                });
+
+                // Vérifier chaque champ requis
+                requiredFields.forEach(function(fieldId) {
+                    var field = document.getElementById(fieldId);
+                    var errorEl = document.getElementById(fieldId + '-error');
+
+                    if (field &amp;&amp; field.value.trim() === '') {
+                        field.classList.add('is-invalid');
+                        if (errorEl) errorEl.style.display = 'block';
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+            
+            // Fonction pour valider la signature
+            function validateSignature() {
+                if (signaturePad &amp;&amp; signaturePad.isEmpty()) {
+                    // Supprimer l'ancien message d'erreur s'il existe
+                    document.querySelectorAll('.signature-error').forEach(el => el.remove());
+                    
+                    // Créer un message d'erreur
+                    var errorDiv = document.createElement('div');
+                    errorDiv.className = 'alert alert-danger signature-error mt-2 text-center';
+                    errorDiv.style.animation = 'fadeIn 0.3s ease-in';
+                    errorDiv.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ' +
+                                     'La signature est obligatoire pour confirmer votre présence.';
+                    
+                    // Ajouter le message en bas du conteneur du canvas
+                    var canvas = document.getElementById('signatureCanvas');
+                    canvas.parentNode.parentNode.append(errorDiv);
+                    
+                    // Bordure rouge
+                    canvas.style.border = '3px solid #dc3545';
+                    
+                    return false;
+                }
+                
+                // Nettoyer les erreurs et remettre la bordure normale
+                document.querySelectorAll('.signature-error').forEach(el => el.remove());
+                var canvas = document.getElementById('signatureCanvas');
+                if (canvas) canvas.style.border = '3px solid #EE7929';
+                
+                return true;
+            }
+            
+            document.addEventListener("DOMContentLoaded", function() {
+                // Masquer tous les steps sauf le premier
+                let steps = document.querySelectorAll('.step');
+                steps.forEach((el, i) => { if(i > 0) el.style.display = 'none'; });
+                
+                // Initialiser le canvas de signature seulement s'il existe (pas de signature valide)
+                var canvas = document.getElementById("signatureCanvas");
+                var hasValidSignature = <t t-out="has_valid_signature"/>;
+                if (canvas &amp;&amp; !hasValidSignature) {
+                    // Définir la taille du canvas
+                    canvas.width = 350;
+                    canvas.height = 150;
+                    
+                    signaturePad = new SignaturePad(canvas, {
+                        backgroundColor: 'rgba(255, 255, 255, 0)',
+                        penColor: 'rgb(0, 0, 0)'
+                    });
+                    
+                    var sigInput = document.getElementById("signature");
+                    
+                    // Charger la signature existante si elle existe
+                    if (sigInput.value &amp;&amp; sigInput.value.trim() !== '') {
+                        try {
+                            console.log('Chargement de la signature existante...');
+                            signaturePad.fromDataURL(sigInput.value);
+                        } catch(e) {
+                            console.error('Erreur lors du chargement de la signature:', e);
+                            sigInput.value = '';
+                            signaturePad.clear();
+                        }
+                    }
+                }
+                
+                // Fonction pour effacer la signature
+                window.clearSignature = function() {
+                    if(signaturePad) {
+                        signaturePad.clear();
+                        document.getElementById("signature").value = '';
+                        // Supprimer les messages d'erreur
+                        document.querySelectorAll('.signature-error').forEach(el => el.remove());
+                        // Remettre la bordure normale
+                        var canvas = document.getElementById('signatureCanvas');
+                        if (canvas) canvas.style.border = '3px solid #EE7929';
+                    }
+                }
+
+                // Vérifier si on doit valider la signature
+                var needsSignatureValidation = !hasValidSignature;
+                
+                // Validation et soumission du formulaire
+                document.getElementById("presenceForm").addEventListener("submit", function(e) {
+                    e.preventDefault(); // Empêcher la soumission par défaut
+                    
+                    // Valider la signature
+                    if (!validateSignature()) {
+                        return false;
+                    }
+                    
+                    // Si validation OK, sauvegarder et soumettre
+                    if(signaturePad &amp;&amp; !signaturePad.isEmpty()) {
+                        document.getElementById("signature").value = signaturePad.toDataURL();
+                    }
+                    
+                    // Soumettre le formulaire
+                    this.submit();
+                });
+            });
+        </script>
+
+    </t>
+</template>
+
+
+
+    <template id="meeting_sign_success" name="Reunion - Succès">
+        <t t-call="website.layout">
+            <div class="container d-flex justify-content-center align-items-center min-vh-100">
+                <div class="card p-4 shadow w-100 text-center" style="max-width: 600px;">
+                    <div class="text-center">
+                        <h2 class="fw-bold">Merci pour votre emargement !</h2>
+                        <img src="../quick_meetings/static/img/success.gif" alt="Succès" class="img-fluid my-4" style="max-width: 200px;" />
+                        <p class="mt-4">Votre présence a été enregistrée avec succès. Nous vous remercions de votre coopération.</p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="meeting_error" name="Reunion - Error">
+        <t t-call="website.layout">
+            <div class="container d-flex justify-content-center align-items-center min-vh-100">
+                <div class="card p-4 shadow w-100 text-center" style="max-width: 600px;">
+                    <div class="text-center">
+                        <h2 class="fw-bold">Une erreur s'est produite !</h2>
+                        <img src="../quick_meetings/static/img/close.png" alt="Erreur" class="img-fluid my-4" style="max-width: 200px;" />
+                        <p class="mt-4">Une erreur s'est produite, veuillez réessayer.</p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="meeting_inactive" name="Reunion - Cloturée">
+        <t t-call="website.layout">
+            <div class="container d-flex justify-content-center align-items-center min-vh-100">
+                <div class="card p-4 shadow w-100 text-center" style="max-width: 600px;">
+                    <div class="text-center">
+                        <h2 class="fw-bold">Cette a été cloturée.</h2>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="meeting_not_found" name="Reunion - Inexistante">
+        <t t-call="website.layout">
+            <div class="container d-flex justify-content-center align-items-center min-vh-100">
+                <div class="card p-4 shadow w-100 text-center" style="max-width: 600px;">
+                    <div class="text-center">
+                        <h2 class="fw-bold">Cette n'existe pas.</h2>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
