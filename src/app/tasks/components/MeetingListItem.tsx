@@ -92,8 +92,8 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'active': return 'bg-gradient-to-r from-green-400 to-green-600 text-white';
-      case 'completed': return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white';
-      case 'inactive': return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white';
+      case 'completed': return 'bg-gradient-to-r from-red-400 to-red-600 text-white';
+      case 'inactive': return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white';
       default: return 'bg-gradient-to-r from-gray-400 to-gray-600 text-white';
     }
   };

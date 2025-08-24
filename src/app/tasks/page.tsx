@@ -129,6 +129,13 @@ export default function TasksPage() {
     };
 
     fetchMeetings();
+    
+    // Vérifier l'URL pour un meetingId au chargement
+    const urlParams = new URLSearchParams(window.location.search);
+    const meetingIdFromUrl = urlParams.get('meetingId');
+    if (meetingIdFromUrl) {
+      setSelectedMeetingId(parseInt(meetingIdFromUrl));
+    }
   }, [refreshKey]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -160,11 +167,19 @@ export default function TasksPage() {
   // Navigation vers les détails
   const handleView = (meetingId: number) => {
     setSelectedMeetingId(meetingId);
+    // Mettre à jour l'URL avec le meetingId
+    const url = new URL(window.location.href);
+    url.searchParams.set('meetingId', meetingId.toString());
+    window.history.pushState({}, '', url.toString());
   };
 
   // Retour à la liste depuis les détails
   const handleBack = () => {
     setSelectedMeetingId(null);
+    // Retirer le meetingId de l'URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('meetingId');
+    window.history.pushState({}, '', url.toString());
   };
 
   // Suppression d'une réunion

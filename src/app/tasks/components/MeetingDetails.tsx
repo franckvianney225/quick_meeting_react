@@ -205,7 +205,13 @@ export const MeetingDetails = ({
             
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-3">{meeting.title}</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mb-3 break-words whitespace-normal">
+                  {meeting.title.length > 20 ? (
+                    <span className="break-all">{meeting.title}</span>
+                  ) : (
+                    meeting.title
+                  )}
+                </h1>
                 <div className="flex items-center space-x-3">
                   <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border ${statusConfig.color}`}>
                     <div className={`w-3 h-3 rounded-full ${statusConfig.indicator}`} />
