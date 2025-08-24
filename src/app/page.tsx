@@ -152,14 +152,14 @@ export default function HomePage() {
             title="Total Réunions"
             value={stats.totalMeetings}
             icon={CalendarIcon}
-            color="blue"
+            color="gray"
             trend={0}
           />
           <StatCard
             title="Réunion inactive"
             value={stats.inactiveMeetings}
             icon={ClockIcon}
-            color="gray"
+            color="blue"
             trend={0}
           />
           <StatCard

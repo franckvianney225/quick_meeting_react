@@ -94,7 +94,8 @@ export function ParticipantForm() {
         firstName: existingParticipant.prenom,
         lastName: existingParticipant.name,
         company: existingParticipant.organisation,
-        position: existingParticipant.fonction
+        position: existingParticipant.fonction,
+        signature: existingParticipant.signature
       }));
     }
     setCurrentStep(prev => prev + 1);

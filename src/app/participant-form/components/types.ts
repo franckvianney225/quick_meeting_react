@@ -10,6 +10,7 @@ export interface ExistingParticipant {
   phone: string;
   fonction: string;
   organisation: string;
+  signature: string;
 }
 
 export interface EmailStepProps {

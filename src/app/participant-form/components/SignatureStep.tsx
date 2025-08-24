@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import type { SignatureStepProps } from './types';
 
 export default function SignatureStep({
@@ -10,6 +10,22 @@ export default function SignatureStep({
 }: SignatureStepProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isSigning, setIsSigning] = useState(false);
+
+  // Effet pour charger la signature existante sur le canvas
+  useEffect(() => {
+    if (signature && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+      img.src = signature;
+    }
+  }, [signature]);
 
   const startDrawing = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
