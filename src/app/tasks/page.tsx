@@ -264,7 +264,8 @@ export default function TasksPage() {
   // Filtrage des réunions
   const filteredMeetings = meetings.filter(meeting => {
     const matchesSearch = meeting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          meeting.description.toLowerCase().includes(searchTerm.toLowerCase());
+                          meeting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          meeting.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || meeting.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -349,7 +350,7 @@ export default function TasksPage() {
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black-400" />
                 <input
                   type="text"
-                  placeholder="Rechercher une réunion..."
+                  placeholder="Rechercher une réunion, description ou salle..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
