@@ -70,7 +70,7 @@ export class MeetingService {
     }
 
     const meeting = this.meetingRepository.create({
-      title: meetingData.title,
+      title: meetingData.title.toUpperCase(), // Forcer le titre en majuscules
       description: meetingData.description,
       status: meetingData.status,
       location: meetingData.location,
@@ -129,6 +129,11 @@ export class MeetingService {
       delete meetingData.start_date;
     }
 
+    // Forcer le titre en majuscules si présent dans les données de mise à jour
+    if (meetingData.title) {
+      meetingData.title = meetingData.title.toUpperCase();
+    }
+    
     Object.assign(meeting, meetingData);
     
     try {

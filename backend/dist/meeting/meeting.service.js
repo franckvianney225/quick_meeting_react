@@ -46,7 +46,7 @@ let MeetingService = class MeetingService {
             uniqueCode = generateUniqueCode();
         }
         const meeting = this.meetingRepository.create({
-            title: meetingData.title,
+            title: meetingData.title.toUpperCase(),
             description: meetingData.description,
             status: meetingData.status,
             location: meetingData.location,
@@ -91,6 +91,9 @@ let MeetingService = class MeetingService {
         if (meetingData.start_date) {
             meetingData.startDate = new Date(meetingData.start_date);
             delete meetingData.start_date;
+        }
+        if (meetingData.title) {
+            meetingData.title = meetingData.title.toUpperCase();
         }
         Object.assign(meeting, meetingData);
         try {

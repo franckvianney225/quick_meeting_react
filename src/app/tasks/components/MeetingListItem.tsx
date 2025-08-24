@@ -121,89 +121,96 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   return (
     <>
-      <div className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300">
-        <div className="px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+      <tr className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300">
+        {/* Réunion */}
+        <td className="px-6 py-4 md:col-span-2">
+          <h3 className="font-bold text-gray-900 mb-1 hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
+          <p className="text-sm text-gray-600 line-clamp-1">{meeting.description}</p>
+          <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-full">{meeting.uniqueCode}</span>
+        </td>
 
-              <div className="md:col-span-2">
-                <h3 className="font-bold text-gray-900 mb-1 hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
-                <p className="text-sm text-gray-600 line-clamp-1">{meeting.description}</p>
-                <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-full">{meeting.uniqueCode}</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
-                  <CalendarIcon className="h-4 w-4 text-white" />
-                </div>
-                <span className="font-medium">{formatDate(meeting.startDate || meeting.start_date)}</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
-                  <MapPinIcon className="h-4 w-4 text-white" />
-                </div>
-                <span className="font-medium truncate">{meeting.location}</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
-                  <UserGroupIcon className="h-4 w-4 text-white" />
-                </div>
-                <span className="font-medium">{meeting.max_participants || '∞'}</span>
-              </div>
+        {/* Date */}
+        <td className="px-6 py-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
+              <CalendarIcon className="h-4 w-4 text-white" />
             </div>
-
-            <div className="flex items-center space-x-4">
-              <span className={`px-4 py-2 rounded-xl text-xs font-bold ${getStatusColor(meeting.status)}`}>
-                {getStatusLabel(meeting.status)}
-              </span>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => onView(meeting.id)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
-                  title="Voir détails"
-                >
-                  <EyeIcon className="h-4 w-4" />
-                </button>
-
-                <button
-                  onClick={() => onEdit(meeting.id)}
-                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
-                  title="Modifier"
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </button>
-
-                <button
-                  onClick={handleGenerateQR}
-                  className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 hover:scale-110"
-                  title="Générer QR Code"
-                >
-                  <QrCodeIcon className="h-4 w-4" />
-                </button>
-
-                <button
-                  onClick={() => handleAttendanceList(meeting.id)}
-                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
-                  title="Liste de présence"
-                >
-                  <ClipboardDocumentListIcon className="h-4 w-4" />
-                </button>
-
-                <button
-                  onClick={handleDeleteClick}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
-                  title="Supprimer"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+            <span className="font-medium">{formatDate(meeting.startDate || meeting.start_date)}</span>
           </div>
-        </div>
-      </div>
+        </td>
+
+        {/* Lieu */}
+        <td className="px-6 py-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
+              <MapPinIcon className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-medium truncate">{meeting.location}</span>
+          </div>
+        </td>
+
+        {/* Participants */}
+        <td className="px-6 py-4">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
+              <UserGroupIcon className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-medium">{meeting.max_participants || '∞'}</span>
+          </div>
+        </td>
+
+        {/* Status */}
+        <td className="px-6 py-4">
+          <span className={`px-4 py-2 rounded-xl text-xs font-bold ${getStatusColor(meeting.status)}`}>
+            {getStatusLabel(meeting.status)}
+          </span>
+        </td>
+
+        {/* Actions */}
+        <td className="px-6 py-4 md:col-span-2">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onView(meeting.id)}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
+              title="Voir détails"
+            >
+              <EyeIcon className="h-4 w-4" />
+            </button>
+
+            <button
+              onClick={() => onEdit(meeting.id)}
+              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
+              title="Modifier"
+            >
+              <PencilIcon className="h-4 w-4" />
+            </button>
+
+            <button
+              onClick={handleGenerateQR}
+              className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 hover:scale-110"
+              title="Générer QR Code"
+            >
+              <QrCodeIcon className="h-4 w-4" />
+            </button>
+
+            <button
+              onClick={() => handleAttendanceList(meeting.id)}
+              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
+              title="Liste de présence"
+            >
+              <ClipboardDocumentListIcon className="h-4 w-4" />
+            </button>
+
+            <button
+              onClick={handleDeleteClick}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
+              title="Supprimer"
+            >
+              <TrashIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
 
       <ConfirmModal
         isOpen={showDeleteModal}

@@ -265,7 +265,7 @@ export default function TasksPage() {
   const filteredMeetings = meetings.filter(meeting => {
     const matchesSearch = meeting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           meeting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          meeting.location.toLowerCase().includes(searchTerm.toLowerCase());
+                          (meeting.location || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || meeting.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -484,29 +484,33 @@ export default function TasksPage() {
               {/* Vue Liste */}
               {viewMode === 'list' && (
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
-                  {/* Header du tableau */}
-                  <div className="bg-gradient-to-r from-orange-50/80 to-green-50/80 px-6 py-4 border-b border-orange-200/30">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-sm font-semibold text-gray-700">
-                      <div className="md:col-span-2">Réunion</div>
-                      <div>Date</div>
-                      <div>Lieu</div>
-                      <div>Participants</div>
-                    </div>
-                  </div>
+                  <table className="w-full">
+                    {/* Header du tableau */}
+                    <thead>
+                      <tr className="bg-gradient-to-r from-orange-50/80 to-green-50/80 border-b border-orange-200/30">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 md:col-span-2">Réunion</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date création</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Lieu</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Participants</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 md:col-span-2">Actions</th>
+                      </tr>
+                    </thead>
 
-                  {/* Liste des réunions */}
-                  <div>
-                    {filteredMeetings.map((meeting) => (
-                      <MeetingListItem
-                        key={meeting.id}
-                        meeting={meeting}
-                        onView={handleView}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onAttendanceList={handleAttendanceList}
-                      />
-                    ))}
-                  </div>
+                    {/* Liste des réunions */}
+                    <tbody>
+                      {filteredMeetings.map((meeting) => (
+                        <MeetingListItem
+                          key={meeting.id}
+                          meeting={meeting}
+                          onView={handleView}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onAttendanceList={handleAttendanceList}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </>
