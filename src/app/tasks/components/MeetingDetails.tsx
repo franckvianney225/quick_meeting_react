@@ -299,7 +299,7 @@ export const MeetingDetails = ({
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Date et heure</h3>
+                      <h3 className="font-semibold text-gray-900 mb-2">Date de creation</h3>
                       <p className="text-gray-600">{formatDate(meeting.start_date || meeting.startDate)}</p>
                     </div>
                   </div>
@@ -325,7 +325,7 @@ export const MeetingDetails = ({
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Participants max</h3>
+                      <h3 className="font-semibold text-gray-900 mb-2">Participants max:</h3>
                       <p className="text-gray-600">
                         {meeting.max_participants ? `${meeting.max_participants} personnes` : 'Illimité'}
                       </p>
