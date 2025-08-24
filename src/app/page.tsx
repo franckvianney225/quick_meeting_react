@@ -148,34 +148,42 @@ export default function HomePage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Total Réunions"
-            value={stats.totalMeetings}
-            icon={CalendarIcon}
-            color="gray"
-            trend={0}
-          />
-          <StatCard
-            title="Réunion inactive"
-            value={stats.inactiveMeetings}
-            icon={ClockIcon}
-            color="blue"
-            trend={0}
-          />
-          <StatCard
-            title="Réunions Actives"
-            value={stats.activeMeetings}
-            icon={ClockIcon}
-            color="green"
-            trend={0}
-          />
-          <StatCard
-            title="Terminées"
-            value={stats.completedMeetings}
-            icon={CheckCircleIcon}
-            color="red"
-            trend={0}
-          />
+          <Link href="/tasks">
+            <StatCard
+              title="Total Réunions"
+              value={stats.totalMeetings}
+              icon={CalendarIcon}
+              color="gray"
+              trend={0}
+            />
+          </Link>
+          <Link href="/tasks?status=inactive">
+            <StatCard
+              title="Réunion inactive"
+              value={stats.inactiveMeetings}
+              icon={ClockIcon}
+              color="blue"
+              trend={0}
+            />
+          </Link>
+          <Link href="/tasks?status=active">
+            <StatCard
+              title="Réunions Actives"
+              value={stats.activeMeetings}
+              icon={ClockIcon}
+              color="green"
+              trend={0}
+            />
+          </Link>
+          <Link href="/tasks?status=completed">
+            <StatCard
+              title="Terminées"
+              value={stats.completedMeetings}
+              icon={CheckCircleIcon}
+              color="red"
+              trend={0}
+            />
+          </Link>
         </div>
 
         {/* Recent Meetings */}
@@ -217,9 +225,9 @@ export default function HomePage() {
                     </p>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
+                    {/* <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
                       {new Date(meeting.start_date).toLocaleDateString('fr-FR')}
-                    </span>
+                    </span> */}
                     <span className={`
                       px-4 py-2 rounded-full text-xs font-bold transition-all duration-300
                       ${meeting.status === 'active' || meeting.status === 'scheduled'

@@ -136,6 +136,12 @@ export default function TasksPage() {
     if (meetingIdFromUrl) {
       setSelectedMeetingId(parseInt(meetingIdFromUrl));
     }
+
+    // Vérifier l'URL pour un filtre de statut au chargement
+    const statusFromUrl = urlParams.get('status');
+    if (statusFromUrl) {
+      setStatusFilter(statusFromUrl);
+    }
   }, [refreshKey]);
 
   const [searchTerm, setSearchTerm] = useState('');

@@ -190,26 +190,6 @@ export const SecurityTab = ({ refreshError, onRefresh }: SecurityTabProps) => {
           </button>
         </div>
 
-        {/* Authentification 2FA */}
-        <div className="bg-gray-50 rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                <ShieldCheckIcon className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Authentification à deux facteurs</h3>
-                <p className="text-sm text-gray-600">Ajoutez une couche de sécurité supplémentaire</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Non activée</span>
-              <button className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                Activer
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Sessions actives */}
         <div className="bg-gray-50 rounded-xl p-6">

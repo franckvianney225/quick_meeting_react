@@ -28,8 +28,8 @@ interface ProfileSidebarProps {
 const tabs = [
   { id: 'profile', label: 'Profil', icon: UserCircleIcon },
   { id: 'security', label: 'Sécurité', icon: LockClosedIcon },
-  { id: 'notifications', label: 'Notifications', icon: BellIcon },
-  { id: 'settings', label: 'Paramètres', icon: Cog6ToothIcon },
+  // { id: 'notifications', label: 'Notifications', icon: BellIcon },
+  // { id: 'settings', label: 'Paramètres', icon: Cog6ToothIcon },
 ];
 
 export const ProfileSidebar = ({ user, activeTab, onTabChange, onAvatarEdit }: ProfileSidebarProps) => {
