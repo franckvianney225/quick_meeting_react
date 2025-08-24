@@ -5,13 +5,17 @@ import { createRoot } from 'react-dom/client';
 
 interface Participant {
   id: number;
-  name: string;
-  firstName?: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  phone: string;
   function: string;
   organization: string;
-  phone?: string;
-  registeredAt?: string;
+  submittedAt?: string | null;
+  signatureDate?: string | null;
+  createdAt?: string | null;
+  registeredAt?: string | null;
+  location?: string | null;
   signature?: string;
 }
 
@@ -172,14 +176,12 @@ const AttendanceListPDF = forwardRef(({
       doc.text((index + 1).toString(), xPos + 2, yPos);
       xPos += colWidths[0];
       
-      // Nom (en majuscules)
-      const lastName = participant.name.split(' ').pop() || '';
-      doc.text(lastName.toUpperCase(), xPos + 2, yPos, { maxWidth: colWidths[1] - 4 });
+      // Prénoms (d'abord comme dans l'interface utilisateur)
+      doc.text(participant.firstName, xPos + 2, yPos, { maxWidth: colWidths[1] - 4 });
       xPos += colWidths[1];
       
-      // Prénoms
-      const firstName = participant.firstName || participant.name.split(' ').slice(0, -1).join(' ');
-      doc.text(firstName, xPos + 2, yPos, { maxWidth: colWidths[2] - 4 });
+      // Nom (en majuscules)
+      doc.text(participant.lastName.toUpperCase(), xPos + 2, yPos, { maxWidth: colWidths[2] - 4 });
       xPos += colWidths[2];
       
       // Email
@@ -187,18 +189,15 @@ const AttendanceListPDF = forwardRef(({
       xPos += colWidths[3];
       
       // Structure/Organisation
-      const orgText = participant.organization || 'N/A';
-      doc.text(orgText, xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
+      doc.text(participant.organization, xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
       xPos += colWidths[4];
       
       // Fonction
-      const funcText = participant.function || 'N/A';
-      doc.text(funcText, xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
+      doc.text(participant.function, xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
       xPos += colWidths[5];
       
       // Contact
-      const contact = participant.phone || 'N/A';
-      doc.text(contact, xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
+      doc.text(participant.phone, xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
       xPos += colWidths[6];
       
       // Case signature - afficher la signature si elle existe
