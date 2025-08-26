@@ -41,14 +41,36 @@ export class MeetingController {
   @UseGuards(JwtAuthGuard)
   async findAll(@Req() req: AuthenticatedRequest): Promise<Meeting[]> {
     const userId = req.user?.id;
+    // Si l'utilisateur est admin, retourner toutes les réunions
+    if (req.user?.role === 'admin') {
+      return this.service.findAll(); // Sans filtre userId
+    }
     return this.service.findAll(userId);
+  }
+
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  async findAllAdmin(@Req() req: AuthenticatedRequest): Promise<Meeting[]> {
+    console.log('=== ADMIN ACCESS CHECK ===');
+    console.log('User role:', req.user?.role);
+    console.log('User:', req.user);
+    
+    // Seuls les administrateurs peuvent accéder à toutes les réunions
+    if (!req.user?.role || !['admin', 'administrator', 'Admin'].includes(req.user.role)) {
+      console.log('Access denied for role:', req.user?.role);
+      throw new HttpException('Accès réservé aux administrateurs', HttpStatus.FORBIDDEN);
+    }
+    
+    console.log('Access granted for admin');
+    return this.service.findAll(); // Retourne toutes les réunions sans filtre
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async findOne(@Param('id') id: number, @Req() req: AuthenticatedRequest): Promise<Meeting> {
     const meeting = await this.service.findOne(id);
-    if (meeting.createdById !== req.user?.id) {
+    // L'admin peut accéder à toutes les réunions
+    if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
       throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
     }
     return meeting;
@@ -96,7 +118,8 @@ export class MeetingController {
   ): Promise<Meeting> {
     try {
       const meeting = await this.service.findOne(id);
-      if (meeting.createdById !== req.user?.id) {
+      // L'admin peut modifier toutes les réunions
+      if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
         throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
       }
       console.log(`Updating meeting ${id} with data:`, meetingData);
@@ -114,7 +137,8 @@ export class MeetingController {
   @UseGuards(JwtAuthGuard)
   async remove(@Param('id') id: number, @Req() req: AuthenticatedRequest): Promise<void> {
     const meeting = await this.service.findOne(id);
-    if (meeting.createdById !== req.user?.id) {
+    // L'admin peut supprimer toutes les réunions
+    if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
       throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
     }
     return this.service.remove(id);
@@ -154,7 +178,8 @@ export class MeetingController {
   ): Promise<ParticipantResponse[]> {
     try {
       const meeting = await this.service.findOne(id);
-      if (meeting.createdById !== req.user?.id) {
+      // L'admin peut voir les participants de toutes les réunions
+      if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
         throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
       }
       return await this.service.getMeetingParticipants(id);

@@ -66,6 +66,16 @@ let ParticipantService = class ParticipantService {
         });
         return !!existingParticipant;
     }
+    async remove(id) {
+        const participant = await this.participantRepository.findOne({
+            where: { id },
+            relations: ['meeting']
+        });
+        if (!participant) {
+            throw new Error('Participant not found');
+        }
+        await this.participantRepository.remove(participant);
+    }
 };
 exports.ParticipantService = ParticipantService;
 exports.ParticipantService = ParticipantService = __decorate([

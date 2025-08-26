@@ -67,4 +67,17 @@ export class ParticipantService {
 
     return !!existingParticipant;
   }
+
+  async remove(id: number): Promise<void> {
+    const participant = await this.participantRepository.findOne({
+      where: { id },
+      relations: ['meeting']
+    });
+    
+    if (!participant) {
+      throw new Error('Participant not found');
+    }
+
+    await this.participantRepository.remove(participant);
+  }
 }

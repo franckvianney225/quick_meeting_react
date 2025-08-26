@@ -24,11 +24,25 @@ let MeetingController = class MeetingController {
     }
     async findAll(req) {
         const userId = req.user?.id;
+        if (req.user?.role === 'admin') {
+            return this.service.findAll();
+        }
         return this.service.findAll(userId);
+    }
+    async findAllAdmin(req) {
+        console.log('=== ADMIN ACCESS CHECK ===');
+        console.log('User role:', req.user?.role);
+        console.log('User:', req.user);
+        if (!req.user?.role || !['admin', 'administrator', 'Admin'].includes(req.user.role)) {
+            console.log('Access denied for role:', req.user?.role);
+            throw new common_1.HttpException('Accès réservé aux administrateurs', common_1.HttpStatus.FORBIDDEN);
+        }
+        console.log('Access granted for admin');
+        return this.service.findAll();
     }
     async findOne(id, req) {
         const meeting = await this.service.findOne(id);
-        if (meeting.createdById !== req.user?.id) {
+        if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
             throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
         }
         return meeting;
@@ -44,7 +58,7 @@ let MeetingController = class MeetingController {
     async update(id, meetingData, req) {
         try {
             const meeting = await this.service.findOne(id);
-            if (meeting.createdById !== req.user?.id) {
+            if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
                 throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
             }
             console.log(`Updating meeting ${id} with data:`, meetingData);
@@ -57,7 +71,7 @@ let MeetingController = class MeetingController {
     }
     async remove(id, req) {
         const meeting = await this.service.findOne(id);
-        if (meeting.createdById !== req.user?.id) {
+        if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
             throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
         }
         return this.service.remove(id);
@@ -74,7 +88,7 @@ let MeetingController = class MeetingController {
     async getMeetingParticipants(id, req) {
         try {
             const meeting = await this.service.findOne(id);
-            if (meeting.createdById !== req.user?.id) {
+            if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
                 throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
             }
             return await this.service.getMeetingParticipants(id);
@@ -110,6 +124,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('all'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "findAllAdmin", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

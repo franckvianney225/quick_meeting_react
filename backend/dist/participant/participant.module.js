@@ -12,8 +12,10 @@ const typeorm_1 = require("@nestjs/typeorm");
 const participant_service_1 = require("./participant.service");
 const participant_controller_1 = require("./participant.controller");
 const participant_search_controller_1 = require("./participant-search.controller");
+const participant_admin_controller_1 = require("./participant-admin.controller");
 const participant_entity_1 = require("./participant.entity");
 const meeting_module_1 = require("../meeting/meeting.module");
+const admin_module_1 = require("../admin/admin.module");
 let ParticipantModule = class ParticipantModule {
 };
 exports.ParticipantModule = ParticipantModule;
@@ -21,9 +23,10 @@ exports.ParticipantModule = ParticipantModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([participant_entity_1.Participant]),
-            meeting_module_1.MeetingModule
+            meeting_module_1.MeetingModule,
+            admin_module_1.AdminModule
         ],
-        controllers: [participant_controller_1.ParticipantController, participant_search_controller_1.ParticipantSearchController],
+        controllers: [participant_controller_1.ParticipantController, participant_search_controller_1.ParticipantSearchController, participant_admin_controller_1.ParticipantAdminController],
         providers: [participant_service_1.ParticipantService],
         exports: [participant_service_1.ParticipantService]
     })

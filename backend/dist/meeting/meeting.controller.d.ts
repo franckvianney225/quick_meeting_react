@@ -29,6 +29,7 @@ export declare class MeetingController {
     private readonly pdfService;
     constructor(service: MeetingService, pdfService: PdfService);
     findAll(req: AuthenticatedRequest): Promise<Meeting[]>;
+    findAllAdmin(req: AuthenticatedRequest): Promise<Meeting[]>;
     findOne(id: number, req: AuthenticatedRequest): Promise<Meeting>;
     create(meetingData: {
         title: string;

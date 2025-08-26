@@ -10,4 +10,5 @@ export declare class ParticipantService {
     findAllByMeeting(meetingCode: string): Promise<Participant[]>;
     findByEmail(email: string): Promise<Participant[]>;
     isAlreadyRegistered(email: string, meetingCode: string): Promise<boolean>;
+    remove(id: number): Promise<void>;
 }

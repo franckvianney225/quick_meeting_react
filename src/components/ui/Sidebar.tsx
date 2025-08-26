@@ -8,7 +8,8 @@ import {
   ClipboardDocumentIcon,
   UserIcon,
   CogIcon,
-  ChevronUpIcon
+  ChevronUpIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -85,7 +86,8 @@ export const Sidebar = () => {
               { href: '/profile', icon: UserIcon, title: 'Profil' },
               // Afficher les paramètres uniquement pour les administrateurs
               ...(user?.role && ['admin', 'administrator', 'Admin'].includes(user.role) ? [
-                { href: '/settings', icon: CogIcon, title: 'Paramètres' }
+                { href: '/settings', icon: CogIcon, title: 'Paramètres' },
+                { href: '/admin', icon: ShieldCheckIcon, title: 'Administration' }
               ] : [])
             ].map(({ href, icon: Icon, title }) => (
               <Link

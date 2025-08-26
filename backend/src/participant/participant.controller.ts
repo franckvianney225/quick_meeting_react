@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Delete } from '@nestjs/common';
 import { ParticipantService } from './participant.service';
 import { CreateParticipantDto } from './dto/create-participant.dto';
 
@@ -17,6 +17,11 @@ export class ParticipantController {
   @Get()
   async findAllByMeeting(@Param('uniqueCode') uniqueCode: string) {
     return this.service.findAllByMeeting(uniqueCode);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.service.remove(parseInt(id));
   }
 
 }

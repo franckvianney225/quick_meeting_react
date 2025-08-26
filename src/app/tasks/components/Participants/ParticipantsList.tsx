@@ -8,11 +8,13 @@ import {
   MagnifyingGlassIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ArrowDownTrayIcon
+  ArrowDownTrayIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
 import * as XLSX from 'xlsx';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface Participant {
   id: number;
@@ -35,9 +37,13 @@ interface ParticipantsListProps {
 }
 
 export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListProps) => {
+  const { user } = useAuth();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Vérifier si l'utilisateur est admin
+  const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
 
   useEffect(() => {
     const fetchParticipants = async () => {
@@ -138,6 +144,33 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  // Supprimer un participant (admin seulement)
+  const handleDeleteParticipant = async (participantId: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce participant ? Cette action est irréversible.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(apiUrl(`/participants/${participantId}`), {
+        method: 'DELETE',
+        headers: AuthService.getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Accès refusé. Seuls les administrateurs peuvent supprimer des participants.');
+        }
+        throw new Error('Erreur lors de la suppression');
+      }
+
+      // Mettre à jour la liste localement
+      setParticipants(participants.filter(p => p.id !== participantId));
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+    }
   };
 
   const getInitials = (firstName?: string, lastName?: string) => {
@@ -325,6 +358,12 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Localisation
                   </th>
+                  {/* Colonne Actions pour admin seulement */}
+                  {isAdmin && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -369,6 +408,19 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {participant.location || 'Non disponible'}
                     </td>
+                    
+                    {/* Actions pour admin seulement */}
+                    {isAdmin && (
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteParticipant(participant.id)}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Supprimer le participant"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

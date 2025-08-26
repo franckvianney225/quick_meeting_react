@@ -15,13 +15,15 @@ import {
   UsersIcon,
   DocumentTextIcon,
   ClipboardDocumentListIcon,
-  EyeIcon
+  EyeIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { type Meeting } from './MeetingCard';
 import { MeetingForm } from './MeetingForm';
 import { ParticipantsList } from './Participants/ParticipantsList';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 interface MeetingDetailsProps {
   meeting: Meeting;
@@ -31,17 +33,21 @@ interface MeetingDetailsProps {
   onAttendanceList: (meetingId: number) => void;
 }
 
-export const MeetingDetails = ({ 
-  meeting, 
-  onBack, 
-  onEdit, 
+export const MeetingDetails = ({
+  meeting,
+  onBack,
+  onEdit,
   onGenerateQR,
   onAttendanceList
 }: MeetingDetailsProps) => {
+  const { user } = useAuth();
   const [showEditForm, setShowEditForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
   const [showUniqueCode, setShowUniqueCode] = useState(false);
+  
+  // Vérifier si l'utilisateur est admin
+  const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
   
   const handleGenerateQR = async () => {
     try {
@@ -307,6 +313,7 @@ export const MeetingDetails = ({
                   <ClipboardDocumentListIcon className="h-5 w-5" />
                   <span>Liste de présence</span>
                 </button>
+
               </div>
             </div>
           </div>
