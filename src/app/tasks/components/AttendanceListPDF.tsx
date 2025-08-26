@@ -127,17 +127,17 @@ const AttendanceListPDF = forwardRef(({
     doc.text(participants.length.toString(), 70, yPos);
     yPos += 15;
     
-    // En-tête du tableau
-    const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'SIGNATURE'];
-    const colWidths = [12, 30, 30, 50, 40, 30, 30, 40]; // Largeurs des colonnes augmentées pour le paysage
+    // En-tête du tableau (ordre modifié pour correspondre à l'affichage)
+    const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'SIGNATURE', 'DATE DE SIGNATURE'];
+    const colWidths = [10, 25, 25, 40, 35, 25, 25, 35, 25]; // Largeurs des colonnes ajustées pour le paysage
     let xPos = 15;
     
     // Dessiner l'en-tête du tableau
     doc.setFillColor(...lightGray);
     doc.rect(10, yPos - 5, pageWidth - 20, 10, 'F');
-    doc.setFontSize(7); // Taille de police réduite pour plus d'espace
+    doc.setFontSize(6); // Taille de police réduite pour plus d'espace
     
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...secondaryColor);
     
@@ -155,6 +155,7 @@ const AttendanceListPDF = forwardRef(({
     // Données du tableau
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7); // Taille de police réduite pour les données
     
     participants.forEach((participant, index) => {
       // Vérifier si on a besoin d'une nouvelle page
@@ -222,6 +223,14 @@ const AttendanceListPDF = forwardRef(({
           // En cas d'erreur, on laisse la case vide
         }
       }
+      
+      xPos += colWidths[7];
+      
+      // Date de signature
+      doc.setFontSize(6);
+      const signatureDate = participant.submittedAt ? new Date(participant.submittedAt).toLocaleDateString('fr-FR') : 'Non signé';
+      doc.text(signatureDate, xPos + 2, yPos, { maxWidth: colWidths[8] - 4 });
+      xPos += colWidths[8];
       
       // Ligne de séparation
       doc.setDrawColor(200, 200, 200);
