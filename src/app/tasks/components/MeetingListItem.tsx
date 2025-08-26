@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -31,6 +31,8 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
   onAttendanceList: (meetingId: number) => void;
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [participantsCount, setParticipantsCount] = useState(meeting.participants_count || 0);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
 
   const handleGenerateQR = async () => {
     try {
@@ -89,6 +91,31 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
   const handleCancelDelete = () => {
     setShowDeleteModal(false);
   };
+
+  // Charger le nombre de participants si non fourni
+  useEffect(() => {
+    const loadParticipantsCount = async () => {
+      if (meeting.participants_count !== undefined) return;
+      
+      try {
+        setLoadingParticipants(true);
+        const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants`), {
+          headers: AuthService.getAuthHeaders()
+        });
+        
+        if (response.ok) {
+          const participants = await response.json();
+          setParticipantsCount(participants.length || 0);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du nombre de participants:', error);
+      } finally {
+        setLoadingParticipants(false);
+      }
+    };
+
+    loadParticipantsCount();
+  }, [meeting.id, meeting.participants_count]);
 
   const getStatusColor = (status: string) => {
     switch(status) {
@@ -158,7 +185,13 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
             <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
               <UserGroupIcon className="h-4 w-4 text-white" />
             </div>
-            <span className="font-medium">{meeting.max_participants || '∞'}</span>
+            <span className="font-medium">
+              {loadingParticipants ? (
+                <span className="text-gray-400">...</span>
+              ) : (
+                participantsCount
+              )}
+            </span>
           </div>
         </td>
 
