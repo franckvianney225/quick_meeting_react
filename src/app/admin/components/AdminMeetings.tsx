@@ -9,26 +9,14 @@ import {
   PencilIcon,
   UsersIcon,
   CheckCircleIcon,
-  ClockIcon
+  ClockIcon,
+  Squares2X2Icon,
+  ListBulletIcon,
+  MagnifyingGlassIcon,
+  FunnelIcon
 } from '@heroicons/react/24/outline';
-
-interface Meeting {
-  id: number;
-  title: string;
-  description: string;
-  status: 'active' | 'completed' | 'inactive';
-  start_date: string;
-  location: string;
-  max_participants: number;
-  uniqueCode: string;
-  created_at: string;
-  participants_count: number;
-  creator?: {
-    id: number;
-    name: string;
-    email: string;
-  };
-}
+import { MeetingCard, type Meeting } from '@/app/tasks/components/MeetingCard';
+import { MeetingListItem } from '@/app/tasks/components/MeetingListItem';
 
 interface AdminMeetingsProps {
   onViewMeeting?: (meetingId: number) => void;
@@ -41,6 +29,7 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     fetchAllMeetings();
@@ -104,8 +93,7 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
   const filteredMeetings = meetings.filter(meeting => {
     const matchesSearch = meeting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           meeting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (meeting.creator?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (meeting.creator?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+                          (meeting.location || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || meeting.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -138,16 +126,16 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
   }
 
   // Composant pour les cartes de statistiques
-  const StatCard = ({
-    title,
-    value,
-    icon: Icon,
-    color
-  }: {
-    title: string;
-    value: number;
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    color: string;
+  const StatCard = ({ 
+    title, 
+    value, 
+    icon: Icon, 
+    color 
+  }: { 
+    title: string; 
+    value: number; 
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; 
+    color: string; 
   }) => (
     <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30">
       <div className="flex items-center justify-between">
@@ -197,24 +185,28 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
         />
       </div>
 
-      {/* Tableau des réunions */}
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
-        {/* Header avec filtres */}
-        <div className="px-6 py-4 bg-gradient-to-r from-orange-50/80 to-green-50/80 border-b border-orange-200/30">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Toutes les réunions</h2>
-              <p className="text-gray-600 text-sm">Gestion complète de toutes les réunions du système</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+      {/* Barre de filtres avec toggle vue */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Toutes les réunions</h2>
+            <p className="text-gray-600 text-sm">Gestion complète de toutes les réunions du système</p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Rechercher..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-all"
+                className="pl-12 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-all"
               />
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <FunnelIcon className="h-5 w-5 text-gray-400" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -226,9 +218,37 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
                 <option value="inactive">En attente</option>
               </select>
             </div>
+
+            {/* Toggle Vue Grille/Liste */}
+            <div className="flex items-center bg-gray-100/80 rounded-xl p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-3 rounded-lg transition-all duration-300 ${
+                  viewMode === 'grid'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+                title="Vue grille"
+              >
+                <Squares2X2Icon className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-3 rounded-lg transition-all duration-300 ${
+                  viewMode === 'list'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+                title="Vue liste"
+              >
+                <ListBulletIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* Affichage conditionnel selon l'état */}
       {filteredMeetings.length === 0 ? (
         <div className="p-8 text-center">
           <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -243,88 +263,57 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Titre</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Créateur</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date création</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Participants</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Statut</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <>
+          {/* Vue Grille */}
+          {viewMode === 'grid' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {filteredMeetings.map((meeting) => (
-                <tr key={meeting.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-gray-900">{meeting.title}</div>
-                    <div className="text-sm text-gray-500">{meeting.description}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">
-                      {meeting.creator?.name || 'Inconnu'}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {meeting.creator?.email || ''}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(meeting.created_at).toLocaleDateString('fr-FR')}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {meeting.participants_count} / {meeting.max_participants}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                      meeting.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : meeting.status === 'completed'
-                        ? 'bg-gray-100 text-gray-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {meeting.status === 'active' ? 'Actif' : meeting.status === 'completed' ? 'Terminé' : 'En attente'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-2">
-                      {onViewMeeting && (
-                        <button
-                          onClick={() => onViewMeeting(meeting.id)}
-                          className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Voir les détails"
-                        >
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                      )}
-                      {onEditMeeting && (
-                        <button
-                          onClick={() => onEditMeeting(meeting.id)}
-                          className="p-2 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors"
-                          title="Modifier"
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleDeleteMeeting(meeting.id)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Supprimer la réunion"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <MeetingCard
+                  key={meeting.id}
+                  meeting={meeting}
+                  onView={onViewMeeting || (() => {})}
+                  onEdit={onEditMeeting || (() => {})}
+                  onDelete={handleDeleteMeeting}
+                  onAttendanceList={() => {}}
+                />
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          )}
+
+          {/* Vue Liste */}
+          {viewMode === 'list' && (
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+              <table className="w-full table-fixed">
+                {/* Header du tableau */}
+                <thead>
+                  <tr className="bg-gradient-to-r from-orange-50/80 to-green-50/80 border-b border-orange-200/30">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-3/12">Réunion</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-2/12">Date création</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-2/12">Lieu</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-1/12">Participants</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-1/12">Status</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 w-2/12">Actions</th>
+                  </tr>
+                </thead>
+
+                {/* Liste des réunions */}
+                <tbody>
+                  {filteredMeetings.map((meeting) => (
+                    <MeetingListItem
+                      key={meeting.id}
+                      meeting={meeting}
+                      onView={onViewMeeting || (() => {})}
+                      onEdit={onEditMeeting || (() => {})}
+                      onDelete={handleDeleteMeeting}
+                      onAttendanceList={() => {}}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
-      </div>
     </div>
   );
 }
