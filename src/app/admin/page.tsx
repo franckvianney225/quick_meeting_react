@@ -1,27 +1,11 @@
 'use client';
-import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import AuthGuard from '@/components/AuthGuard';
 import { UserProfile } from '@/components/ui/UserProfile';
-import AdminDashboard from './components/AdminDashboard';
-import AdminMeetings from './components/AdminMeetings';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 export default function AdminPage() {
   const { user, logout } = useAuth();
-  const [activeView, setActiveView] = useState<'dashboard' | 'meetings'>('dashboard');
-
-  const handleViewMeeting = (meetingId: number) => {
-    console.log('View meeting:', meetingId);
-    // Rediriger vers la page de détails de la réunion dans le même onglet
-    window.location.href = `/tasks?meetingId=${meetingId}`;
-  };
-
-  const handleEditMeeting = (meetingId: number) => {
-    console.log('Edit meeting:', meetingId);
-    // Rediriger vers l'édition de la réunion dans le même onglet
-    window.location.href = `/tasks?meetingId=${meetingId}&edit=true`;
-  };
 
   const handleLogout = () => {
     logout();
@@ -68,7 +52,7 @@ export default function AdminPage() {
         </div>
 
         <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Header avec profil utilisateur */}
+          {/* En-tête */}
           <div className="flex items-center justify-between mb-8">
             <div className="space-y-3">
               <h1 className="text-4xl font-bold text-black">
@@ -86,11 +70,30 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Afficher directement le contenu des réunions avec statistiques */}
-          <AdminMeetings
-            onViewMeeting={handleViewMeeting}
-            onEditMeeting={handleEditMeeting}
-          />
+          {/* Rediriger vers la page de gestion des réunions admin */}
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <ShieldCheckIcon className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Tableau de bord Administrateur</h2>
+            <p className="text-gray-600 mb-8">Gestion complète des réunions et statistiques</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              <button
+                onClick={() => window.location.href = '/admin/meetings'}
+                className="px-8 py-4 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 font-semibold text-lg"
+              >
+                Gérer les réunions
+              </button>
+              
+              <button
+                onClick={() => window.location.href = '/admin/statistics'}
+                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl hover:from-purple-600 hover:to-blue-700 transition-all duration-300 font-semibold text-lg"
+              >
+                Voir les statistiques
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </AuthGuard>
