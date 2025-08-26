@@ -208,8 +208,9 @@ export default function HomePage() {
               recentMeetings.map((meeting, index) => (
                 <div
                   key={meeting.id}
-                  className="group flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01]"
+                  className="group flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01] cursor-pointer"
                   style={{ animationDelay: `${index * 100}ms` }}
+                  onClick={() => router.push(`/tasks?meetingId=${meeting.id}`)}
                 >
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>

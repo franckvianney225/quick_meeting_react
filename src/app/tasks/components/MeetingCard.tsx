@@ -184,7 +184,10 @@ export const MeetingCard = ({
 
   return (
     <>
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
+      <div
+        className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] cursor-pointer"
+        onClick={() => meeting.id && onView(meeting.id)}
+      >
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-orange-600 transition-colors duration-200">

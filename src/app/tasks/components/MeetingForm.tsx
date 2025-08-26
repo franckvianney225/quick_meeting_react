@@ -570,7 +570,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       </label>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    {/* <div className="flex items-center space-x-3">
                       <input
                         type="checkbox"
                         id="includeText"
@@ -581,7 +581,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       <label htmlFor="includeText" className="text-sm font-medium text-gray-700">
                         Afficher le texte sous le QR Code
                       </label>
-                    </div>
+                    </div> */}
 
                     {/* {qrConfig.includeText && (
                       <div>

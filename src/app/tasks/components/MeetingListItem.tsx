@@ -149,7 +149,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   return (
     <>
-      <tr className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300">
+      <tr
+        className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300 cursor-pointer"
+        onClick={() => onView(meeting.id)}
+      >
         {/* Réunion */}
         <td className="px-6 py-4 w-2/12">
           <h3 className="font-bold text-gray-900 mb-1 hover:text-orange-600 transition-colors duration-200">
