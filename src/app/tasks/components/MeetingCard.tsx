@@ -264,7 +264,10 @@ export const MeetingCard = ({
         <div className="flex items-center justify-between pt-4 border-t border-orange-200/30">
           <div className="flex space-x-2">
             <button
-              onClick={() => meeting.id && onView(meeting.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                meeting.id && onView(meeting.id);
+              }}
               className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Voir détails"
             >
@@ -272,7 +275,10 @@ export const MeetingCard = ({
             </button>
 
             <button
-              onClick={() => meeting.id && onEdit(meeting.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                meeting.id && onEdit(meeting.id);
+              }}
               className="p-3 text-green-600 hover:bg-green-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Modifier"
             >
@@ -280,7 +286,10 @@ export const MeetingCard = ({
             </button>
 
             <button
-              onClick={handleDeleteClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClick();
+              }}
               className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
@@ -290,7 +299,10 @@ export const MeetingCard = ({
 
           <div className="flex space-x-3">
             <button
-              onClick={handleGenerateQR}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleGenerateQR();
+              }}
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               <QrCodeIcon className="h-4 w-4" />
@@ -298,7 +310,10 @@ export const MeetingCard = ({
             </button>
 
             <button
-              onClick={handleAttendanceList}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAttendanceList();
+              }}
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               <ClipboardDocumentListIcon className="h-4 w-4" />

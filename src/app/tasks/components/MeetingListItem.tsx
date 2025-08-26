@@ -209,7 +209,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
         <td className="px-6 py-4 w-4/12">
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => onView(meeting.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onView(meeting.id);
+              }}
               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
               title="Voir détails"
             >
@@ -217,7 +220,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
             </button>
 
             <button
-              onClick={() => onEdit(meeting.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(meeting.id);
+              }}
               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
               title="Modifier"
             >
@@ -225,7 +231,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
             </button>
 
             <button
-              onClick={handleGenerateQR}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleGenerateQR();
+              }}
               className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 hover:scale-110"
               title="Générer QR Code"
             >
@@ -233,7 +242,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
             </button>
 
             <button
-              onClick={() => handleAttendanceList(meeting.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAttendanceList(meeting.id);
+              }}
               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200 hover:scale-110"
               title="Liste de présence"
             >
@@ -241,7 +253,10 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
             </button>
 
             <button
-              onClick={handleDeleteClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteClick();
+              }}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
