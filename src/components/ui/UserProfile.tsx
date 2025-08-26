@@ -3,10 +3,13 @@ import { useState } from 'react';
 import {
   ChevronDownIcon,
   UserCircleIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  MoonIcon,
+  SunIcon
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { getAvatarUrl } from '@/lib/api';
+import { useTheme } from '@/hooks/useTheme';
 
 interface UserProfileProps {
   user: {
@@ -23,6 +26,7 @@ interface UserProfileProps {
 
 export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { theme, toggleTheme, mounted } = useTheme();
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -155,6 +159,38 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
                 </div>
                 <span className="font-semibold">Se déconnecter</span>
               </button>
+
+              {/* Toggle de mode nuit */}
+              <div className="px-6 py-3 border-t border-gray-200/30 dark:border-gray-700/30">
+                <button
+                  onClick={toggleTheme}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 rounded-xl transition-all duration-200"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      theme === 'dark'
+                        ? 'bg-orange-400 text-white'
+                        : 'bg-gray-300 text-gray-600'
+                    }`}>
+                      {mounted && theme === 'dark' ? (
+                        <MoonIcon className="w-3 h-3" />
+                      ) : (
+                        <SunIcon className="w-3 h-3" />
+                      )}
+                    </div>
+                    <span className="font-medium">
+                      {mounted && theme === 'dark' ? 'Mode sombre' : 'Mode clair'}
+                    </span>
+                  </div>
+                  <div className={`w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
+                    theme === 'dark'
+                      ? 'bg-orange-500 justify-end'
+                      : 'bg-gray-300 justify-start'
+                  }`}>
+                    <div className="w-3 h-3 bg-white rounded-full transition-all duration-300"></div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </>
