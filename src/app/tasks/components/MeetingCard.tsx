@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -27,6 +27,7 @@ export interface Meeting {
   max_participants?: number;
   maxParticipants?: number;
   uniqueCode: string;
+  participants_count?: number; // Ajout du compteur de participants
   qrConfig?: {
     backgroundColor?: string;
     foregroundColor?: string;
@@ -58,6 +59,8 @@ export const MeetingCard = ({
 }: MeetingCardProps) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUniqueCode, setShowUniqueCode] = useState(false);
+  const [participantsCount, setParticipantsCount] = useState(meeting.participants_count || 0);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -107,6 +110,31 @@ export const MeetingCard = ({
       console.error('Erreur lors de la génération de la liste:', error);
     }
   };
+
+  // Charger le nombre de participants si non fourni
+  useEffect(() => {
+    const loadParticipantsCount = async () => {
+      if (meeting.participants_count !== undefined) return;
+      
+      try {
+        setLoadingParticipants(true);
+        const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants`), {
+          headers: AuthService.getAuthHeaders()
+        });
+        
+        if (response.ok) {
+          const participants = await response.json();
+          setParticipantsCount(participants.length || 0);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement du nombre de participants:', error);
+      } finally {
+        setLoadingParticipants(false);
+      }
+    };
+
+    loadParticipantsCount();
+  }, [meeting.id, meeting.participants_count]);
 
   const handleConfirmDelete = () => {
     setShowDeleteModal(false);
@@ -189,7 +217,11 @@ export const MeetingCard = ({
               <UserGroupIcon className="h-4 w-4 text-white" />
             </div>
             <span className="text-sm font-medium">
-              {meeting.max_participants ? `Max ${meeting.max_participants}` : 'Illimité'} participants
+              {loadingParticipants ? (
+                <span className="text-gray-400">Chargement...</span>
+              ) : (
+                `${participantsCount} participant${participantsCount !== 1 ? 's' : ''} enregistré${participantsCount !== 1 ? 's' : ''}`
+              )}
             </span>
           </div>
 
