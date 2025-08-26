@@ -2,7 +2,15 @@
 import { useState, useEffect } from 'react';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
-import { ClipboardDocumentIcon, TrashIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
+import {
+  ClipboardDocumentIcon,
+  TrashIcon,
+  EyeIcon,
+  PencilIcon,
+  UsersIcon,
+  CheckCircleIcon,
+  ClockIcon
+} from '@heroicons/react/24/outline';
 
 interface Meeting {
   id: number;
@@ -129,37 +137,97 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
     );
   }
 
-  return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
-      {/* Header avec filtres */}
-      <div className="px-6 py-4 bg-gradient-to-r from-orange-50/80 to-green-50/80 border-b border-orange-200/30">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Toutes les réunions</h2>
-            <p className="text-gray-600 text-sm">Gestion complète de toutes les réunions du système</p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-all"
-            />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-all"
-            >
-              <option value="">Tous les statuts</option>
-              <option value="active">Actif</option>
-              <option value="completed">Terminé</option>
-              <option value="inactive">En attente</option>
-            </select>
-          </div>
+  // Composant pour les cartes de statistiques
+  const StatCard = ({
+    title,
+    value,
+    icon: Icon,
+    color
+  }: {
+    title: string;
+    value: number;
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    color: string;
+  }) => (
+    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+        </div>
+        <div className={`p-3 rounded-xl ${color}`}>
+          <Icon className="h-6 w-6 text-white" />
         </div>
       </div>
+    </div>
+  );
+
+  // Calculer les statistiques
+  const totalParticipants = meetings.reduce((sum, meeting) => sum + (meeting.participants_count || 0), 0);
+  const activeMeetings = meetings.filter(m => m.status === 'active').length;
+  const inactiveMeetings = meetings.filter(m => m.status === 'inactive').length;
+
+  return (
+    <div className="space-y-6">
+      {/* Cartes de statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          title="Toutes les réunions"
+          value={meetings.length}
+          icon={ClipboardDocumentIcon}
+          color="bg-gradient-to-r from-orange-500 to-orange-600"
+        />
+        <StatCard
+          title="Total participants"
+          value={totalParticipants}
+          icon={UsersIcon}
+          color="bg-gradient-to-r from-blue-500 to-blue-600"
+        />
+        <StatCard
+          title="Réunions actives"
+          value={activeMeetings}
+          icon={CheckCircleIcon}
+          color="bg-gradient-to-r from-green-500 to-green-600"
+        />
+        <StatCard
+          title="Réunions inactives"
+          value={inactiveMeetings}
+          icon={ClockIcon}
+          color="bg-gradient-to-r from-gray-500 to-gray-600"
+        />
+      </div>
+
+      {/* Tableau des réunions */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+        {/* Header avec filtres */}
+        <div className="px-6 py-4 bg-gradient-to-r from-orange-50/80 to-green-50/80 border-b border-orange-200/30">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Toutes les réunions</h2>
+              <p className="text-gray-600 text-sm">Gestion complète de toutes les réunions du système</p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-all"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-all"
+              >
+                <option value="">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="completed">Terminé</option>
+                <option value="inactive">En attente</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
       {filteredMeetings.length === 0 ? (
         <div className="p-8 text-center">
@@ -256,6 +324,7 @@ export default function AdminMeetings({ onViewMeeting, onEditMeeting }: AdminMee
           </table>
         </div>
       )}
+      </div>
     </div>
   );
 }

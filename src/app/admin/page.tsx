@@ -3,23 +3,24 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import AuthGuard from '@/components/AuthGuard';
 import { UserProfile } from '@/components/ui/UserProfile';
+import AdminDashboard from './components/AdminDashboard';
 import AdminMeetings from './components/AdminMeetings';
-import { ShieldCheckIcon, UsersIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 export default function AdminPage() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'meetings' | 'users'>('meetings');
+  const [activeView, setActiveView] = useState<'dashboard' | 'meetings'>('dashboard');
 
   const handleViewMeeting = (meetingId: number) => {
     console.log('View meeting:', meetingId);
-    // Rediriger vers la page de détails de la réunion
-    window.open(`/tasks?meetingId=${meetingId}`, '_blank');
+    // Rediriger vers la page de détails de la réunion dans le même onglet
+    window.location.href = `/tasks?meetingId=${meetingId}`;
   };
 
   const handleEditMeeting = (meetingId: number) => {
     console.log('Edit meeting:', meetingId);
-    // Rediriger vers l'édition de la réunion
-    window.open(`/tasks?meetingId=${meetingId}&edit=true`, '_blank');
+    // Rediriger vers l'édition de la réunion dans le même onglet
+    window.location.href = `/tasks?meetingId=${meetingId}&edit=true`;
   };
 
   const handleLogout = () => {
@@ -71,10 +72,10 @@ export default function AdminPage() {
           <div className="flex items-center justify-between mb-8">
             <div className="space-y-3">
               <h1 className="text-4xl font-bold text-black">
-                Administration
+                Tableau de bord Administrateur
               </h1>
               <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
-                Gestion complète du système - Réunions et utilisateurs
+                Statistiques et gestion complète des réunions
               </p>
             </div>
 
@@ -85,55 +86,11 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Navigation par onglets */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setActiveTab('meetings')}
-                className={`px-6 py-3 rounded-xl transition-all duration-300 font-semibold flex items-center space-x-3 ${
-                  activeTab === 'meetings'
-                    ? 'bg-gradient-to-r from-orange-500 to-green-600 text-white shadow-md'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100/50'
-                }`}
-              >
-                <ClipboardDocumentIcon className="h-5 w-5" />
-                <span>Réunions</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`px-6 py-3 rounded-xl transition-all duration-300 font-semibold flex items-center space-x-3 ${
-                  activeTab === 'users'
-                    ? 'bg-gradient-to-r from-orange-500 to-green-600 text-white shadow-md'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100/50'
-                }`}
-              >
-                <UsersIcon className="h-5 w-5" />
-                <span>Utilisateurs</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Contenu des onglets */}
-          {activeTab === 'meetings' && (
-            <AdminMeetings
-              onViewMeeting={handleViewMeeting}
-              onEditMeeting={handleEditMeeting}
-            />
-          )}
-
-          {activeTab === 'users' && (
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/30 p-6">
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <UsersIcon className="w-10 h-10 text-white" />
-                </div>
-                <p className="text-gray-500 text-xl font-medium">Gestion des utilisateurs</p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Cette fonctionnalité sera disponible prochainement
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Afficher directement le contenu des réunions avec statistiques */}
+          <AdminMeetings
+            onViewMeeting={handleViewMeeting}
+            onEditMeeting={handleEditMeeting}
+          />
         </div>
       </div>
     </AuthGuard>
