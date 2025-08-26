@@ -30,10 +30,10 @@ export default function ValidationStep({
       <div className="flex justify-center">
         <button
           type="button"
-          onClick={onBack}
+          onClick={() => window.location.reload()}
           className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
         >
-          Retour à l&apos;accueil
+          Retour a la page d'acceuil
         </button>
       </div>
     </div>
