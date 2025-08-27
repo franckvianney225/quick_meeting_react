@@ -2,6 +2,8 @@
 import { jsPDF } from 'jspdf';
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
 import { createRoot } from 'react-dom/client';
+import { apiUrl } from '@/lib/api';
+import { AuthService } from '@/lib/auth';
 
 interface Participant {
   id: number;
@@ -48,7 +50,7 @@ const AttendanceListPDF = forwardRef(({
   },
   onClose
 }: AttendanceListPDFProps, ref) => {
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const doc = new jsPDF('landscape', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -58,25 +60,79 @@ const AttendanceListPDF = forwardRef(({
     const secondaryColor: [number, number, number] = [52, 73, 94]; // Gris foncé
     const lightGray: [number, number, number] = [236, 240, 241]; // Gris clair
     
-    // En-tête de l'entreprise
-    doc.setFillColor(...primaryColor);
-    doc.rect(0, 0, pageWidth, 25, 'F');
+    // Fonction pour récupérer les paramètres d'organisation (similaire à MeetingQRPDF)
+    const fetchOrganizationSettings = async (): Promise<{
+      name: string;
+      website: string;
+      logo: string;
+      allowedEmailDomains?: string[];
+    } | null> => {
+      try {
+        const response = await fetch(apiUrl('/organization'), {
+          headers: AuthService.getAuthHeaders()
+        });
+        if (response.ok) {
+          return await response.json();
+        }
+        return null;
+      } catch (error) {
+        console.error('Erreur récupération paramètres organisation:', error);
+        return null;
+      }
+    };
+
+    // Récupérer les paramètres d'organisation
+    const orgSettings = await fetchOrganizationSettings();
     
-    // Logo (remplacé par texte temporairement)
+    // Header - Logo à gauche et texte République de Côte d'Ivoire à droite
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    
+    // Logo de l'organisation à gauche (si disponible)
+    if (orgSettings?.logo) {
+      try {
+        // Charger l'image pour obtenir ses dimensions naturelles
+        const img = new Image();
+        img.src = orgSettings.logo;
+        await new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve; // Continuer même en cas d'erreur
+        });
+        
+        if (img.width && img.height) {
+          // Calculer la hauteur proportionnelle pour une largeur max de 40px
+          const maxWidth = 40;
+          const ratio = img.width / img.height;
+          const displayWidth = Math.min(maxWidth, img.width);
+          const displayHeight = displayWidth / ratio;
+          
+          doc.addImage(orgSettings.logo, 'PNG', 15, 10, displayWidth, displayHeight);
+        } else {
+          // Fallback si impossible de détecter les dimensions
+          doc.addImage(orgSettings.logo, 'PNG', 15, 10, 30, 30);
+        }
+      } catch (error) {
+        console.warn('Erreur chargement logo organisation:', error);
+        // Fallback en cas d'erreur
+        if (orgSettings.logo) {
+          doc.addImage(orgSettings.logo, 'PNG', 15, 10, 30, 30);
+        }
+      }
+    }
+    
+    // Texte République de Côte d'Ivoire à l'extrême droite
     doc.setFontSize(12);
-    doc.text(companyInfo.name, 15, 12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('RÉPUBLIQUE DE CÔTE D\'IVOIRE', pageWidth - 15, 15, { align: 'right' });
+    doc.setFontSize(10);
     
-    // Nom de l'entreprise (en blanc)
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(companyInfo.name, 50, 12);
+    // Calculer la largeur du texte "RÉPUBLIQUE DE CÔTE D'IVOIRE" pour centrer le texte du dessous
+    doc.setFontSize(12);
+    const republicTextWidth = doc.getTextWidth('RÉPUBLIQUE DE CÔTE D\'IVOIRE');
+    const centerX = pageWidth - 15 - (republicTextWidth / 2);
     
-    // Informations de contact (en blanc, plus petit)
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(companyInfo.address, 15, 18);
-    doc.text(`${companyInfo.phone} | ${companyInfo.email} | ${companyInfo.website}`, 15, 22);
+    doc.setFontSize(10);
+    doc.text('UNION - DISCIPLINE - TRAVAIL', centerX, 22, { align: 'center' });
     
     // Retour au noir pour le reste
     doc.setTextColor(0, 0, 0);
@@ -128,8 +184,8 @@ const AttendanceListPDF = forwardRef(({
     yPos += 15;
     
     // En-tête du tableau (ordre modifié pour correspondre à l'affichage)
-    const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'SIGNATURE', 'DATE DE SIGNATURE'];
-    const colWidths = [10, 25, 25, 40, 35, 25, 25, 35, 25]; // Largeurs des colonnes ajustées pour le paysage
+    const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'DATE DE SIGNATURE', 'SIGNATURE'];
+    const colWidths = [10, 25, 25, 40, 35, 25, 25, 25, 35]; // Largeurs des colonnes ajustées pour le paysage
     let xPos = 15;
     
     // Dessiner l'en-tête du tableau
@@ -221,14 +277,20 @@ const AttendanceListPDF = forwardRef(({
       doc.text(sanitizeValue(participant.phone), xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
       xPos += colWidths[6];
       
+      // Date de signature
+      doc.setFontSize(6);
+      const signatureDate = participant.submittedAt ? new Date(participant.submittedAt).toLocaleDateString('fr-FR') : 'Non signé';
+      doc.text(sanitizeValue(signatureDate), xPos + 2, yPos, { maxWidth: colWidths[7] - 4 });
+      xPos += colWidths[7];
+      
       // Case signature - afficher la signature si elle existe
-      doc.rect(xPos, yPos - 4, colWidths[7], rowHeight);
+      doc.rect(xPos, yPos - 4, colWidths[8], rowHeight);
       
       // Ajouter la signature si elle existe (format data URL)
       if (participant.signature) {
         try {
           // Réduire la taille de la signature pour qu'elle tienne dans la case
-          const signatureWidth = colWidths[7] - 4;
+          const signatureWidth = colWidths[8] - 4;
           const signatureHeight = rowHeight - 4;
           doc.addImage(
             participant.signature,
@@ -244,12 +306,6 @@ const AttendanceListPDF = forwardRef(({
         }
       }
       
-      xPos += colWidths[7];
-      
-      // Date de signature
-      doc.setFontSize(6);
-      const signatureDate = participant.submittedAt ? new Date(participant.submittedAt).toLocaleDateString('fr-FR') : 'Non signé';
-      doc.text(sanitizeValue(signatureDate), xPos + 2, yPos, { maxWidth: colWidths[8] - 4 });
       xPos += colWidths[8];
       
       // Ligne de séparation
@@ -291,12 +347,16 @@ const AttendanceListPDF = forwardRef(({
 
   // Utilisation de useEffect pour générer le PDF après le rendu
   useEffect(() => {
-    try {
-      generatePDF();
-    } catch (error) {
-      console.error('Erreur génération PDF:', error);
-      onClose();
-    }
+    const generatePDFAsync = async () => {
+      try {
+        await generatePDF();
+      } catch (error) {
+        console.error('Erreur génération PDF:', error);
+        onClose();
+      }
+    };
+    
+    generatePDFAsync();
   }, []);
 
   return null;
