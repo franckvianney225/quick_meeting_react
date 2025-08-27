@@ -277,9 +277,16 @@ const AttendanceListPDF = forwardRef(({
       doc.text(sanitizeValue(participant.phone), xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
       xPos += colWidths[6];
       
-      // Date de signature
+      // Date de signature (avec date et heure)
       doc.setFontSize(6);
-      const signatureDate = participant.submittedAt ? new Date(participant.submittedAt).toLocaleDateString('fr-FR') : 'Non signé';
+      const signatureDate = participant.submittedAt ?
+        new Date(participant.submittedAt).toLocaleString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : 'Non signé';
       doc.text(sanitizeValue(signatureDate), xPos + 2, yPos, { maxWidth: colWidths[7] - 4 });
       xPos += colWidths[7];
       
