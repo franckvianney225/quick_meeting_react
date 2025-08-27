@@ -16,6 +16,7 @@ const user_module_1 = require("../user/user.module");
 const organization_module_1 = require("../organization/organization.module");
 const jwt_strategy_1 = require("./jwt.strategy");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
+const admin_guard_1 = require("./admin.guard");
 const email_module_1 = require("../email/email.module");
 let AuthModule = class AuthModule {
 };
@@ -33,8 +34,8 @@ exports.AuthModule = AuthModule = __decorate([
             }),
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, jwt_auth_guard_1.JwtAuthGuard],
-        exports: [auth_service_1.AuthService, jwt_auth_guard_1.JwtAuthGuard],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard],
+        exports: [auth_service_1.AuthService, jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map
