@@ -152,12 +152,32 @@ const AttendanceListPDF = forwardRef(({
     
     yPos += 12;
     
+    // Fonction utilitaire pour assainir les valeurs (éviter null/undefined)
+    const sanitizeValue = (value: string | number | null | undefined): string => {
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'string') return value;
+      return String(value);
+    };
+
+    // Log des données pour débogage
+    console.log('Participants data:', participants);
+    
     // Données du tableau
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7); // Taille de police réduite pour les données
     
     participants.forEach((participant, index) => {
+      console.log(`Participant ${index + 1} debug:`, {
+        firstName: participant.firstName,
+        lastName: participant.lastName,
+        email: participant.email,
+        phone: participant.phone,
+        function: participant.function,
+        organization: participant.organization,
+        signature: participant.signature,
+        submittedAt: participant.submittedAt
+      });
       // Vérifier si on a besoin d'une nouvelle page
       if (yPos > pageHeight - 30) {
         doc.addPage();
@@ -177,28 +197,28 @@ const AttendanceListPDF = forwardRef(({
       doc.text((index + 1).toString(), xPos + 2, yPos);
       xPos += colWidths[0];
       
-      // Prénoms (d'abord comme dans l'interface utilisateur)
-      doc.text(participant.firstName, xPos + 2, yPos, { maxWidth: colWidths[1] - 4 });
+      // Nom (en majuscules)
+      doc.text(sanitizeValue(participant.lastName).toUpperCase(), xPos + 2, yPos, { maxWidth: colWidths[1] - 4 });
       xPos += colWidths[1];
       
-      // Nom (en majuscules)
-      doc.text(participant.lastName.toUpperCase(), xPos + 2, yPos, { maxWidth: colWidths[2] - 4 });
+      // Prénoms (d'abord comme dans l'interface utilisateur)
+      doc.text(sanitizeValue(participant.firstName), xPos + 2, yPos, { maxWidth: colWidths[2] - 4 });
       xPos += colWidths[2];
       
       // Email
-      doc.text(participant.email, xPos + 2, yPos, { maxWidth: colWidths[3] - 4 });
+      doc.text(sanitizeValue(participant.email), xPos + 2, yPos, { maxWidth: colWidths[3] - 4 });
       xPos += colWidths[3];
       
       // Structure/Organisation
-      doc.text(participant.organization, xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
+      doc.text(sanitizeValue(participant.organization), xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
       xPos += colWidths[4];
       
       // Fonction
-      doc.text(participant.function, xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
+      doc.text(sanitizeValue(participant.function), xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
       xPos += colWidths[5];
       
       // Contact
-      doc.text(participant.phone, xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
+      doc.text(sanitizeValue(participant.phone), xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
       xPos += colWidths[6];
       
       // Case signature - afficher la signature si elle existe
@@ -229,7 +249,7 @@ const AttendanceListPDF = forwardRef(({
       // Date de signature
       doc.setFontSize(6);
       const signatureDate = participant.submittedAt ? new Date(participant.submittedAt).toLocaleDateString('fr-FR') : 'Non signé';
-      doc.text(signatureDate, xPos + 2, yPos, { maxWidth: colWidths[8] - 4 });
+      doc.text(sanitizeValue(signatureDate), xPos + 2, yPos, { maxWidth: colWidths[8] - 4 });
       xPos += colWidths[8];
       
       // Ligne de séparation

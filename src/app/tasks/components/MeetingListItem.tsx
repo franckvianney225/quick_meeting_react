@@ -67,11 +67,45 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des participants');
       }
-      const participants = await response.json();
+      const apiParticipants = await response.json();
+
+      // Définir l'interface pour les données de l'API
+      interface ApiParticipant {
+        id: number;
+        name: string;
+        prenom: string;
+        email: string;
+        phone: string;
+        fonction: string;
+        organisation: string;
+        createdAt?: string;
+        submittedAt?: string;
+        signatureDate?: string;
+        registeredAt?: string;
+        location?: string;
+        signature?: string;
+      }
+      
+      // Mapper les données de l'API vers l'interface attendue par le PDF (même mapping que MeetingDetails)
+      const mappedParticipants = apiParticipants.map((p: ApiParticipant) => ({
+        id: p.id,
+        firstName: p.prenom,        // prénom = first name
+        lastName: p.name,           // name = last name (nom de famille)
+        email: p.email,
+        phone: p.phone,
+        function: p.fonction,
+        organization: p.organisation,
+        submittedAt: p.submittedAt,
+        signatureDate: p.signatureDate,
+        createdAt: p.createdAt,
+        registeredAt: p.signatureDate || p.createdAt || p.submittedAt || p.registeredAt,
+        location: p.location,
+        signature: p.signature
+      }));
 
       await generateAttendancePDF({
         meetingTitle: meeting.title,
-        participants: participants,
+        participants: mappedParticipants,
         onClose: () => {}
       });
     } catch (error) {
