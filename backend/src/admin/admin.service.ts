@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import * as os from 'os';
 import * as process from 'process';
 
-interface SystemStatus {
+export interface SystemStatus {
   status: 'online' | 'offline' | 'degraded';
   uptime: string;
   memory: {

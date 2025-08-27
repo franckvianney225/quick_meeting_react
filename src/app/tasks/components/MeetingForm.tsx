@@ -431,12 +431,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       className="inline-block p-4 rounded-lg"
                       style={{ backgroundColor: qrConfig.backgroundColor }}
                     >
-                      <div 
+                      <div
                         className="rounded-lg"
-                        style={{ 
-                          width: `${qrConfig.size / 4}px`, 
-                          height: `${qrConfig.size / 4}px`,
-                          backgroundColor: qrConfig.foregroundColor 
+                        style={{
+                          width: `${(qrConfig.size || 256) / 4}px`,
+                          height: `${(qrConfig.size || 256) / 4}px`,
+                          backgroundColor: qrConfig.foregroundColor
                         }}
                       >
                         <QrCodeIcon className="w-full h-full p-2" style={{ color: qrConfig.backgroundColor }} />
@@ -689,3 +689,4 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     </div>
   );
 };
+

@@ -17,6 +17,9 @@ RUN npm ci
 COPY src/ ./src/
 COPY public/ ./public/
 
+# Définir les variables d'environnement pour le build
+ENV NEXT_PUBLIC_API_URL=http://164.160.40.182:3001
+
 # Build l'application
 RUN npm run build -- --no-lint
 

@@ -12,7 +12,7 @@ exports.default = new typeorm_1.DataSource({
     username: configService.get('DB_USER'),
     password: configService.get('DB_PASSWORD'),
     database: configService.get('DB_NAME'),
-    entities: ['src/**/*.entity{.ts,.js}'],
+    entities: [process.env.NODE_ENV === 'production' ? 'dist/**/*.entity{.ts,.js}' : 'src/**/*.entity{.ts,.js}'],
     migrations: ['src/migrations/*{.ts,.js}'],
     synchronize: false,
 });

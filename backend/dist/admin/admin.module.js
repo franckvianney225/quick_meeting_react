@@ -13,12 +13,16 @@ const admin_log_entity_1 = require("./admin-log.entity");
 const admin_log_service_1 = require("./admin-log.service");
 const admin_controller_1 = require("./admin.controller");
 const admin_service_1 = require("./admin.service");
+const auth_module_1 = require("../auth/auth.module");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
 exports.AdminModule = AdminModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([admin_log_entity_1.AdminLog])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([admin_log_entity_1.AdminLog]),
+            auth_module_1.AuthModule
+        ],
         controllers: [admin_controller_1.AdminController],
         providers: [admin_log_service_1.AdminLogService, admin_service_1.AdminService],
         exports: [admin_log_service_1.AdminLogService, admin_service_1.AdminService],

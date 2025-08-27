@@ -22,7 +22,7 @@ COPY nest-cli.json ./
 RUN npx nest build
 
 # Étape de production
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 WORKDIR /app
 

@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-interface SystemStatus {
+export interface SystemStatus {
     status: 'online' | 'offline' | 'degraded';
     uptime: string;
     memory: {
@@ -30,4 +30,3 @@ export declare class AdminService {
     private getCpuUsage;
     private getDatabaseStatus;
 }
-export {};

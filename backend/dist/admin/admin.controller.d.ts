@@ -1,6 +1,6 @@
-import { AdminService } from './admin.service';
+import { AdminService, SystemStatus } from './admin.service';
 export declare class AdminController {
     private readonly adminService;
     constructor(adminService: AdminService);
-    getSystemStatus(): Promise<any>;
+    getSystemStatus(): Promise<SystemStatus>;
 }
