@@ -6,10 +6,14 @@ import {
   CircleStackIcon,
   ClockIcon,
   ArrowPathIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { apiUrl } from '@/lib/api';
 import { AuthService } from '@/lib/auth';
+import { useSystemMonitoring } from '@/hooks/useSystemMonitoring';
+import { CpuMonitor } from '@/components/system/CpuMonitor';
+import { MemoryMonitor } from '@/components/system/MemoryMonitor';
 
 interface SystemStatus {
   status: 'online' | 'offline' | 'degraded';
@@ -39,6 +43,20 @@ export const SystemSection = () => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCharts, setShowCharts] = useState(true);
+  
+  const {
+    currentMetrics,
+    historicalData,
+    isLoading: monitoringLoading,
+    refreshNow,
+    startMonitoring,
+    stopMonitoring,
+    isMonitoring
+  } = useSystemMonitoring({
+    refreshInterval: 5000,
+    useMockData: true // Utiliser les données simulées en attendant l'API
+  });
 
   const fetchSystemStatus = async () => {
     try {
@@ -97,6 +115,11 @@ export const SystemSection = () => {
 
   useEffect(() => {
     fetchSystemStatus();
+    startMonitoring();
+    
+    return () => {
+      stopMonitoring();
+    };
   }, []);
 
   const getStatusColor = (status: string) => {
@@ -125,7 +148,14 @@ export const SystemSection = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  if (loading) {
+  const toggleCharts = () => {
+    setShowCharts(!showCharts);
+    if (!showCharts) {
+      refreshNow();
+    }
+  };
+
+  if (loading || monitoringLoading) {
     return (
       <div className="p-8">
         <div className="flex items-center justify-center py-12">
@@ -262,6 +292,68 @@ export const SystemSection = () => {
             </div>
           </div>
 
+          {/* Monitoring en temps réel avec graphiques */}
+          <div className="bg-white rounded-xl shadow-sm border p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <ChartBarIcon className="w-8 h-8 text-blue-600 mr-4" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Monitoring Temps Réel</h3>
+                  <p className="text-sm text-gray-600">Graphiques de performance live</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  isMonitoring ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {isMonitoring ? '● Actif' : '● Inactif'}
+                </span>
+                
+                <button
+                  onClick={toggleCharts}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {showCharts ? 'Masquer Graphiques' : 'Afficher Graphiques'}
+                </button>
+                
+                <button
+                  onClick={refreshNow}
+                  className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                  title="Actualiser maintenant"
+                >
+                  <ArrowPathIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+    
+            {showCharts && historicalData.metrics.length > 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <CpuMonitor
+                  data={historicalData.metrics}
+                  onRefresh={refreshNow}
+                  refreshInterval={5000}
+                />
+                
+                <MemoryMonitor
+                  data={historicalData.metrics}
+                  onRefresh={refreshNow}
+                  refreshInterval={5000}
+                />
+              </div>
+            )}
+    
+            {showCharts && historicalData.metrics.length === 0 && (
+              <div className="text-center py-8">
+                <ChartBarIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">Aucune donnée de monitoring disponible</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Les données apparaîtront après le premier rafraîchissement
+                </p>
+              </div>
+            )}
+          </div>
+    
           {/* Actions */}
           <div className="bg-orange-50 border border-orange-100 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions Système</h3>

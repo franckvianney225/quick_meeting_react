@@ -35,6 +35,10 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
   const handleLogout = () => {
     setIsDropdownOpen(false);
     onLogout?.();
+    // Actualiser la page après la déconnexion pour un redémarrage complet
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   const handleProfile = () => {
