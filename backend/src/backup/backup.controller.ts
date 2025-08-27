@@ -34,10 +34,15 @@ export class BackupController {
   async createBackup(
     @Body() body: { type?: 'full' | 'incremental'; description?: string }
   ): Promise<Backup> {
-    return this.backupService.createBackup(
-      body.type || 'full',
-      body.description
-    );
+    try {
+      return await this.backupService.createBackup(
+        body.type || 'full',
+        body.description
+      );
+    } catch (error) {
+      console.error('Erreur création backup:', error);
+      throw new Error(`Erreur lors de la création de la sauvegarde: ${error.message}`);
+    }
   }
 
   @Get(':id/download')

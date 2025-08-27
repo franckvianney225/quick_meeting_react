@@ -98,7 +98,8 @@ export const useBackup = (options: UseBackupOptions = {}) => {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la création de la sauvegarde');
+        const errorData = await response.text();
+        throw new Error(`Erreur lors de la création de la sauvegarde: ${response.status} ${errorData}`);
       }
 
       const newBackup: Backup = await response.json();

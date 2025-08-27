@@ -8,13 +8,13 @@ export class Backup {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   filename: string;
 
-  @Column()
+  @Column({ nullable: true })
   path: string;
 
-  @Column('bigint')
+  @Column('bigint', { nullable: true })
   size: number;
 
   @Column({ default: 'pending' })

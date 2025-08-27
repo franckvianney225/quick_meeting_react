@@ -47,6 +47,9 @@ export class BackupService {
       // Utiliser tar pour créer l'archive (plus simple que archiver)
       await this.createTarArchive(filepath);
 
+      // Attendre que l'archive soit complètement écrite
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       const stats = await fs.stat(filepath);
       backup.size = stats.size;
       backup.filename = filename;
@@ -95,6 +98,12 @@ export class BackupService {
     }
 
     output.end();
+
+    // Attendre que l'écriture soit terminée
+    return new Promise((resolve, reject) => {
+      output.on('finish', resolve);
+      output.on('error', reject);
+    });
   }
 
   // Méthodes de sauvegarde simplifiées - à implémenter avec des commandes système réelles

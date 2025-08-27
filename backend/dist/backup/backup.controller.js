@@ -28,7 +28,13 @@ let BackupController = class BackupController {
         return this.backupService.getBackupStats();
     }
     async createBackup(body) {
-        return this.backupService.createBackup(body.type || 'full', body.description);
+        try {
+            return await this.backupService.createBackup(body.type || 'full', body.description);
+        }
+        catch (error) {
+            console.error('Erreur création backup:', error);
+            throw new Error(`Erreur lors de la création de la sauvegarde: ${error.message}`);
+        }
     }
     async downloadBackup(id, res) {
         const backup = await this.backupService.getBackup(id);

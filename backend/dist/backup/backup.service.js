@@ -51,6 +51,7 @@ let BackupService = BackupService_1 = class BackupService {
             const filename = `backup-${timestamp}.tar.gz`;
             const filepath = path.join(this.backupDir, filename);
             await this.createTarArchive(filepath);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             const stats = await fs.stat(filepath);
             backup.size = stats.size;
             backup.filename = filename;
@@ -90,6 +91,10 @@ let BackupService = BackupService_1 = class BackupService {
             }
         }
         output.end();
+        return new Promise((resolve, reject) => {
+            output.on('finish', resolve);
+            output.on('error', reject);
+        });
     }
     async backupDatabase() {
         const queryRunner = this.dataSource.createQueryRunner();
