@@ -99,4 +99,9 @@ export class AuthService {
 
     return user;
   }
+
+  isUserAdmin(user: { role: string }): boolean {
+    const adminRoles = ['admin', 'administrator', 'Admin', 'Administrator'];
+    return adminRoles.includes(user.role);
+  }
 }

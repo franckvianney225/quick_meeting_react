@@ -6,6 +6,7 @@ import { UsersSection } from './components/UsersSection';
 import { OrganizationSection } from './components/OrganizationSection';
 import { EmailSection } from './components/EmailSection';
 import { BackupSection } from './components/BackupSection';
+import { SystemSection } from './components/SystemSection';
 import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
@@ -170,6 +171,8 @@ export default function SettingsPage() {
         return 'Configuration Email';
       case 'backup':
         return 'Sauvegarde & Restauration';
+      case 'system':
+        return 'Système & Monitoring';
       default:
         return 'Paramètres';
     }
@@ -185,6 +188,8 @@ export default function SettingsPage() {
         return 'Paramètres de configuration SMTP et notifications';
       case 'backup':
         return 'Sauvegardez et restaurez vos données';
+      case 'system':
+        return 'Surveillance et monitoring du système';
       default:
         return 'Configuration générale du système';
     }
@@ -243,6 +248,9 @@ export default function SettingsPage() {
                     onBackup={handleBackup}
                     onRestore={handleRestore}
                   />
+                )}
+                {activeSection === 'system' && (
+                  <SystemSection />
                 )}
               </div>
             </div>

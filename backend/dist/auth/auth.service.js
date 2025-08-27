@@ -88,6 +88,10 @@ let AuthService = class AuthService {
         }
         return user;
     }
+    isUserAdmin(user) {
+        const adminRoles = ['admin', 'administrator', 'Admin', 'Administrator'];
+        return adminRoles.includes(user.role);
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

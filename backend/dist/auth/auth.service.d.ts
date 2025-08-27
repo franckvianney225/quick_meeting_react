@@ -26,4 +26,7 @@ export declare class AuthService {
         email: string;
         role: string;
     }): Promise<User>;
+    isUserAdmin(user: {
+        role: string;
+    }): boolean;
 }

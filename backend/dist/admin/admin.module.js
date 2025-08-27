@@ -11,14 +11,17 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const admin_log_entity_1 = require("./admin-log.entity");
 const admin_log_service_1 = require("./admin-log.service");
+const admin_controller_1 = require("./admin.controller");
+const admin_service_1 = require("./admin.service");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
 exports.AdminModule = AdminModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([admin_log_entity_1.AdminLog])],
-        providers: [admin_log_service_1.AdminLogService],
-        exports: [admin_log_service_1.AdminLogService],
+        controllers: [admin_controller_1.AdminController],
+        providers: [admin_log_service_1.AdminLogService, admin_service_1.AdminService],
+        exports: [admin_log_service_1.AdminLogService, admin_service_1.AdminService],
     })
 ], AdminModule);
 //# sourceMappingURL=admin.module.js.map

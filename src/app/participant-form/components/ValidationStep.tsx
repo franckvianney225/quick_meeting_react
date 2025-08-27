@@ -33,7 +33,7 @@ export default function ValidationStep({
           onClick={() => window.location.reload()}
           className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
         >
-          Retour a la page d'acceuil
+          Retour a la page dacceuil
         </button>
       </div>
     </div>
