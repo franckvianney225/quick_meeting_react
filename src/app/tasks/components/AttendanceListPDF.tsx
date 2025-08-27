@@ -185,7 +185,7 @@ const AttendanceListPDF = forwardRef(({
     
     // En-tête du tableau (ordre modifié pour correspondre à l'affichage)
     const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'DATE DE SIGNATURE', 'SIGNATURE'];
-    const colWidths = [10, 25, 25, 40, 35, 25, 25, 25, 35]; // Largeurs des colonnes ajustées pour le paysage
+    const colWidths = [10, 25, 25, 40, 35, 25, 25, 30, 30]; // Largeurs des colonnes ajustées pour le paysage
     let xPos = 15;
     
     // Dessiner l'en-tête du tableau
