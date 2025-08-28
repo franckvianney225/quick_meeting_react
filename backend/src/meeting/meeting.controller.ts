@@ -54,13 +54,13 @@ export class MeetingController {
     console.log('=== ADMIN ACCESS CHECK ===');
     console.log('User role:', req.user?.role);
     console.log('User:', req.user);
-    
+
     // Seuls les administrateurs peuvent accéder à toutes les réunions
     if (!req.user?.role || !['admin', 'administrator', 'Admin'].includes(req.user.role)) {
       console.log('Access denied for role:', req.user?.role);
       throw new HttpException('Accès réservé aux administrateurs', HttpStatus.FORBIDDEN);
     }
-    
+
     console.log('Access granted for admin');
     return this.service.findAll(); // Retourne toutes les réunions sans filtre
   }
@@ -227,6 +227,27 @@ export class MeetingController {
     } catch (err) {
       throw new HttpException(
         err.message || 'Erreur lors de la vérification du statut',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  @Get('validate/:meetingId/:code')
+  async validateMeetingAccess(
+    @Param('meetingId') meetingId: string,
+    @Param('code') code: string
+  ): Promise<{ status: string; title: string }> {
+    try {
+      // Valider que meetingId est un nombre
+      const meetingIdNum = parseInt(meetingId, 10);
+      if (isNaN(meetingIdNum)) {
+        throw new Error('ID de réunion invalide');
+      }
+
+      return await this.service.validateMeetingIdAndCode(meetingIdNum, code);
+    } catch (err) {
+      throw new HttpException(
+        err.message || 'Erreur lors de la validation',
         HttpStatus.BAD_REQUEST
       );
     }

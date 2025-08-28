@@ -54,7 +54,7 @@ export class MeetingService {
     // Normaliser le nom du champ date (support ancien et nouveau format)
     const dateString = meetingData.startDate ||
                       (meetingData.start_date ? new Date(meetingData.start_date).toISOString() : undefined);
-
+    
     if (!dateString) {
       throw new Error('Start date is required');
     }
@@ -72,7 +72,7 @@ export class MeetingService {
     const generateUniqueCode = () => {
       return Math.random().toString(36).substring(2, 10).toUpperCase();
     };
-
+    
     let uniqueCode = generateUniqueCode();
     // Vérifier que le code est unique
     while (await this.findOneByCode(uniqueCode)) {
@@ -123,7 +123,7 @@ export class MeetingService {
 
   async update(id: number, meetingData: Partial<Meeting>): Promise<Meeting> {
     const meeting = await this.findOne(id);
-
+    
     // Validation des données
     if (meetingData.start_date && isNaN(new Date(meetingData.start_date).getTime())) {
       throw new Error('Format de date invalide');
@@ -144,9 +144,9 @@ export class MeetingService {
     if (meetingData.title) {
       meetingData.title = meetingData.title.toUpperCase();
     }
-
+    
     Object.assign(meeting, meetingData);
-
+    
     try {
       return await this.meetingRepository.save(meeting);
     } catch (err) {
@@ -230,7 +230,7 @@ export class MeetingService {
     }
   ): Promise<Buffer> {
     const meeting = await this.findOne(meetingId);
-
+    
     if (!meeting.uniqueCode) {
       throw new Error('Meeting has no unique code');
     }
@@ -249,6 +249,19 @@ export class MeetingService {
     }
   }
 
+  async getMeetingStatusByCode(code: string): Promise<{ status: string; title: string }> {
+    const meeting = await this.meetingRepository.findOne({
+      where: { uniqueCode: code.toUpperCase() }
+    });
+
+    if (!meeting) {
+      throw new Error('Réunion non trouvée');
+    }
+
+    return {
+      status: meeting.status,
+      title: meeting.title
+    };
   async getMeetingStatusByCode(code: string): Promise<{ status: string; title: string }> {
     const meeting = await this.meetingRepository.findOne({
       where: { uniqueCode: code.toUpperCase() }
@@ -289,5 +302,6 @@ export class MeetingService {
       status: meeting.status,
       title: meeting.title
     };
+  }
   }
 }
