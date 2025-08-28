@@ -7,6 +7,7 @@ import { OrganizationSection } from './components/OrganizationSection';
 import { EmailSection } from './components/EmailSection';
 import { BackupSection } from './components/BackupSection';
 import { SystemSection } from './components/SystemSection';
+import { CreditsSection } from './components/CreditsSection';
 import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
@@ -173,6 +174,8 @@ export default function SettingsPage() {
         return 'Sauvegarde & Restauration';
       case 'system':
         return 'Système & Monitoring';
+      case 'credits':
+        return 'Crédits & Informations';
       default:
         return 'Paramètres';
     }
@@ -190,6 +193,8 @@ export default function SettingsPage() {
         return 'Sauvegardez et restaurez vos données';
       case 'system':
         return 'Surveillance et monitoring du système';
+      case 'credits':
+        return 'Informations sur les technologies et contributeurs';
       default:
         return 'Configuration générale du système';
     }
@@ -243,14 +248,13 @@ export default function SettingsPage() {
                   />
                 )}
                 {activeSection === 'backup' && (
-                  <BackupSection
-                    backups={backups}
-                    onBackup={handleBackup}
-                    onRestore={handleRestore}
-                  />
+                  <BackupSection />
                 )}
                 {activeSection === 'system' && (
                   <SystemSection />
+                )}
+                {activeSection === 'credits' && (
+                  <CreditsSection />
                 )}
               </div>
             </div>
