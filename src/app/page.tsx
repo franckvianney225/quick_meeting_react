@@ -168,7 +168,7 @@ export default function HomePage() {
           </Link>
           <Link href="/tasks?status=active">
             <StatCard
-              title="Réunions Actives"
+              title="Réunions en Cours"
               value={stats.activeMeetings}
               icon={ClockIcon}
               color="green"
@@ -177,7 +177,7 @@ export default function HomePage() {
           </Link>
           <Link href="/tasks?status=completed">
             <StatCard
-              title="Terminées"
+              title="Réunions Terminées"
               value={stats.completedMeetings}
               icon={CheckCircleIcon}
               color="red"
