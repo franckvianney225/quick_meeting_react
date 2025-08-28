@@ -147,22 +147,13 @@ export default function HomePage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Link href="/tasks">
             <StatCard
               title="Total Réunions"
               value={stats.totalMeetings}
               icon={CalendarIcon}
               color="gray"
-              trend={0}
-            />
-          </Link>
-          <Link href="/tasks?status=inactive">
-            <StatCard
-              title="Réunion inactive"
-              value={stats.inactiveMeetings}
-              icon={ClockIcon}
-              color="blue"
               trend={0}
             />
           </Link>

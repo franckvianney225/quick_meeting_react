@@ -415,7 +415,7 @@ export default function TasksPage() {
                     <option value="">Tous les statuts</option>
                     <option value="active">En cours</option>
                     <option value="completed">Terminé</option>
-                    <option value="inactive">En attente</option>
+                    {/* <option value="inactive">En attente</option> */}
                   </select>
                 </div>
 
