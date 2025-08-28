@@ -197,7 +197,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       },
       {
         key: 'active' as StatusType,
-        label: 'Actif',
+        label: 'En cours',
         icon: PlayIcon,
         color: 'green',
         bgActive: 'bg-green-100 border-green-500 text-green-700',

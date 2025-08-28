@@ -162,7 +162,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
 
   const getStatusLabel = (status: string) => {
     switch(status) {
-      case 'active': return 'Actif';
+      case 'active': return 'En cours';
       case 'completed': return 'Terminé';
       case 'inactive': return 'En attente';
       default: return 'Inconnu';

@@ -192,7 +192,7 @@ export const MeetingCard = ({
 
   const getStatusLabel = (status: string) => {
     switch(status) {
-      case 'active': return 'Actif';
+      case 'active': return 'En cours';
       case 'completed': return 'Terminé';
       case 'inactive': return 'En attente';
       default: return 'Inconnu';

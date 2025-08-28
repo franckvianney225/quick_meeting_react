@@ -162,7 +162,7 @@ export const MeetingDetails = ({
     switch(status) {
       case 'active':
         return {
-          label: 'Actif',
+          label: 'En cours',
           color: 'bg-green-100 text-green-800 border-green-200',
           indicator: 'bg-green-500'
         };

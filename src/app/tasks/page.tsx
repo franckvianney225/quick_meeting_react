@@ -351,7 +351,7 @@ export default function TasksPage() {
               <div className="text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'active').length}
               </div>
-              <div className="text-gray-600 text-sm font-medium">Réunions Actives</div>
+              <div className="text-gray-600 text-sm font-medium">Réunions En cours</div>
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-4">
@@ -360,7 +360,7 @@ export default function TasksPage() {
               <div className="text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'completed').length}
               </div>
-              <div className="text-gray-600 text-sm font-medium">Terminées</div>
+              <div className="text-gray-600 text-sm font-medium">Réunions Terminées</div>
             </div>
           </div>
 
@@ -413,7 +413,7 @@ export default function TasksPage() {
                     className="border border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
                   >
                     <option value="">Tous les statuts</option>
-                    <option value="active">Actif</option>
+                    <option value="active">En cours</option>
                     <option value="completed">Terminé</option>
                     <option value="inactive">En attente</option>
                   </select>
