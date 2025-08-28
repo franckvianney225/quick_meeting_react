@@ -178,6 +178,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
   };
 
   const handleStatusChange = (status: StatusType) => {
+    // Empêcher de passer en "completed" pour les nouvelles réunions non enregistrées
+    if (status === 'completed' && (!initialData || !initialData.id)) {
+      return;
+    }
+    
     setFormData(prev => ({
       ...prev,
       status: status as 'active' | 'completed' | 'inactive'
@@ -297,14 +302,19 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       {statusConfig.filter(status => status.key !== 'inactive').map((status) => {
                         const Icon = status.icon;
                         const isActive = formData.status === status.key;
+                        const isNewMeeting = !initialData || !initialData.id;
+                        const isCompletedDisabled = status.key === 'completed' && isNewMeeting;
                         
                         return (
                           <button
                             key={status.key}
                             type="button"
-                            onClick={() => handleStatusChange(status.key)}
+                            onClick={() => !isCompletedDisabled && handleStatusChange(status.key)}
+                            disabled={isCompletedDisabled}
                             className={`relative p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center space-y-2 ${
-                              isActive ? status.bgActive : status.bgInactive
+                              isActive ? status.bgActive :
+                              isCompletedDisabled ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' :
+                              status.bgInactive
                             }`}
                           >
                             <div className={`w-3 h-3 rounded-full ${status.indicator} ${isActive ? 'opacity-100' : 'opacity-40'}`} />
@@ -313,6 +323,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                             {isActive && (
                               <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full border-2 border-current flex items-center justify-center">
                                 <CheckIcon className="h-3 w-3" />
+                              </div>
+                            )}
+                            {isCompletedDisabled && (
+                              <div className="absolute inset-0 bg-white/50 rounded-lg flex items-center justify-center">
+                                <ClockIcon className="h-4 w-4 text-gray-400" />
                               </div>
                             )}
                           </button>
