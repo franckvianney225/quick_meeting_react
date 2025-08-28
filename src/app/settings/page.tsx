@@ -8,6 +8,7 @@ import { EmailSection } from './components/EmailSection';
 import { BackupSection } from './components/BackupSection';
 import { SystemSection } from './components/SystemSection';
 import { CreditsSection } from './components/CreditsSection';
+import { SecuritySection } from './components/SecuritySection';
 import { UserProfile } from '../../components/ui/UserProfile';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
@@ -176,6 +177,8 @@ export default function SettingsPage() {
         return 'Système & Monitoring';
       case 'credits':
         return 'Crédits & Informations';
+      case 'security':
+        return 'Sécurité & Accès';
       default:
         return 'Paramètres';
     }
@@ -195,6 +198,8 @@ export default function SettingsPage() {
         return 'Surveillance et monitoring du système';
       case 'credits':
         return 'Informations sur les technologies et contributeurs';
+      case 'security':
+        return 'Gestion de la sécurité et contrôle d\'accès';
       default:
         return 'Configuration générale du système';
     }
@@ -255,6 +260,9 @@ export default function SettingsPage() {
                 )}
                 {activeSection === 'credits' && (
                   <CreditsSection />
+                )}
+                {activeSection === 'security' && (
+                  <SecuritySection />
                 )}
               </div>
             </div>
