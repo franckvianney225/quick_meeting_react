@@ -204,7 +204,7 @@ const AttendanceListPDF = forwardRef(({
     doc.setFont('helvetica', 'bold');
     doc.text('Nombre de participants :', 15, yPos);
     doc.setFont('helvetica', 'normal');
-    doc.text(participants.length.toString(), 70, yPos);
+    doc.text(participants.length.toString(), 60, yPos); // Rapproché de 70 à 60
     yPos += 15;
     
     // En-tête du tableau (ordre modifié pour correspondre à l'affichage)
