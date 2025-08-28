@@ -44,6 +44,15 @@ const AttendanceListPDF = forwardRef(({
   companyInfo,
   onClose
 }: AttendanceListPDFProps, ref) => {
+  // Valeurs par défaut sécurisées pour companyInfo
+  const safeCompanyInfo = companyInfo || {
+    name: "Organisation",
+    address: "Adresse non définie",
+    phone: "Téléphone non défini",
+    email: "Email non défini",
+    website: "Site web non défini"
+  };
+
   const generatePDF = async () => {
     const doc = new jsPDF('landscape', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -71,11 +80,11 @@ const AttendanceListPDF = forwardRef(({
         if (response.ok) {
           const data = await response.json();
           return {
-            name: data.name || companyInfo?.name || "Organisation",
-            address: data.address || companyInfo?.address || "Adresse non définie",
-            phone: data.phone || companyInfo?.phone || "Téléphone non défini",
-            email: data.email || companyInfo?.email || "Email non défini",
-            website: data.website || companyInfo?.website || "Site web non défini",
+            name: data.name || safeCompanyInfo.name,
+            address: data.address || safeCompanyInfo.address,
+            phone: data.phone || safeCompanyInfo.phone,
+            email: data.email || safeCompanyInfo.email,
+            website: data.website || safeCompanyInfo.website,
             logo: data.logo,
             allowedEmailDomains: data.allowedEmailDomains
           };
@@ -97,7 +106,7 @@ const AttendanceListPDF = forwardRef(({
       phone: orgSettings.phone,
       email: orgSettings.email,
       website: orgSettings.website
-    } : companyInfo;
+    } : safeCompanyInfo;
     
     // Header - Logo à gauche et texte République de Côte d'Ivoire à droite
     doc.setFontSize(10);
