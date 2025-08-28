@@ -149,6 +149,10 @@ export default function TasksPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showForm, setShowForm] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Données utilisateur connecté
   const currentUser = {
@@ -291,6 +295,70 @@ export default function TasksPage() {
     return matchesSearch && matchesStatus;
   });
 
+  // Calcul de la pagination
+  const totalPages = Math.ceil(filteredMeetings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMeetings = filteredMeetings.slice(startIndex, endIndex);
+
+  // Réinitialiser la page quand on change les filtres
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, viewMode]);
+
+  // Fonctions de navigation paginée
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Générer les numéros de pages à afficher
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
   // Si un meeting est sélectionné pour voir les détails, afficher seulement les détails
   if (selectedMeetingId) {
     const selectedMeeting = meetings.find(m => m.id === selectedMeetingId);
@@ -419,6 +487,25 @@ export default function TasksPage() {
                   </select>
                 </div>
 
+                {/* Sélecteur d'items par page */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">Afficher</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-sm"
+                  >
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                  </select>
+                  <span className="text-sm text-gray-600">par page</span>
+                </div>
+
                 <button
                   onClick={handleCreateNew}
                   className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
@@ -486,10 +573,56 @@ export default function TasksPage() {
             </div>
           ) : (
             <>
+              {/* Informations de pagination */}
+              <div className="flex items-center justify-between mb-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
+                <div className="text-sm text-gray-600">
+                  Affichage de {startIndex + 1} à {Math.min(endIndex, filteredMeetings.length)} sur {filteredMeetings.length} réunions
+                </div>
+                
+                {totalPages > 1 && (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={goToPrevPage}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Précédent
+                    </button>
+                    
+                    <div className="flex items-center space-x-1">
+                      {getPageNumbers().map((page, index) => (
+                        <button
+                          key={index}
+                          onClick={() => typeof page === 'number' && goToPage(page)}
+                          disabled={typeof page !== 'number'}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            page === currentPage
+                              ? 'bg-orange-600 text-white'
+                              : typeof page === 'number'
+                              ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                              : 'text-gray-400 cursor-default'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Suivant
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Vue Grille */}
               {viewMode === 'grid' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {filteredMeetings.map((meeting) => (
+                  {paginatedMeetings.map((meeting) => (
                     <MeetingCard
                       key={meeting.id}
                       meeting={meeting}
@@ -520,7 +653,7 @@ export default function TasksPage() {
 
                     {/* Liste des réunions */}
                     <tbody>
-                      {filteredMeetings.map((meeting) => (
+                      {paginatedMeetings.map((meeting) => (
                         <MeetingListItem
                           key={meeting.id}
                           meeting={meeting}
@@ -532,6 +665,52 @@ export default function TasksPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+
+              {/* Pagination en bas */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
+                  <div className="text-sm text-gray-600">
+                    Page {currentPage} sur {totalPages}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={goToPrevPage}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Précédent
+                    </button>
+                    
+                    <div className="flex items-center space-x-1">
+                      {getPageNumbers().map((page, index) => (
+                        <button
+                          key={index}
+                          onClick={() => typeof page === 'number' && goToPage(page)}
+                          disabled={typeof page !== 'number'}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            page === currentPage
+                              ? 'bg-orange-600 text-white'
+                              : typeof page === 'number'
+                              ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                              : 'text-gray-400 cursor-default'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Suivant
+                    </button>
+                  </div>
                 </div>
               )}
             </>

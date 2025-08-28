@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AuthService } from '@/lib/auth';
 import { MeetingService, Meeting, MeetingStats } from '@/lib/meeting';
+import { useParticipantsCount } from '@/hooks/useParticipantsCount';
 
 export default function HomePage() {
   const { user, logout, loading } = useAuth();
@@ -197,51 +198,12 @@ export default function HomePage() {
           <div className="space-y-4">
             {recentMeetings.length > 0 ? (
               recentMeetings.map((meeting, index) => (
-                <div
+                <MeetingListItem
                   key={meeting.id}
-                  className="group flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01] cursor-pointer"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                  onClick={() => router.push(`/tasks?meetingId=${meeting.id}`)}
-                >
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
-                    <p className="text-sm text-gray-600 mt-2 flex items-center space-x-4">
-                      <span className="flex items-center space-x-1">
-                        <UserGroupIcon className="w-4 h-4 text-gray-400" />
-                        <span>{meeting.participants_count || 0} participants</span>
-                      </span>
-                      <span className="flex items-center space-x-1">
-                        <ClockIcon className="w-4 h-4 text-gray-400" />
-                        <span>{meeting.location}</span>
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    {/* <span className="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
-                      {new Date(meeting.start_date).toLocaleDateString('fr-FR')}
-                    </span> */}
-                    <span className={`
-                      px-4 py-2 rounded-full text-xs font-bold transition-all duration-300
-                      ${meeting.status === 'active' || meeting.status === 'scheduled'
-                        ? 'bg-green-500 text-white shadow-md hover:shadow-lg'
-                        : meeting.status === 'inactive'
-                        ? 'bg-blue-500 text-white shadow-md hover:shadow-lg'
-                        : meeting.status === 'completed'
-                        ? 'bg-red-500 text-white shadow-md hover:shadow-lg'
-                        : 'bg-gray-500 text-white shadow-md hover:shadow-lg'
-                      }
-                    `}>
-                      {meeting.status === 'active' || meeting.status === 'scheduled'
-                        ? 'Active'
-                        : meeting.status === 'inactive'
-                        ? 'En attente'
-                        : meeting.status === 'completed'
-                        ? 'Terminée'
-                        : 'Inconnu'
-                      }
-                    </span>
-                  </div>
-                </div>
+                  meeting={meeting}
+                  index={index}
+                  onMeetingClick={() => router.push(`/tasks?meetingId=${meeting.id}`)}
+                />
               ))
             ) : (
               <div className="text-center py-12">
@@ -256,5 +218,66 @@ export default function HomePage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+// Composant pour afficher chaque élément de réunion avec gestion du nombre de participants
+interface MeetingListItemProps {
+  meeting: Meeting;
+  index: number;
+  onMeetingClick: () => void;
+}
+
+function MeetingListItem({ meeting, index, onMeetingClick }: MeetingListItemProps) {
+  const { participantsCount, loading } = useParticipantsCount(meeting.id, meeting.participants_count);
+
+  return (
+    <div
+      className="group flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01] cursor-pointer"
+      style={{ animationDelay: `${index * 100}ms` }}
+      onClick={onMeetingClick}
+    >
+      <div className="flex-1">
+        <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
+        <p className="text-sm text-gray-600 mt-2 flex items-center space-x-4">
+          <span className="flex items-center space-x-1">
+            <UserGroupIcon className="w-4 h-4 text-gray-400" />
+            <span>
+              {loading ? (
+                <span className="text-gray-400">Chargement...</span>
+              ) : (
+                `${participantsCount} participant${participantsCount !== 1 ? 's' : ''}`
+              )}
+            </span>
+          </span>
+          <span className="flex items-center space-x-1">
+            <ClockIcon className="w-4 h-4 text-gray-400" />
+            <span>{meeting.location}</span>
+          </span>
+        </p>
+      </div>
+      <div className="flex items-center space-x-4">
+        <span className={`
+          px-4 py-2 rounded-full text-xs font-bold transition-all duration-300
+          ${meeting.status === 'active' || meeting.status === 'scheduled'
+            ? 'bg-green-500 text-white shadow-md hover:shadow-lg'
+            : meeting.status === 'inactive'
+            ? 'bg-blue-500 text-white shadow-md hover:shadow-lg'
+            : meeting.status === 'completed'
+            ? 'bg-red-500 text-white shadow-md hover:shadow-lg'
+            : 'bg-gray-500 text-white shadow-md hover:shadow-lg'
+          }
+        `}>
+          {meeting.status === 'active' || meeting.status === 'scheduled'
+            ? 'Active'
+            : meeting.status === 'inactive'
+            ? 'En attente'
+            : meeting.status === 'completed'
+            ? 'Terminée'
+            : 'Inconnu'
+          }
+        </span>
+      </div>
+    </div>
   );
 }
