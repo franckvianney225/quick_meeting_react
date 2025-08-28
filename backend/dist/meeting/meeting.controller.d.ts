@@ -80,5 +80,9 @@ export declare class MeetingController {
         status: string;
         title: string;
     }>;
+    validateMeetingAccess(meetingId: string, code: string): Promise<{
+        status: string;
+        title: string;
+    }>;
 }
 export {};

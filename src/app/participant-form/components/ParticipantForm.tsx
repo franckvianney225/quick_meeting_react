@@ -49,7 +49,7 @@ export function ParticipantForm() {
     // Vérifier le statut de la réunion
     const checkMeetingStatus = async () => {
       try {
-        const response = await fetch(apiUrl(`/meetings/status/${code}`), {
+        const response = await fetch(apiUrl(`/meetings/validate/${meetingIdNum}/${code}`), {
           credentials: 'include'
         });
         
@@ -59,7 +59,9 @@ export function ParticipantForm() {
           setMeetingTitle(title);
           setIsValidLink(status === 'active');
         } else {
-          setMeetingStatus('error');
+          // En cas d'erreur (ID/code ne correspondent pas), rediriger
+          window.location.href = '/';
+          return;
         }
       } catch (err) {
         console.error('Erreur lors de la vérification du statut:', err);

@@ -69,5 +69,9 @@ export declare class MeetingService {
         status: string;
         title: string;
     }>;
+    validateMeetingIdAndCode(meetingId: number, code: string): Promise<{
+        status: string;
+        title: string;
+    }>;
 }
 export {};

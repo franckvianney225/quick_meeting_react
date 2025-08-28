@@ -180,6 +180,21 @@ let MeetingService = class MeetingService {
             title: meeting.title
         };
     }
+    async validateMeetingIdAndCode(meetingId, code) {
+        const meeting = await this.meetingRepository.findOne({
+            where: { uniqueCode: code.toUpperCase() }
+        });
+        if (!meeting) {
+            throw new Error('Réunion non trouvée avec ce code');
+        }
+        if (meeting.id !== meetingId) {
+            throw new Error('Incohérence entre l\'identifiant et le code de la réunion');
+        }
+        return {
+            status: meeting.status,
+            title: meeting.title
+        };
+    }
 };
 exports.MeetingService = MeetingService;
 exports.MeetingService = MeetingService = __decorate([

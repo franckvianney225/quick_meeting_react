@@ -114,6 +114,18 @@ let MeetingController = class MeetingController {
             throw new common_1.HttpException(err.message || 'Erreur lors de la vérification du statut', common_1.HttpStatus.BAD_REQUEST);
         }
     }
+    async validateMeetingAccess(meetingId, code) {
+        try {
+            const meetingIdNum = parseInt(meetingId, 10);
+            if (isNaN(meetingIdNum)) {
+                throw new Error('ID de réunion invalide');
+            }
+            return await this.service.validateMeetingIdAndCode(meetingIdNum, code);
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.message || 'Erreur lors de la validation', common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
 };
 exports.MeetingController = MeetingController;
 __decorate([
@@ -201,6 +213,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "getMeetingStatus", null);
+__decorate([
+    (0, common_1.Get)('validate/:meetingId/:code'),
+    __param(0, (0, common_1.Param)('meetingId')),
+    __param(1, (0, common_1.Param)('code')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "validateMeetingAccess", null);
 exports.MeetingController = MeetingController = __decorate([
     (0, common_1.Controller)('meetings'),
     __metadata("design:paramtypes", [meeting_service_1.MeetingService,
