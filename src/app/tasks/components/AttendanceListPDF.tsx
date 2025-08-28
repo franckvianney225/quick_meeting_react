@@ -41,13 +41,7 @@ const AttendanceListPDF = forwardRef(({
   meetingDate,
   meetingLocation,
   participants,
-  companyInfo = {
-    name: "Ministère de l'Intérieur",
-    address: "Plateau, Abidjan, Côte d'Ivoire",
-    phone: "+225 XX XX XX XX",
-    email: "contact@ministere.gouv.ci",
-    website: "www.ministere.gouv.ci"
-  },
+  companyInfo,
   onClose
 }: AttendanceListPDFProps, ref) => {
   const generatePDF = async () => {
@@ -77,11 +71,11 @@ const AttendanceListPDF = forwardRef(({
         if (response.ok) {
           const data = await response.json();
           return {
-            name: data.name || "Ministère de l'Intérieur",
-            address: data.address || "Plateau, Abidjan, Côte d'Ivoire",
-            phone: data.phone || "+225 XX XX XX XX",
-            email: data.email || "contact@ministere.gouv.ci",
-            website: data.website || "www.ministere.gouv.ci",
+            name: data.name || companyInfo?.name || "Organisation",
+            address: data.address || companyInfo?.address || "Adresse non définie",
+            phone: data.phone || companyInfo?.phone || "Téléphone non défini",
+            email: data.email || companyInfo?.email || "Email non défini",
+            website: data.website || companyInfo?.website || "Site web non défini",
             logo: data.logo,
             allowedEmailDomains: data.allowedEmailDomains
           };
@@ -373,13 +367,18 @@ const AttendanceListPDF = forwardRef(({
       doc.text(`Généré le ${currentDate}`, 15, pageHeight - 15);
       doc.text(`Page ${i} / ${totalPages}`, pageWidth - 15, pageHeight - 15, { align: 'right' });
       
-      // Informations de l'organisation en bas à droite
-      doc.setFont('helvetica', 'italic');
-      doc.setFontSize(7);
-      doc.text(organizationInfo.name, pageWidth - 15, pageHeight - 15, { align: 'right' });
-      doc.text(organizationInfo.address, pageWidth - 15, pageHeight - 12, { align: 'right' });
-      doc.text(`${organizationInfo.phone} • ${organizationInfo.email}`, pageWidth - 15, pageHeight - 9, { align: 'right' });
-      doc.text(organizationInfo.website, pageWidth - 15, pageHeight - 6, { align: 'right' });
+      // Informations de l'organisation centrées en bas de page
+      if (organizationInfo) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text(organizationInfo.name, pageWidth / 2, pageHeight - 15, { align: 'center' });
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.text(organizationInfo.address, pageWidth / 2, pageHeight - 12, { align: 'center' });
+        doc.text(`${organizationInfo.phone} • ${organizationInfo.email}`, pageWidth / 2, pageHeight - 9, { align: 'center' });
+        doc.text(organizationInfo.website, pageWidth / 2, pageHeight - 6, { align: 'center' });
+      }
     }
     
     // Sauvegarder le PDF
