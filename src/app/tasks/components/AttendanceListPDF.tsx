@@ -60,9 +60,12 @@ const AttendanceListPDF = forwardRef(({
     const secondaryColor: [number, number, number] = [52, 73, 94]; // Gris foncé
     const lightGray: [number, number, number] = [236, 240, 241]; // Gris clair
     
-    // Fonction pour récupérer les paramètres d'organisation (similaire à MeetingQRPDF)
+    // Fonction pour récupérer les paramètres complets de l'organisation
     const fetchOrganizationSettings = async (): Promise<{
       name: string;
+      address: string;
+      phone: string;
+      email: string;
       website: string;
       logo: string;
       allowedEmailDomains?: string[];
@@ -72,7 +75,16 @@ const AttendanceListPDF = forwardRef(({
           headers: AuthService.getAuthHeaders()
         });
         if (response.ok) {
-          return await response.json();
+          const data = await response.json();
+          return {
+            name: data.name || "Ministère de l'Intérieur",
+            address: data.address || "Plateau, Abidjan, Côte d'Ivoire",
+            phone: data.phone || "+225 XX XX XX XX",
+            email: data.email || "contact@ministere.gouv.ci",
+            website: data.website || "www.ministere.gouv.ci",
+            logo: data.logo,
+            allowedEmailDomains: data.allowedEmailDomains
+          };
         }
         return null;
       } catch (error) {
@@ -83,6 +95,15 @@ const AttendanceListPDF = forwardRef(({
 
     // Récupérer les paramètres d'organisation
     const orgSettings = await fetchOrganizationSettings();
+    
+    // Utiliser les informations de l'organisation si disponibles, sinon utiliser les props ou valeurs par défaut
+    const organizationInfo = orgSettings ? {
+      name: orgSettings.name,
+      address: orgSettings.address,
+      phone: orgSettings.phone,
+      email: orgSettings.email,
+      website: orgSettings.website
+    } : companyInfo;
     
     // Header - Logo à gauche et texte République de Côte d'Ivoire à droite
     doc.setFontSize(10);
@@ -352,9 +373,13 @@ const AttendanceListPDF = forwardRef(({
       doc.text(`Généré le ${currentDate}`, 15, pageHeight - 15);
       doc.text(`Page ${i} / ${totalPages}`, pageWidth - 15, pageHeight - 15, { align: 'right' });
       
-      // Logo ou signature en bas à droite (optionnel)
+      // Informations de l'organisation en bas à droite
       doc.setFont('helvetica', 'italic');
-      doc.text(companyInfo.name, pageWidth - 15, pageHeight - 10, { align: 'right' });
+      doc.setFontSize(7);
+      doc.text(organizationInfo.name, pageWidth - 15, pageHeight - 15, { align: 'right' });
+      doc.text(organizationInfo.address, pageWidth - 15, pageHeight - 12, { align: 'right' });
+      doc.text(`${organizationInfo.phone} • ${organizationInfo.email}`, pageWidth - 15, pageHeight - 9, { align: 'right' });
+      doc.text(organizationInfo.website, pageWidth - 15, pageHeight - 6, { align: 'right' });
     }
     
     // Sauvegarder le PDF
