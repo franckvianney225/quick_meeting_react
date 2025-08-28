@@ -228,7 +228,7 @@ export default function TasksPage() {
       id: 0,
       title: '',
       description: '',
-      status: 'inactive',
+      status: 'active',
       start_date: new Date().toISOString().slice(0, 16),
       location: '',
       max_participants: 10,

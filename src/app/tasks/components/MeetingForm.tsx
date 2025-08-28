@@ -42,7 +42,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     uniqueCode: initialData?.uniqueCode || '', // Utiliser uniquement uniqueCode
     title: initialData?.title || '',
     description: initialData?.description || '',
-    status: (initialData?.status as StatusType) || 'inactive',
+    status: (initialData?.status as StatusType) || 'active', // Par défaut 'active' au lieu de 'inactive'
     start_date: initialData?.startDate
       ? new Date(initialData.startDate).toISOString().slice(0, 16)
       : initialData?.start_date || '',
@@ -187,15 +187,6 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
   const getStatusConfig = () => {
     return [
       {
-        key: 'inactive' as StatusType,
-        label: 'En attente',
-        icon: ClockIcon,
-        color: 'blue',
-        bgActive: 'bg-blue-100 border-blue-500 text-blue-700',
-        bgInactive: 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-blue-50 hover:border-blue-300',
-        indicator: 'bg-blue-500'
-      },
-      {
         key: 'active' as StatusType,
         label: 'En cours',
         icon: PlayIcon,
@@ -212,12 +203,32 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         bgActive: 'bg-red-100 border-red-500 text-red-700',
         bgInactive: 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-red-50 hover:border-red-300',
         indicator: 'bg-red-500'
-      }
+      },
+      // {
+      //   key: 'inactive' as StatusType,
+      //   label: 'En attente',
+      //   icon: ClockIcon,
+      //   color: 'blue',
+      //   bgActive: 'bg-blue-100 border-blue-500 text-blue-700',
+      //   bgInactive: 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-blue-50 hover:border-blue-300',
+      //   indicator: 'bg-blue-500'
+      // }
     ];
   };
 
   const statusConfig = getStatusConfig();
   // Suppression de currentStatus qui n'est plus utilisé
+
+  // S'assurer que le statut "active" est sélectionné visuellement par défaut
+  useEffect(() => {
+    if (!initialData) {
+      // Pour les nouvelles réunions, forcer le statut "active"
+      setFormData(prev => ({
+        ...prev,
+        status: 'active'
+      }));
+    }
+  }, [initialData]);
 
   // Couleurs prédéfinies pour le QR Code
   const presetColors = [
@@ -282,8 +293,8 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       Statut de la réunion*
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {statusConfig.map((status) => {
+                    <div className="grid grid-cols-2 gap-3">
+                      {statusConfig.filter(status => status.key !== 'inactive').map((status) => {
                         const Icon = status.icon;
                         const isActive = formData.status === status.key;
                         
@@ -689,4 +700,5 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     </div>
   );
 };
+
 

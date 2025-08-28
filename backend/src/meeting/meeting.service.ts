@@ -82,7 +82,7 @@ export class MeetingService {
     const meeting = this.meetingRepository.create({
       title: meetingData.title.toUpperCase(), // Forcer le titre en majuscules
       description: meetingData.description,
-      status: meetingData.status,
+      status: 'active', // Toujours créer les réunions avec le statut 'active'
       location: meetingData.location,
       maxParticipants: meetingData.max_participants,
       startDate: startDate,

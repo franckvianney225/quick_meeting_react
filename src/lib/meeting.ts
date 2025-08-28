@@ -78,13 +78,8 @@ export class MeetingService {
         meeting.status === 'completed' || meeting.status === 'finished'
       ).length;
 
-      // Calculer les réunions inactives (toutes les réunions qui ne sont ni actives ni terminées)
-      const inactiveMeetings = meetings.filter(meeting =>
-        meeting.status !== 'active' &&
-        meeting.status !== 'scheduled' &&
-        meeting.status !== 'completed' &&
-        meeting.status !== 'finished'
-      ).length;
+      // Calculer les réunions inactives (maintenant obsolète - gardé pour compatibilité)
+      const inactiveMeetings = 0; // Le statut 'inactive' n'est plus utilisé
 
       // Pour le nombre total de participants, nous devrions idéalement avoir un endpoint dédié
       // Pour l'instant, nous utilisons une valeur par défaut basée sur les données disponibles
