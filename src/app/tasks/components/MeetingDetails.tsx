@@ -45,6 +45,7 @@ export const MeetingDetails = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
   const [showUniqueCode, setShowUniqueCode] = useState(false);
+  const [currentMeeting, setCurrentMeeting] = useState(meeting);
   
   // Vérifier si l'utilisateur est admin
   const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
@@ -216,8 +217,37 @@ export const MeetingDetails = ({
     fetchParticipantCount();
   }, [meeting.id]);
 
-  const statusConfig = getStatusConfig(meeting.status);
-  const formattedDate = formatDate(meeting.start_date || meeting.startDate);
+  const handleToggleStatus = async () => {
+    try {
+      setIsSubmitting(true);
+      const newStatus = currentMeeting.status === 'completed' ? 'active' : 'completed';
+      
+      const response = await fetch(apiUrl(`/meetings/${currentMeeting.id}`), {
+        method: 'PUT',
+        headers: {
+          ...AuthService.getAuthHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour du statut');
+      }
+
+      const updatedMeeting = await response.json();
+      setCurrentMeeting(updatedMeeting);
+      
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Une erreur inconnue est survenue'}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const statusConfig = getStatusConfig(currentMeeting.status);
+  const formattedDate = formatDate(currentMeeting.start_date || currentMeeting.startDate);
 
   return (
     <>
@@ -247,10 +277,10 @@ export const MeetingDetails = ({
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 mb-3 break-words whitespace-normal">
-                  {meeting.title.length > 20 ? (
-                    <span className="break-all">{meeting.title}</span>
+                  {currentMeeting.title.length > 20 ? (
+                    <span className="break-all">{currentMeeting.title}</span>
                   ) : (
-                    meeting.title
+                    currentMeeting.title
                   )}
                 </h1>
                 <div className="flex items-center space-x-3">
@@ -258,10 +288,10 @@ export const MeetingDetails = ({
                     <div className={`w-3 h-3 rounded-full ${statusConfig.indicator}`} />
                     <span className="text-sm font-medium">{statusConfig.label}</span>
                   </div>
-                  {meeting.uniqueCode && (
+                  {currentMeeting.uniqueCode && (
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
-                        {showUniqueCode ? meeting.uniqueCode : '*******'}
+                        {showUniqueCode ? currentMeeting.uniqueCode : '*******'}
                       </span>
                       <button
                         onClick={() => setShowUniqueCode(!showUniqueCode)}
@@ -272,7 +302,7 @@ export const MeetingDetails = ({
                       </button>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(meeting.uniqueCode);
+                          navigator.clipboard.writeText(currentMeeting.uniqueCode);
                           alert('Code copié dans le presse-papier !');
                         }}
                         className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -286,25 +316,26 @@ export const MeetingDetails = ({
               </div>
 
               {/* Actions */}
+              
               <div className="flex items-center space-x-3">
-                <button
-                  onClick={handleEditClick}
-                  disabled={isSubmitting}
-                  className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg transition-colors font-medium`}
-                >
-                  <PencilIcon className="h-5 w-5" />
-                  <span>Modifier</span>
-                </button>
-                
-                <button
-                  onClick={handleGenerateQR}
-                  disabled={isSubmitting}
-                  className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-orange-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'} text-white rounded-lg transition-colors font-medium`}
-                >
-                  <QrCodeIcon className="h-5 w-5" />
-                  <span>QR Code</span>
-                </button>
-                
+                {currentMeeting.status !== 'completed' ? (
+                  <button
+                    onClick={handleToggleStatus}
+                    disabled={isSubmitting}
+                    className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-colors font-medium`}
+                  >
+                    <span>Cloturer</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleToggleStatus}
+                    disabled={isSubmitting}
+                    className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg transition-colors font-medium`}
+                  >
+                    <span>Réouvrir</span>
+                  </button>
+                )}
+
                 <button
                   onClick={handleAttendanceListClick}
                   disabled={isSubmitting}
@@ -313,7 +344,6 @@ export const MeetingDetails = ({
                   <ClipboardDocumentListIcon className="h-5 w-5" />
                   <span>Liste de présence</span>
                 </button>
-
               </div>
             </div>
           </div>
@@ -330,7 +360,7 @@ export const MeetingDetails = ({
                   <h2 className="text-2xl font-semibold text-gray-900">Description</h2>
                 </div>
                 <p className="text-gray-700 leading-relaxed text-lg">
-                  {meeting.description || 'Aucune description fournie pour cette réunion.'}
+                  {currentMeeting.description || 'Aucune description fournie pour cette réunion.'}
                 </p>
               </div>
 
@@ -348,7 +378,7 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Date de creation</h3>
-                      <p className="text-gray-600">{formatDate(meeting.start_date || meeting.startDate)}</p>
+                      <p className="text-gray-600">{formatDate(currentMeeting.start_date || currentMeeting.startDate)}</p>
                     </div>
                   </div>
 
@@ -361,7 +391,7 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Lieu</h3>
-                      <p className="text-gray-600">{meeting.location || 'Lieu non défini'}</p>
+                      <p className="text-gray-600">{currentMeeting.location || 'Lieu non défini'}</p>
                     </div>
                   </div>
 
@@ -375,7 +405,7 @@ export const MeetingDetails = ({
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Participants max:</h3>
                       <p className="text-gray-600">
-                        {meeting.max_participants ? `${meeting.max_participants} personnes` : 'Illimité'}
+                        {currentMeeting.max_participants ? `${currentMeeting.max_participants} personnes` : 'Illimité'}
                       </p>
                     </div>
                   </div>
@@ -389,10 +419,10 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Code accès</h3>
-                      {meeting.uniqueCode ? (
+                      {currentMeeting.uniqueCode ? (
                         <div className="flex items-center space-x-2">
                           <p className="text-gray-600 font-mono bg-gray-100 px-3 py-2 rounded-lg text-sm inline-block">
-                            {showUniqueCode ? meeting.uniqueCode : '*******'}
+                            {showUniqueCode ? currentMeeting.uniqueCode : '*******'}
                           </p>
                           <button
                             onClick={() => setShowUniqueCode(!showUniqueCode)}
@@ -403,7 +433,7 @@ export const MeetingDetails = ({
                           </button>
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(meeting.uniqueCode);
+                              navigator.clipboard.writeText(currentMeeting.uniqueCode);
                               alert('Code copié dans le presse-papier !');
                             }}
                             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -421,9 +451,9 @@ export const MeetingDetails = ({
               </div>
 
               {/* Liste des participants */}
-              <ParticipantsList 
-                meetingId={meeting.id} 
-                meetingTitle={meeting.title} 
+              <ParticipantsList
+                meetingId={currentMeeting.id}
+                meetingTitle={currentMeeting.title}
               />
             </div>
 
@@ -459,7 +489,7 @@ export const MeetingDetails = ({
       {/* Formulaire d'édition */}
       {showEditForm && (
         <MeetingForm
-          initialData={meeting}
+          initialData={currentMeeting}
           onSave={handleSaveEdit}
           onCancel={handleCancelEdit}
         />
