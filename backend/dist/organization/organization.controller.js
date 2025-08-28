@@ -23,6 +23,10 @@ let OrganizationController = class OrganizationController {
     async getSettings() {
         return this.organizationService.getCurrentSettings();
     }
+    async getOrganizationName() {
+        const settings = await this.organizationService.getCurrentSettings();
+        return { name: settings?.name || 'Ministère' };
+    }
     async saveSettings(organizationData) {
         return this.organizationService.saveSettings(organizationData);
     }
@@ -43,6 +47,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], OrganizationController.prototype, "getSettings", null);
+__decorate([
+    (0, common_1.Get)('public/name'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrganizationController.prototype, "getOrganizationName", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),

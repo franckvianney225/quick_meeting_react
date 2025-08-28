@@ -4,6 +4,9 @@ export declare class OrganizationController {
     private readonly organizationService;
     constructor(organizationService: OrganizationService);
     getSettings(): Promise<OrganizationSettings | null>;
+    getOrganizationName(): Promise<{
+        name: string;
+    }>;
     saveSettings(organizationData: Partial<OrganizationSettings>): Promise<OrganizationSettings>;
     updateSettings(organizationData: Partial<OrganizationSettings>): Promise<OrganizationSettings>;
     deleteSettings(): Promise<void>;

@@ -1,9 +1,26 @@
 import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
+import { IS_PUBLIC_KEY } from './public.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Vérifier si l'endpoint est marqué comme public
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    
+    if (isPublic) {
+      console.log('=== PUBLIC ENDPOINT - SKIPPING AUTH ===');
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     console.log('=== JWT GUARD ACTIVATED ===');
     console.log('Request URL:', request.url);

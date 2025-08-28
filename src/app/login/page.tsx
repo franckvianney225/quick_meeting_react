@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [domainError, setDomainError] = useState('');
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
+  const [organizationName, setOrganizationName] = useState('Ministère');
   const [isResetMode, setIsResetMode] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
@@ -20,7 +21,21 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  // Récupérer les domaines autorisés
+  // Récupérer le nom de l'organisation (endpoint public)
+  const fetchOrganizationName = async () => {
+    try {
+      const response = await fetch(apiUrl('/organization/public/name'));
+      
+      if (response.ok) {
+        const data = await response.json();
+        setOrganizationName(data.name || 'Ministère');
+      }
+    } catch (err) {
+      console.error('Erreur lors de la récupération du nom de l\'organisation:', err);
+    }
+  };
+
+  // Récupérer les domaines autorisés (nécessite un token)
   const fetchAllowedDomains = async () => {
     try {
       const response = await fetch(apiUrl('/organization/settings'), {
@@ -31,8 +46,8 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setAllowedDomains(data.allowed_email_domains || []);
+        if (data) {
+          setAllowedDomains(data.allowedEmailDomains || []);
         }
       }
     } catch (err) {
@@ -123,9 +138,9 @@ export default function LoginPage() {
     }
   };
 
-  // Charger les domaines autorisés au montage du composant
+  // Charger le nom de l'organisation au montage du composant
   useEffect(() => {
-    fetchAllowedDomains();
+    fetchOrganizationName();
   }, []);
 
   return (
@@ -141,7 +156,7 @@ export default function LoginPage() {
         <div className="relative z-10 max-w-lg">
 
           <h1 className="text-6xl font-bold mb-8 leading-tight text-white">
-            BIENVENUE AU <br />MINISTÈRE
+            BIENVENUE AU <br />{organizationName.toUpperCase()}
           </h1>
 
           <p className="text-xl mb-10 text-white leading-relaxed font-light">

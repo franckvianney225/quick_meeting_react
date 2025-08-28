@@ -13,6 +13,12 @@ export class OrganizationController {
     return this.organizationService.getCurrentSettings();
   }
 
+  @Get('public/name')
+  async getOrganizationName(): Promise<{ name: string }> {
+    const settings = await this.organizationService.getCurrentSettings();
+    return { name: settings?.name || 'Ministère' };
+  }
+
   @Post()
   async saveSettings(@Body() organizationData: Partial<OrganizationSettings>): Promise<OrganizationSettings> {
     return this.organizationService.saveSettings(organizationData);
