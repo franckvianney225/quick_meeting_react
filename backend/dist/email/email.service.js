@@ -309,37 +309,8 @@ let EmailService = EmailService_1 = class EmailService {
         if (!config) {
             throw new Error('Configuration SMTP non trouvée');
         }
-        const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-          .footer { text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>QuickMeeting</h1>
-            <p>Message important</p>
-          </div>
-          <div class="content">
-            ${message.replace(/\n/g, '<br>')}
-            <p>Cordialement,<br>L'équipe QuickMeeting</p>
-          </div>
-          <div class="footer">
-            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-        const textContent = message + '\n\nCordialement,\nL\'équipe QuickMeeting';
+        const htmlContent = message.replace(/\n/g, '<br>');
+        const textContent = message;
         try {
             const results = await this.sendBulkEmails(config, emails, subject, htmlContent, textContent);
             const successCount = results.filter(r => r.success).length;
