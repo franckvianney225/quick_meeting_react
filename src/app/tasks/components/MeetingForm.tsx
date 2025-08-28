@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { type Meeting } from './MeetingCard';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
+import { LocationInput } from '@/components/ui/LocationInput';
 import {
   XMarkIcon,
   CheckCircleIcon,
@@ -385,14 +386,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                         Lieu*
                       </label>
-                      <input
-                        type="text"
-                        id="location"
-                        name="location"
+                      <LocationInput
                         value={formData.location}
-                        onChange={handleChange}
+                        onChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
+                        placeholder="Entrez le lieu de la réunion (ex: Abidjan, Plateau)"
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
 

@@ -9,7 +9,7 @@ interface LocationSuggestion {
 }
 
 interface LocationInputProps {
-  value: string;
+  value: string | undefined;
   onChange: (value: string) => void;
   placeholder?: string;
   required?: boolean;
@@ -26,8 +26,8 @@ export const LocationInput = ({ value, onChange, placeholder = "Entrez un lieu",
   const cache = useRef<Map<string, LocationSuggestion[]>>(new Map());
 
   // Fonction pour récupérer les suggestions depuis OpenStreetMap Nominatim
-  const fetchSuggestions = async (query: string) => {
-    if (query.length < 3) {
+  const fetchSuggestions = async (query: string | undefined) => {
+    if (!query || query.length < 3) {
       setSuggestions([]);
       return;
     }
@@ -101,6 +101,9 @@ export const LocationInput = ({ value, onChange, placeholder = "Entrez un lieu",
     setShowSuggestions(true);
   };
 
+  // Convertir undefined en chaîne vide pour l'input
+  const inputValue = value || '';
+
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setShowSuggestions(false);
@@ -112,7 +115,7 @@ export const LocationInput = ({ value, onChange, placeholder = "Entrez un lieu",
       <input
         ref={inputRef}
         type="text"
-        value={value}
+        value={inputValue}
         onChange={handleInputChange}
         onFocus={handleInputFocus}
         onKeyDown={handleInputKeyDown}
@@ -155,10 +158,10 @@ export const LocationInput = ({ value, onChange, placeholder = "Entrez un lieu",
         </div>
       )}
 
-      {showSuggestions && suggestions.length === 0 && value.length >= 3 && !isLoading && (
+      {showSuggestions && suggestions.length === 0 && inputValue.length >= 3 && !isLoading && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-4">
           <div className="text-sm text-gray-500 text-center">
-            Aucun résultat trouvé pour &ldquo;{value}&rdquo;
+            Aucun résultat trouvé pour &ldquo;{inputValue}&rdquo;
           </div>
         </div>
       )}
