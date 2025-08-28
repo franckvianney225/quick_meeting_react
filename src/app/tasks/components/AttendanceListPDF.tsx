@@ -185,26 +185,37 @@ const AttendanceListPDF = forwardRef(({
     
     // En-tête du tableau (ordre modifié pour correspondre à l'affichage)
     const tableHeaders = ['N°', 'NOM', 'PRÉNOMS', 'EMAIL', 'STRUCTURE', 'FONCTION', 'CONTACT', 'DATE DE SIGNATURE', 'SIGNATURE'];
-    const colWidths = [10, 25, 25, 40, 35, 25, 25, 30, 30]; // Largeurs des colonnes ajustées pour le paysage
-    let xPos = 15;
     
-    // Dessiner l'en-tête du tableau
+    // Calculer la largeur totale disponible (pageWidth - 10 de marge de chaque côté)
+    const totalAvailableWidth = pageWidth - 20;
+    
+    // Largeurs des colonnes proportionnelles pour utiliser tout l'espace
+    const colWidths = [15, 30, 30, 45, 40, 30, 30, 40, 40];
+    
+    // Ajuster pour utiliser exactement toute la largeur disponible
+    const totalColWidth = colWidths.reduce((sum, width) => sum + width, 0);
+    const scaleFactor = totalAvailableWidth / totalColWidth;
+    const adjustedColWidths = colWidths.map(width => Math.floor(width * scaleFactor));
+    
+    let xPos = 10; // Commencer à la marge gauche
+    
+    // Dessiner l'en-tête du tableau - utiliser toute la largeur de la page
     doc.setFillColor(...lightGray);
-    doc.rect(10, yPos - 5, pageWidth - 20, 10, 'F');
-    doc.setFontSize(6); // Taille de police réduite pour plus d'espace
+    doc.rect(5, yPos - 5, pageWidth - 10, 10, 'F'); // Étendre sur toute la largeur
+    doc.setFontSize(7); // Taille de police légèrement augmentée
     
     doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...secondaryColor);
     
     tableHeaders.forEach((header, index) => {
-      doc.text(header, xPos + 2, yPos, { maxWidth: colWidths[index] - 4 });
-      xPos += colWidths[index];
+      doc.text(header, xPos + 3, yPos, { maxWidth: adjustedColWidths[index] - 6 });
+      xPos += adjustedColWidths[index];
     });
     
-    // Ligne de séparation
+    // Ligne de séparation - utiliser toute la largeur
     doc.setDrawColor(...secondaryColor);
-    doc.line(10, yPos + 2, pageWidth - 10, yPos + 2);
+    doc.line(5, yPos + 2, pageWidth - 5, yPos + 2);
     
     yPos += 12;
     
@@ -240,45 +251,45 @@ const AttendanceListPDF = forwardRef(({
         yPos = 20;
       }
       
-      xPos = 15;
-      const rowHeight = 12;
+      xPos = 10; // Commencer plus à gauche
+      const rowHeight = 14; // Hauteur de ligne augmentée pour meilleure lisibilité
       
-      // Alternance de couleur pour les lignes
+      // Alternance de couleur pour les lignes - utiliser toute la largeur
       if (index % 2 === 0) {
         doc.setFillColor(250, 250, 250);
-        doc.rect(10, yPos - 4, pageWidth - 20, rowHeight, 'F');
+        doc.rect(5, yPos - 4, pageWidth - 10, rowHeight, 'F'); // Étendre sur toute la largeur
       }
       
       // Numéro
-      doc.text((index + 1).toString(), xPos + 2, yPos);
-      xPos += colWidths[0];
-      
-      // Nom (en majuscules)
-      doc.text(sanitizeValue(participant.lastName).toUpperCase(), xPos + 2, yPos, { maxWidth: colWidths[1] - 4 });
-      xPos += colWidths[1];
+      doc.text((index + 1).toString(), xPos + 3, yPos);
+      xPos += adjustedColWidths[0];
       
       // Prénoms (d'abord comme dans l'interface utilisateur)
-      doc.text(sanitizeValue(participant.firstName), xPos + 2, yPos, { maxWidth: colWidths[2] - 4 });
-      xPos += colWidths[2];
+      doc.text(sanitizeValue(participant.firstName).toUpperCase(), xPos + 3, yPos, { maxWidth: adjustedColWidths[1] - 6 });
+      xPos += adjustedColWidths[1];
+      
+      // Nom (en majuscules)
+      doc.text(sanitizeValue(participant.lastName), xPos + 3, yPos, { maxWidth: adjustedColWidths[2] - 6 });
+      xPos += adjustedColWidths[2];
       
       // Email
-      doc.text(sanitizeValue(participant.email), xPos + 2, yPos, { maxWidth: colWidths[3] - 4 });
-      xPos += colWidths[3];
+      doc.text(sanitizeValue(participant.email), xPos + 3, yPos, { maxWidth: adjustedColWidths[3] - 6 });
+      xPos += adjustedColWidths[3];
       
       // Structure/Organisation
-      doc.text(sanitizeValue(participant.organization), xPos + 2, yPos, { maxWidth: colWidths[4] - 4 });
-      xPos += colWidths[4];
+      doc.text(sanitizeValue(participant.organization), xPos + 3, yPos, { maxWidth: adjustedColWidths[4] - 6 });
+      xPos += adjustedColWidths[4];
       
       // Fonction
-      doc.text(sanitizeValue(participant.function), xPos + 2, yPos, { maxWidth: colWidths[5] - 4 });
-      xPos += colWidths[5];
+      doc.text(sanitizeValue(participant.function), xPos + 3, yPos, { maxWidth: adjustedColWidths[5] - 6 });
+      xPos += adjustedColWidths[5];
       
       // Contact
-      doc.text(sanitizeValue(participant.phone), xPos + 2, yPos, { maxWidth: colWidths[6] - 4 });
-      xPos += colWidths[6];
+      doc.text(sanitizeValue(participant.phone), xPos + 3, yPos, { maxWidth: adjustedColWidths[6] - 6 });
+      xPos += adjustedColWidths[6];
       
       // Date de signature (avec date et heure)
-      doc.setFontSize(6);
+      doc.setFontSize(7); // Police légèrement plus grande
       const signatureDate = participant.submittedAt ?
         new Date(participant.submittedAt).toLocaleString('fr-FR', {
           day: '2-digit',
@@ -287,23 +298,23 @@ const AttendanceListPDF = forwardRef(({
           hour: '2-digit',
           minute: '2-digit'
         }) : 'Non signé';
-      doc.text(sanitizeValue(signatureDate), xPos + 2, yPos, { maxWidth: colWidths[7] - 4 });
-      xPos += colWidths[7];
+      doc.text(sanitizeValue(signatureDate), xPos + 3, yPos, { maxWidth: adjustedColWidths[7] - 6 });
+      xPos += adjustedColWidths[7];
       
       // Case signature - afficher la signature si elle existe
-      doc.rect(xPos, yPos - 4, colWidths[8], rowHeight);
+      doc.rect(xPos + 1, yPos - 4, adjustedColWidths[8] - 2, rowHeight);
       
       // Ajouter la signature si elle existe (format data URL)
       if (participant.signature) {
         try {
-          // Réduire la taille de la signature pour qu'elle tienne dans la case
-          const signatureWidth = colWidths[8] - 4;
-          const signatureHeight = rowHeight - 4;
+          // Meilleur placement de la signature dans la case
+          const signatureWidth = adjustedColWidths[8] - 6;
+          const signatureHeight = rowHeight - 6;
           doc.addImage(
             participant.signature,
             'PNG',
-            xPos + 2,
-            yPos - 2,
+            xPos + 3,
+            yPos - 1,
             signatureWidth,
             signatureHeight
           );
@@ -313,11 +324,11 @@ const AttendanceListPDF = forwardRef(({
         }
       }
       
-      xPos += colWidths[8];
+      xPos += adjustedColWidths[8];
       
-      // Ligne de séparation
+      // Ligne de séparation - utiliser toute la largeur
       doc.setDrawColor(200, 200, 200);
-      doc.line(10, yPos + 8, pageWidth - 10, yPos + 8);
+      doc.line(5, yPos + 10, pageWidth - 5, yPos + 10);
       
       yPos += rowHeight;
     });
