@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import JoditEditor from 'jodit-react';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
 
@@ -37,10 +38,12 @@ export const EmailModal = ({
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState(false);
+  const editorRef = useRef<string>('');
 
   // Fonction pour envoyer les emails aux participants
   const sendEmailsToParticipants = async () => {
-    if (!emailContent.trim()) {
+    const contentToSend = editorRef.current || emailContent;
+    if (!contentToSend.trim()) {
       setEmailError('Veuillez saisir un message');
       return;
     }
@@ -62,7 +65,7 @@ export const EmailModal = ({
         },
         body: JSON.stringify({
           subject: `Message concernant la réunion: ${meetingTitle}`,
-          message: emailContent,
+          message: editorRef.current || emailContent,
           selectedParticipants: participantIds.length > 0 ? participantIds : undefined
         })
       });
@@ -102,6 +105,14 @@ export const EmailModal = ({
     }
   };
 
+  // Configuration de Jodit
+  const editorConfig = {
+    readonly: sendingEmail,
+    height: 200,
+    language: 'fr',
+    placeholder: 'Saisissez votre message ici...'
+  };
+
   // Fermer le modal et réinitialiser
   const handleClose = () => {
     onClose();
@@ -135,12 +146,16 @@ export const EmailModal = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Message à envoyer
             </label>
-            <textarea
+            
+            {/* Éditeur Jodit */}
+            <JoditEditor
               value={emailContent}
-              onChange={(e) => setEmailContent(e.target.value)}
-              placeholder="Saisissez votre message ici..."
-              className="w-full h-40 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-              disabled={sendingEmail}
+              config={editorConfig}
+              onBlur={(newContent: string) => {
+                editorRef.current = newContent;
+                setEmailContent(newContent);
+              }}
+              // On utilise seulement onBlur pour éviter les re-rendus pendant la frappe
             />
           </div>
 

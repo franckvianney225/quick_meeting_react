@@ -14,6 +14,8 @@
     "@types/jspdf": "^2.0.0",
     "@types/qrcode": "^1.5.5",
     "@types/qrcode.react": "^3.0.0",
+    "jodit": "^4.6.2",
+    "jodit-react": "^5.2.19",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.539.0",
