@@ -7,13 +7,15 @@ import { Participant } from '../participant/participant.entity';
 import { QrCodeModule } from '../qrcode/qrcode.module';
 import { PdfModule } from '../pdf/pdf.module';
 import { AuthModule } from '../auth/auth.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Meeting, Participant]),
     QrCodeModule,
     PdfModule,
-    AuthModule
+    AuthModule,
+    EmailModule
   ],
   controllers: [MeetingController],
   providers: [MeetingService],

@@ -10,6 +10,7 @@ import {
   ChevronRightIcon,
   ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
+import { EmailModal } from './EmailModal';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
 import * as XLSX from 'xlsx';
@@ -40,6 +41,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   
   // Vérifier si l'utilisateur est admin
   const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
@@ -249,7 +251,8 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       {/* Barre de recherche et actions d'exportation */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="relative max-w-md">
@@ -285,9 +288,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
 
           {/* Bouton Envoyer en orange */}
           <button
-            onClick={() => alert('Fonction d\'envoi à implémenter')}
+            onClick={() => setShowEmailModal(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
-            title="Envoyer la liste des participants"
+            title="Envoyer un email aux participants"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -464,6 +467,17 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
           </p>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Modal d'envoi d'email */}
+      <EmailModal
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        meetingId={meetingId}
+        meetingTitle={meetingTitle}
+        participantCount={filteredParticipants.length}
+        participantIds={filteredParticipants.map(p => p.id)}
+      />
+    </>
   );
 };

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpSta
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
+import { EmailService } from '../email/email.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
 
@@ -34,7 +35,8 @@ import { Participant } from '../participant/participant.entity';
 export class MeetingController {
   constructor(
     private readonly service: MeetingService,
-    private readonly pdfService: PdfService
+    private readonly pdfService: PdfService,
+    private readonly emailService: EmailService
   ) {}
 
   @Get()
@@ -248,6 +250,61 @@ export class MeetingController {
     } catch (err) {
       throw new HttpException(
         err.message || 'Erreur lors de la validation',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  @Post(':id/send-emails')
+  @UseGuards(JwtAuthGuard)
+  async sendEmailsToParticipants(
+    @Param('id') id: number,
+    @Body() body: {
+      subject: string;
+      message: string;
+      selectedParticipants?: number[];
+    },
+    @Req() req: AuthenticatedRequest
+  ): Promise<{ success: boolean; results: Array<{ email: string; success: boolean; messageId?: string; error?: string }> }> {
+    try {
+      const meeting = await this.service.findOne(id);
+      
+      // Vérifier les permissions
+      if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
+        throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+      }
+
+      // Récupérer les participants
+      const participants = await this.service.getMeetingParticipants(id);
+      
+      // Filtrer les participants sélectionnés si spécifiés
+      let targetParticipants = participants;
+      if (body.selectedParticipants && body.selectedParticipants.length > 0) {
+        targetParticipants = participants.filter(p =>
+          body.selectedParticipants!.includes(p.id)
+        );
+      }
+
+      // Extraire les emails valides
+      const emails = targetParticipants
+        .filter(p => p.email && p.email.includes('@'))
+        .map(p => p.email);
+
+      if (emails.length === 0) {
+        throw new HttpException('Aucun email valide trouvé pour les participants', HttpStatus.BAD_REQUEST);
+      }
+
+      // Envoyer les emails
+      const result = await this.emailService.sendParticipantsEmail(
+        emails,
+        body.subject,
+        body.message
+      );
+
+      return result;
+    } catch (err) {
+      throw new HttpException(
+        err.message || "Erreur lors de l'envoi des emails",
         HttpStatus.BAD_REQUEST
       );
     }

@@ -16,11 +16,13 @@ exports.MeetingController = void 0;
 const common_1 = require("@nestjs/common");
 const meeting_service_1 = require("./meeting.service");
 const pdf_service_1 = require("../pdf/pdf.service");
+const email_service_1 = require("../email/email.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let MeetingController = class MeetingController {
-    constructor(service, pdfService) {
+    constructor(service, pdfService, emailService) {
         this.service = service;
         this.pdfService = pdfService;
+        this.emailService = emailService;
     }
     async findAll(req) {
         const userId = req.user?.id;
@@ -126,6 +128,30 @@ let MeetingController = class MeetingController {
             throw new common_1.HttpException(err.message || 'Erreur lors de la validation', common_1.HttpStatus.BAD_REQUEST);
         }
     }
+    async sendEmailsToParticipants(id, body, req) {
+        try {
+            const meeting = await this.service.findOne(id);
+            if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
+                throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+            }
+            const participants = await this.service.getMeetingParticipants(id);
+            let targetParticipants = participants;
+            if (body.selectedParticipants && body.selectedParticipants.length > 0) {
+                targetParticipants = participants.filter(p => body.selectedParticipants.includes(p.id));
+            }
+            const emails = targetParticipants
+                .filter(p => p.email && p.email.includes('@'))
+                .map(p => p.email);
+            if (emails.length === 0) {
+                throw new common_1.HttpException('Aucun email valide trouvé pour les participants', common_1.HttpStatus.BAD_REQUEST);
+            }
+            const result = await this.emailService.sendParticipantsEmail(emails, body.subject, body.message);
+            return result;
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.message || "Erreur lors de l'envoi des emails", common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
 };
 exports.MeetingController = MeetingController;
 __decorate([
@@ -221,9 +247,20 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "validateMeetingAccess", null);
+__decorate([
+    (0, common_1.Post)(':id/send-emails'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "sendEmailsToParticipants", null);
 exports.MeetingController = MeetingController = __decorate([
     (0, common_1.Controller)('meetings'),
     __metadata("design:paramtypes", [meeting_service_1.MeetingService,
-        pdf_service_1.PdfService])
+        pdf_service_1.PdfService,
+        email_service_1.EmailService])
 ], MeetingController);
 //# sourceMappingURL=meeting.controller.js.map

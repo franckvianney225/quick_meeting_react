@@ -32,4 +32,14 @@ export declare class EmailService {
     private htmlToText;
     sendInvitationEmail(email: string, name: string, activationToken: string): Promise<void>;
     sendPasswordResetEmail(email: string, resetToken: string): Promise<void>;
+    sendBulkEmails(smtpConfig: SMTPConfig, emails: string[], subject: string, html: string, text?: string): Promise<any[]>;
+    sendParticipantsEmail(emails: string[], subject: string, message: string): Promise<{
+        success: boolean;
+        results: Array<{
+            email: string;
+            success: boolean;
+            messageId?: string;
+            error?: string;
+        }>;
+    }>;
 }

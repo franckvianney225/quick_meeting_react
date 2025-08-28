@@ -1,6 +1,7 @@
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
+import { EmailService } from '../email/email.service';
 import { Request } from 'express';
 interface AuthenticatedRequest extends Request {
     user: {
@@ -27,7 +28,8 @@ interface ParticipantResponse {
 export declare class MeetingController {
     private readonly service;
     private readonly pdfService;
-    constructor(service: MeetingService, pdfService: PdfService);
+    private readonly emailService;
+    constructor(service: MeetingService, pdfService: PdfService, emailService: EmailService);
     findAll(req: AuthenticatedRequest): Promise<Meeting[]>;
     findAllAdmin(req: AuthenticatedRequest): Promise<Meeting[]>;
     findOne(id: number, req: AuthenticatedRequest): Promise<Meeting>;
@@ -83,6 +85,19 @@ export declare class MeetingController {
     validateMeetingAccess(meetingId: string, code: string): Promise<{
         status: string;
         title: string;
+    }>;
+    sendEmailsToParticipants(id: number, body: {
+        subject: string;
+        message: string;
+        selectedParticipants?: number[];
+    }, req: AuthenticatedRequest): Promise<{
+        success: boolean;
+        results: Array<{
+            email: string;
+            success: boolean;
+            messageId?: string;
+            error?: string;
+        }>;
     }>;
 }
 export {};
