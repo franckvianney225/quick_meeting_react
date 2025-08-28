@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" className="tc-new-price">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
