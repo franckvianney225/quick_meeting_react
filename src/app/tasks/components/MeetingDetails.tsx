@@ -46,6 +46,7 @@ export const MeetingDetails = ({
   const [participantCount, setParticipantCount] = useState(0);
   const [showUniqueCode, setShowUniqueCode] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState(meeting);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // Vérifier si l'utilisateur est admin
   const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
@@ -202,7 +203,7 @@ export const MeetingDetails = ({
   useEffect(() => {
     const fetchParticipantCount = async () => {
       try {
-        const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants`), {
+        const response = await fetch(apiUrl(`/meetings/${currentMeeting.id}/participants`), {
           headers: AuthService.getAuthHeaders()
         });
         if (response.ok) {
@@ -215,7 +216,7 @@ export const MeetingDetails = ({
     };
 
     fetchParticipantCount();
-  }, [meeting.id]);
+  }, [currentMeeting.id, refreshTrigger]);
 
   const handleToggleStatus = async () => {
     try {
@@ -237,6 +238,9 @@ export const MeetingDetails = ({
 
       const updatedMeeting = await response.json();
       setCurrentMeeting(updatedMeeting);
+      
+      // Forcer le rafraîchissement complet de la page après la mise à jour
+      window.location.reload();
       
     } catch (error) {
       console.error('Erreur:', error);
