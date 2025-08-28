@@ -7,12 +7,19 @@ services:
     container_name: meeting_db
     environment:
       POSTGRES_DB: meeting_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: meeting_admin
+      POSTGRES_PASSWORD: iVAP26hvSdyLBPNpZ0ZQVQQCwmNaybzUe031ZtAEL6u8cNLw96Q4rrHgydaOsslkeA0uiz1lsiKGYZyY1ZLw4aOJ7YcXU89eEt4SYzRLcsTfQcq6Z4s8P6wXLgV82x9u
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"  # Seulement accessible localement
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres-config/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    command: [
+      "postgres",
+      "-c", "listen_addresses=*",  # Écoute sur toutes les interfaces pour le réseau Docker
+      "-c", "config_file=/var/lib/postgresql/data/postgresql.conf"
+    ]
     networks:
       - meeting_network
     restart: unless-stopped
@@ -26,13 +33,13 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
+      - DB_USER=meeting_admin
+      - DB_PASSWORD=iVAP26hvSdyLBPNpZ0ZQVQQCwmNaybzUe031ZtAEL6u8cNLw96Q4rrHgydaOsslkeA0uiz1lsiKGYZyY1ZLw4aOJ7YcXU89eEt4SYzRLcsTfQcq6Z4s8P6wXLgV82x9u
       - DB_NAME=meeting_db
-      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_SECRET=XtV7JCR087OjF2R5N6l7G2ZbxLBJrxW5QsUU27ywrM4hEb0PIkMY2X0bJQnaM0aGW40UA2iqh3PR3R1coPPnu11gSTI0XlJCPfs8CS37DQRoKx1qBj4u0YjXqmsZ607T
       - APP_URL=http://164.160.40.182:3001
       - FRONTEND_URL=http://164.160.40.182:3000
     depends_on:
