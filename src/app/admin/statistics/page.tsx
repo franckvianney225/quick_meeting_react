@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { UserProfile } from '@/components/ui/UserProfile';
@@ -11,8 +12,12 @@ import {
   CalendarIcon,
   ArrowLeftIcon,
   UserGroupIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
+import LineChart from '@/components/charts/LineChart';
+import BarChart from '@/components/charts/BarChart';
+import PieChart from '@/components/charts/PieChart';
 
 // Types pour les données du dashboard
 interface RecentMeeting {
@@ -233,53 +238,125 @@ export default function AdminStatisticsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Graphique des réunions par mois */}
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Réunions par Mois
-              </h3>
-              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <ChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-400">Graphique des réunions par mois</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {stats?.meetingsByMonth?.length || 0} mois de données disponibles
-                  </p>
-                </div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Évolution des Réunions
+                </h3>
+                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <DocumentArrowDownIcon className="w-5 h-5 text-gray-600" />
+                </button>
               </div>
+              {stats?.meetingsByMonth && stats.meetingsByMonth.length > 0 ? (
+                <LineChart
+                  data={{
+                    labels: stats.meetingsByMonth.map(item => item.month),
+                    datasets: [
+                      {
+                        label: 'Réunions',
+                        data: stats.meetingsByMonth.map(item => item.count),
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                      },
+                    ],
+                  }}
+                  title="Évolution mensuelle des réunions"
+                  height={300}
+                />
+              ) : (
+                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <ChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-400">Aucune donnée disponible</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Répartition par statut */}
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Répartition par Statut
-              </h3>
-              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
-                      {stats?.meetingStatusDistribution ? 
-                        `${((stats.meetingStatusDistribution.active / stats.totalMeetings) * 100).toFixed(0)}%` : 
-                        '0%'
-                      }
-                    </span>
-                  </div>
-                  <p className="text-gray-400">Graphique circulaire des statuts</p>
-                  <div className="mt-4 space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-green-600">● Actif</span>
-                      <span>{stats?.meetingStatusDistribution?.active || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-blue-600">● Terminé</span>
-                      <span>{stats?.meetingStatusDistribution?.completed || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">● Inactif</span>
-                      <span>{stats?.meetingStatusDistribution?.inactive || 0}</span>
-                    </div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Répartition par Statut
+                </h3>
+                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <DocumentArrowDownIcon className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+              {stats?.meetingStatusDistribution && stats.totalMeetings > 0 ? (
+                <PieChart
+                  data={{
+                    labels: ['Actif', 'Terminé', 'Inactif'],
+                    datasets: [
+                      {
+                        label: 'Réunions par statut',
+                        data: [
+                          stats.meetingStatusDistribution.active,
+                          stats.meetingStatusDistribution.completed,
+                          stats.meetingStatusDistribution.inactive,
+                        ],
+                        backgroundColor: [
+                          'rgba(34, 197, 94, 0.8)',  // Vert pour actif
+                          'rgba(239, 68, 68, 0.8)',  // Rouge pour terminé
+                          'rgba(156, 163, 175, 0.8)', // Gris pour inactif
+                        ],
+                      },
+                    ],
+                  }}
+                  title="Répartition des statuts"
+                  height={300}
+                />
+              ) : (
+                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <ChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-400">Aucune donnée disponible</p>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
+          </div>
+
+          {/* Graphique de comparaison mensuelle */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Comparaison Mensuelle
+              </h3>
+              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <DocumentArrowDownIcon className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            {stats?.monthlyStats && stats.monthlyStats.length > 0 ? (
+              <BarChart
+                data={{
+                  labels: stats.monthlyStats.map(item => item.month),
+                  datasets: [
+                    {
+                      label: 'Réunions',
+                      data: stats.monthlyStats.map(item => item.meetings),
+                      backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                    },
+                    {
+                      label: 'Participants',
+                      data: stats.monthlyStats.map(item => item.participants),
+                      backgroundColor: 'rgba(14, 165, 233, 0.8)',
+                    },
+                  ],
+                }}
+                title="Comparaison réunions vs participants"
+                height={300}
+                stacked={false}
+              />
+            ) : (
+              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <ChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-400">Aucune donnée mensuelle disponible</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Statistiques détaillées */}
