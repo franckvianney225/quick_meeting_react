@@ -1,9 +1,15 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import JoditEditor from 'jodit-react';
+import dynamic from 'next/dynamic';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
+
+// Charger JoditEditor dynamiquement pour éviter les problèmes SSR
+const JoditEditor = dynamic(() => import('jodit-react'), {
+  ssr: false,
+  loading: () => <div className="h-48 bg-gray-100 rounded-md animate-pulse"></div>
+});
 
 interface EmailModalProps {
   isOpen: boolean;
