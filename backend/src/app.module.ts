@@ -17,6 +17,7 @@ import { ParticipantModule } from './participant/participant.module';
 import { EmailModule } from './email/email.module';
 import { AdminModule } from './admin/admin.module';
 import { BackupModule } from './backup/backup.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { BackupModule } from './backup/backup.module';
     EmailModule,
     AdminModule,
     BackupModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],

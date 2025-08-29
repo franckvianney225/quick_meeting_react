@@ -25,6 +25,7 @@ const participant_module_1 = require("./participant/participant.module");
 const email_module_1 = require("./email/email.module");
 const admin_module_1 = require("./admin/admin.module");
 const backup_module_1 = require("./backup/backup.module");
+const dashboard_module_1 = require("./dashboard/dashboard.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -52,6 +53,7 @@ exports.AppModule = AppModule = __decorate([
             email_module_1.EmailModule,
             admin_module_1.AdminModule,
             backup_module_1.BackupModule,
+            dashboard_module_1.DashboardModule,
         ],
         controllers: [],
         providers: [],

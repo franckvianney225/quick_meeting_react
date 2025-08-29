@@ -14,7 +14,8 @@ import {
   FunnelIcon,
   PlusIcon,
   Squares2X2Icon,
-  ListBulletIcon
+  ListBulletIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 
 export default function AdminMeetingsPage() {
@@ -149,6 +150,7 @@ export default function AdminMeetingsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showForm, setShowForm] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   // Données utilisateur connecté
   const currentUser = {
@@ -364,6 +366,55 @@ export default function AdminMeetingsPage() {
             </div>
           </div>
 
+          {/* Dashboard des statistiques (affiché conditionnellement) */}
+          {showDashboard && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Tableau de Bord des Réunions</h2>
+              
+              {/* Statistiques principales */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-orange-600">{meetings.length}</div>
+                  <div className="text-orange-800 text-sm font-medium">Total Réunions</div>
+                </div>
+                <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-green-600">
+                    {meetings.filter(m => m.status === 'active').length}
+                  </div>
+                  <div className="text-green-800 text-sm font-medium">Réunions Actives</div>
+                </div>
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-blue-600">
+                    {meetings.filter(m => m.status === 'completed').length}
+                  </div>
+                  <div className="text-blue-800 text-sm font-medium">Réunions Terminées</div>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-purple-600">
+                    {meetings.filter(m => m.status === 'inactive').length}
+                  </div>
+                  <div className="text-purple-800 text-sm font-medium">Réunions En Attente</div>
+                </div>
+              </div>
+
+              {/* Graphiques et visualisations */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Répartition par Statut</h3>
+                  <div className="h-48 flex items-center justify-center">
+                    <p className="text-gray-400">Graphique circulaire en développement</p>
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Évolution Mensuelle</h3>
+                  <div className="h-48 flex items-center justify-center">
+                    <p className="text-gray-400">Graphique en barres en développement</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Barre de filtres avec toggle vue */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
@@ -418,14 +469,28 @@ export default function AdminMeetingsPage() {
                     <option value="inactive">En attente</option>
                   </select>
                 </div>
-
-                <button
-                  onClick={handleCreateNew}
-                  className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                  <span>Nouvelle Réunion</span>
-                </button>
+  
+                <div className="flex items-center space-x-3">
+                  {/* <button
+                    onClick={() => setShowDashboard(!showDashboard)}
+                    className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold ${
+                      showDashboard
+                        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white'
+                        : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                    }`}
+                  >
+                    <ChartBarIcon className="h-5 w-5" />
+                    <span>{showDashboard ? 'Masquer statistiques' : 'Voir les statistiques'}</span>
+                  </button>
+   */}
+                  <button
+                    onClick={handleCreateNew}
+                    className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
+                  >
+                    <PlusIcon className="h-5 w-5" />
+                    <span>Nouvelle Réunion</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

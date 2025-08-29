@@ -1,15 +1,63 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import AuthGuard from '@/components/AuthGuard';
 import { UserProfile } from '@/components/ui/UserProfile';
-import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon, ChartBarIcon, CalendarIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { AuthService } from '@/lib/auth';
+import { apiUrl } from '@/lib/api';
+
+interface RecentMeeting {
+  id: number;
+  title: string;
+  startDate: string;
+  status: string;
+  participants_count?: number;
+}
+
+interface DashboardStats {
+  totalMeetings: number;
+  activeMeetings: number;
+  completedMeetings: number;
+  totalParticipants: number;
+  averageParticipants: number;
+  meetingsByMonth: { month: string; count: number }[];
+  recentMeetings: RecentMeeting[];
+}
 
 export default function AdminPage() {
   const { user, logout } = useAuth();
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     logout();
   };
+
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(apiUrl('/dashboard/stats'), {
+        headers: AuthService.getAuthHeaders()
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des statistiques:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showStatistics) {
+      fetchDashboardStats();
+    }
+  }, [showStatistics]);
 
   // Données utilisateur connecté
   const currentUser = {
