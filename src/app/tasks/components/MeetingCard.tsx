@@ -23,8 +23,8 @@ export interface Meeting {
   status: 'active' | 'completed' | 'inactive';
   start_date?: string;
   startDate?: string;
-  meetingstartdate?: string;
-  meetingenddate?: string;
+  meetingStartDate?: string;
+  meetingEndDate?: string;
   location?: string;
   max_participants?: number;
   maxParticipants?: number;
