@@ -5,4 +5,6 @@ export declare class CreateMeetingDto {
     location: string;
     max_participants?: number;
     start_date: string;
+    meetingstartdate?: string;
+    meetingenddate?: string;
 }

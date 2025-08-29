@@ -6,6 +6,8 @@ export declare class Meeting {
     title: string;
     startDate: Date;
     start_date?: string;
+    meetingStartDate?: Date;
+    meetingEndDate?: Date;
     description: string;
     status: 'active' | 'completed' | 'inactive';
     location: string;

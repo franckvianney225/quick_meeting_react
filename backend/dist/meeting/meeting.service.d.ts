@@ -30,6 +30,8 @@ export declare class MeetingService {
         max_participants?: number;
         start_date?: string;
         startDate?: string;
+        meetingstartdate?: string;
+        meetingenddate?: string;
         qrConfig?: {
             backgroundColor?: string;
             foregroundColor?: string;
@@ -44,7 +46,10 @@ export declare class MeetingService {
     findAll(userId?: number): Promise<Meeting[]>;
     findOne(id: number): Promise<Meeting>;
     findOneByCode(uniqueCode: string): Promise<Meeting | null>;
-    update(id: number, meetingData: Partial<Meeting>): Promise<Meeting>;
+    update(id: number, meetingData: Partial<Meeting> & {
+        meetingstartdate?: string;
+        meetingenddate?: string;
+    }): Promise<Meeting>;
     remove(id: number): Promise<void>;
     getMeetingParticipants(meetingId: number): Promise<ParticipantResponse[]>;
     registerParticipant(meetingCode: string, participantData: {

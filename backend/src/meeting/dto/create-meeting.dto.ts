@@ -23,4 +23,12 @@ export class CreateMeetingDto {
   @IsNotEmpty()
   @IsDateString()
   start_date: string;
+
+  @IsOptional()
+  @IsDateString()
+  meetingstartdate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  meetingenddate?: string;
 }

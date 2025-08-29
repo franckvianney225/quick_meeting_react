@@ -20,6 +20,12 @@ export class Meeting {
   @Column({ name: 'start_date_legacy', nullable: true, select: false })
   start_date?: string;
 
+  @Column({ name: 'meeting_start_date', type: 'timestamp', nullable: true })
+  meetingStartDate?: Date;
+
+  @Column({ name: 'meeting_end_date', type: 'timestamp', nullable: true })
+  meetingEndDate?: Date;
+
   @Column({ type: 'text', nullable: true })
   description!: string;
 

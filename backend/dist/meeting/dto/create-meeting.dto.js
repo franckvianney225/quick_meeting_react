@@ -43,4 +43,14 @@ __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateMeetingDto.prototype, "start_date", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateMeetingDto.prototype, "meetingstartdate", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateMeetingDto.prototype, "meetingenddate", void 0);
 //# sourceMappingURL=create-meeting.dto.js.map

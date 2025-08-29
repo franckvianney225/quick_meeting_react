@@ -47,6 +47,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     start_date: initialData?.startDate
       ? new Date(initialData.startDate).toISOString().slice(0, 16)
       : initialData?.start_date || '',
+    meetingstartdate: initialData?.meetingstartdate
+      ? new Date(initialData.meetingstartdate).toISOString().slice(0, 16)
+      : '',
+    meetingenddate: initialData?.meetingenddate
+      ? new Date(initialData.meetingenddate).toISOString().slice(0, 16)
+      : '',
     location: initialData?.location || '',
     max_participants: initialData?.max_participants || 10,
   });
@@ -87,10 +93,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         throw new Error('Format de date invalide');
       }
       
-      // Convertir la date en format ISO et nettoyer les données avant envoi
+      // Convertir les dates en format ISO et nettoyer les données avant envoi
       const meetingWithQR = {
         ...formData,
         startDate: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
+        meetingstartdate: formData.meetingstartdate ? new Date(formData.meetingstartdate).toISOString() : undefined,
+        meetingenddate: formData.meetingenddate ? new Date(formData.meetingenddate).toISOString() : undefined,
         start_date: undefined, // Supprimer l'ancien format
         uniqueCode: initialData?.uniqueCode, // Conserver le code existant pour les modifications
         qrConfig: qrConfig
@@ -131,6 +139,8 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         id: data.id || initialData?.id,
         uniqueCode: data.uniqueCode,
         startDate: data.startDate,
+        meetingstartdate: data.meetingstartdate,
+        meetingenddate: data.meetingenddate,
         // Forcer la mise à jour du code unique dans le formulaire
         qrConfig: qrConfig
       });
@@ -381,6 +391,34 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div> */}
+
+                    <div>
+                      <label htmlFor="meetingstartdate" className="block text-sm font-medium text-gray-700 mb-1">
+                        Date de début de réunion
+                      </label>
+                      <input
+                        type="datetime-local"
+                        id="meetingstartdate"
+                        name="meetingstartdate"
+                        value={formData.meetingstartdate}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="meetingenddate" className="block text-sm font-medium text-gray-700 mb-1">
+                        Date de fin de réunion
+                      </label>
+                      <input
+                        type="datetime-local"
+                        id="meetingenddate"
+                        name="meetingenddate"
+                        value={formData.meetingenddate}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                      />
+                    </div>
 
                     <div>
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">

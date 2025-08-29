@@ -37,6 +37,14 @@ __decorate([
     __metadata("design:type", String)
 ], Meeting.prototype, "start_date", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: 'meeting_start_date', type: 'timestamp', nullable: true }),
+    __metadata("design:type", Date)
+], Meeting.prototype, "meetingStartDate", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'meeting_end_date', type: 'timestamp', nullable: true }),
+    __metadata("design:type", Date)
+], Meeting.prototype, "meetingEndDate", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], Meeting.prototype, "description", void 0);

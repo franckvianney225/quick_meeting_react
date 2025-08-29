@@ -3,10 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AddPhoneToParticipant1755525000000 = void 0;
 class AddPhoneToParticipant1755525000000 {
     async up(queryRunner) {
-        await queryRunner.query(`
-      ALTER TABLE participant 
-      ADD COLUMN phone VARCHAR(255) NOT NULL DEFAULT '';
-    `);
+        const table = await queryRunner.getTable('participant');
+        const phoneColumn = table?.findColumnByName('phone');
+        if (!phoneColumn) {
+            await queryRunner.query(`
+        ALTER TABLE participant
+        ADD COLUMN phone VARCHAR(255) NOT NULL DEFAULT '';
+      `);
+        }
     }
     async down(queryRunner) {
         await queryRunner.query(`

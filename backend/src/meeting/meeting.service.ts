@@ -40,6 +40,8 @@ export class MeetingService {
     max_participants?: number;
     start_date?: string;
     startDate?: string;
+    meetingstartdate?: string;
+    meetingenddate?: string;
     qrConfig?: {
       backgroundColor?: string;
       foregroundColor?: string;
@@ -79,6 +81,10 @@ export class MeetingService {
       uniqueCode = generateUniqueCode();
     }
 
+    // Convertir les dates de début et fin de réunion si fournies
+    const meetingStartDate = meetingData.meetingstartdate ? new Date(meetingData.meetingstartdate) : undefined;
+    const meetingEndDate = meetingData.meetingenddate ? new Date(meetingData.meetingenddate) : undefined;
+
     const meeting = this.meetingRepository.create({
       title: meetingData.title.toUpperCase(), // Forcer le titre en majuscules
       description: meetingData.description,
@@ -86,6 +92,8 @@ export class MeetingService {
       location: meetingData.location,
       maxParticipants: meetingData.max_participants,
       startDate: startDate,
+      meetingStartDate: meetingStartDate,
+      meetingEndDate: meetingEndDate,
       uniqueCode: uniqueCode,
       qrConfig: meetingData.qrConfig || null,
       createdBy: userId ? { id: userId } : null,
@@ -121,7 +129,10 @@ export class MeetingService {
     return this.meetingRepository.findOne({ where: { uniqueCode } });
   }
 
-  async update(id: number, meetingData: Partial<Meeting>): Promise<Meeting> {
+  async update(id: number, meetingData: Partial<Meeting> & {
+    meetingstartdate?: string;
+    meetingenddate?: string;
+  }): Promise<Meeting> {
     const meeting = await this.findOne(id);
 
     // Validation des données
@@ -138,6 +149,17 @@ export class MeetingService {
     if (meetingData.start_date) {
       meetingData.startDate = new Date(meetingData.start_date);
       delete meetingData.start_date;
+    }
+
+    // Convertir les dates de début et fin de réunion si fournies
+    if (meetingData.meetingstartdate) {
+      meetingData.meetingStartDate = new Date(meetingData.meetingstartdate);
+      delete meetingData.meetingstartdate;
+    }
+
+    if (meetingData.meetingenddate) {
+      meetingData.meetingEndDate = new Date(meetingData.meetingenddate);
+      delete meetingData.meetingenddate;
     }
 
     // Forcer le titre en majuscules si présent dans les données de mise à jour

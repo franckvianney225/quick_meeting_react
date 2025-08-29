@@ -41,6 +41,8 @@ export declare class MeetingController {
         max_participants?: number;
         start_date?: string;
         startDate?: string;
+        meetingstartdate?: string;
+        meetingenddate?: string;
         qrConfig?: {
             backgroundColor?: string;
             foregroundColor?: string;

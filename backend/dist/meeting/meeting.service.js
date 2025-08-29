@@ -45,6 +45,8 @@ let MeetingService = class MeetingService {
         while (await this.findOneByCode(uniqueCode)) {
             uniqueCode = generateUniqueCode();
         }
+        const meetingStartDate = meetingData.meetingstartdate ? new Date(meetingData.meetingstartdate) : undefined;
+        const meetingEndDate = meetingData.meetingenddate ? new Date(meetingData.meetingenddate) : undefined;
         const meeting = this.meetingRepository.create({
             title: meetingData.title.toUpperCase(),
             description: meetingData.description,
@@ -52,6 +54,8 @@ let MeetingService = class MeetingService {
             location: meetingData.location,
             maxParticipants: meetingData.max_participants,
             startDate: startDate,
+            meetingStartDate: meetingStartDate,
+            meetingEndDate: meetingEndDate,
             uniqueCode: uniqueCode,
             qrConfig: meetingData.qrConfig || null,
             createdBy: userId ? { id: userId } : null,
@@ -92,6 +96,14 @@ let MeetingService = class MeetingService {
         if (meetingData.start_date) {
             meetingData.startDate = new Date(meetingData.start_date);
             delete meetingData.start_date;
+        }
+        if (meetingData.meetingstartdate) {
+            meetingData.meetingStartDate = new Date(meetingData.meetingstartdate);
+            delete meetingData.meetingstartdate;
+        }
+        if (meetingData.meetingenddate) {
+            meetingData.meetingEndDate = new Date(meetingData.meetingenddate);
+            delete meetingData.meetingenddate;
         }
         if (meetingData.title) {
             meetingData.title = meetingData.title.toUpperCase();
