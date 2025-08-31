@@ -200,6 +200,32 @@ export const MeetingDetails = ({
     });
   };
 
+  const calculateDuration = (startDate?: string, endDate?: string) => {
+    if (!startDate || !endDate) return 'Durée non définie';
+    
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return 'Dates invalides';
+      }
+      
+      const durationMs = end.getTime() - start.getTime();
+      const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+      const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (durationHours > 0) {
+        return `${durationHours}h${durationMinutes > 0 ? `${durationMinutes}min` : ''}`;
+      } else {
+        return `${durationMinutes}min`;
+      }
+    } catch (error) {
+      console.error('Erreur lors du calcul de la durée:', error);
+      return 'Erreur de calcul';
+    }
+  };
+
   useEffect(() => {
     const fetchParticipantCount = async () => {
       try {
@@ -480,7 +506,9 @@ export const MeetingDetails = ({
                     <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mx-auto mb-3">
                       <ClockIcon className="h-6 w-6 text-orange-600" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">2h</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {calculateDuration(currentMeeting.meetingStartDate, currentMeeting.meetingEndDate)}
+                    </div>
                     <div className="text-sm text-gray-600">Durée estimée</div>
                   </div>
                 </div>
