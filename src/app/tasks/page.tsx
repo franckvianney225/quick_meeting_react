@@ -392,7 +392,7 @@ export default function TasksPage() {
                 Gestion des Réunions
               </h1>
               <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
-                Organisez et gérez vos réunions gouvernementales
+                Organisez et gérez vos réunions
               </p>
             </div>
 

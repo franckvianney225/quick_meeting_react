@@ -318,6 +318,16 @@ export const MeetingDetails = ({
                     <div className={`w-3 h-3 rounded-full ${statusConfig.indicator}`} />
                     <span className="text-sm font-medium">{statusConfig.label}</span>
                   </div>
+                  {/* Affichage des dates de début et fin si définies - AVANT le code unique */}
+                  {(currentMeeting.meetingStartDate || currentMeeting.meetingEndDate) && (
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                      <CalendarIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                      <span>
+                        {currentMeeting.meetingStartDate && formatDate(currentMeeting.meetingStartDate)}
+                        {currentMeeting.meetingEndDate && ` → ${formatDate(currentMeeting.meetingEndDate)}`}
+                      </span>
+                    </div>
+                  )}
                   {currentMeeting.uniqueCode && (
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
