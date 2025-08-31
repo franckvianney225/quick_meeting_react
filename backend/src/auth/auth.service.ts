@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { OrganizationService } from '../organization/organization.service';
+import { SessionService } from '../session/session.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.entity';
 
@@ -11,6 +12,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private organizationService: OrganizationService,
+    private sessionService: SessionService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<Omit<User, 'password'>> {
@@ -65,18 +67,36 @@ export class AuthService {
     return result;
   }
 
-  async login(user: Omit<User, 'password'>) {
+  async login(user: Omit<User, 'password'>, request?: { headers: { [key: string]: string | string[] }; ip?: string; connection?: { remoteAddress?: string } }) {
     const payload = {
       email: user.email,
       sub: user.id,
       role: user.role
     };
 
+    const token = this.jwtService.sign(payload);
+
     // Mettre à jour la date de dernière connexion
     await this.userService.updateLastLogin(user.id);
 
+    // Créer une session si les informations de requête sont disponibles
+    if (request) {
+      try {
+        const userAgent = Array.isArray(request.headers['user-agent'])
+          ? request.headers['user-agent'][0]
+          : request.headers['user-agent'] || '';
+        const ipAddress = request.ip || request.connection?.remoteAddress;
+        
+        const deviceInfo = await this.sessionService.getSessionDeviceInfo(userAgent, ipAddress || '');
+        await this.sessionService.createSession(user as User, token, deviceInfo);
+      } catch (error) {
+        console.error('Erreur lors de la création de la session:', error);
+        // Ne pas bloquer la connexion en cas d'erreur de session
+      }
+    }
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: token,
       user: {
         id: user.id,
         name: user.name,

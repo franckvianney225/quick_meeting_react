@@ -2,6 +2,7 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Meeting } from '../meeting/meeting.entity';
+import { Session } from '../session/session.entity';
 
 @Entity('users')
 export class User {
@@ -64,4 +65,7 @@ export class User {
 
   @OneToMany(() => Meeting, meeting => meeting.createdBy)
   meetings!: Meeting[];
+
+  @OneToMany(() => Session, session => session.user)
+  sessions!: Session[];
 }

@@ -11,7 +11,7 @@ export declare class AuthController {
     login(loginDto: {
         email: string;
         password: string;
-    }): Promise<{
+    }, req: Request): Promise<{
         access_token: string;
         user: {
             id: number;

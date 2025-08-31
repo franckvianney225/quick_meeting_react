@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   KeyIcon,
   ShieldCheckIcon,
@@ -8,6 +8,20 @@ import {
 } from '@heroicons/react/24/outline';
 import { apiUrl } from '@/lib/api';
 import { AuthService } from '@/lib/auth';
+
+interface Session {
+  id: number;
+  deviceType: string;
+  browser: string;
+  os: string;
+  ipAddress?: string;
+  location?: string;
+  isActive: boolean;
+  lastActivity: string;
+  createdAt: string;
+  expiresAt?: string;
+  isCurrent: boolean;
+}
 
 interface SecurityTabProps {
   refreshError?: string | null;
@@ -23,6 +37,8 @@ export const SecurityTab = ({ refreshError, onRefresh }: SecurityTabProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(true);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -88,6 +104,68 @@ export const SecurityTab = ({ refreshError, onRefresh }: SecurityTabProps) => {
       setIsLoading(false);
     }
   };
+
+  const fetchSessions = async () => {
+    try {
+      setLoadingSessions(true);
+      const response = await fetch(apiUrl('/sessions'), {
+        headers: AuthService.getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des sessions');
+      }
+
+      const sessionsData = await response.json();
+      setSessions(sessionsData);
+    } catch (err) {
+      console.error('Erreur lors du chargement des sessions:', err);
+      setError('Impossible de charger les sessions actives');
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const handleLogoutSession = async (sessionId: number) => {
+    try {
+      const response = await fetch(apiUrl(`/sessions/${sessionId}`), {
+        method: 'DELETE',
+        headers: AuthService.getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la déconnexion de la session');
+      }
+
+      setSuccess('Session déconnectée avec succès');
+      setTimeout(() => setSuccess(null), 3000);
+      
+      // Recharger les sessions
+      await fetchSessions();
+    } catch (err) {
+      console.error('Erreur lors de la déconnexion:', err);
+      setError('Erreur lors de la déconnexion de la session');
+    }
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'À l\'instant';
+    if (diffMins < 60) return `Il y a ${diffMins} min`;
+    if (diffHours < 24) return `Il y a ${diffHours} h`;
+    if (diffDays < 7) return `Il y a ${diffDays} j`;
+    return date.toLocaleDateString('fr-FR');
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
 
   return (
     <div className="p-8">
@@ -204,27 +282,57 @@ export const SecurityTab = ({ refreshError, onRefresh }: SecurityTabProps) => {
           </div>
           
           <div className="space-y-3">
-            <div className="flex items-center justify-between py-3 px-4 bg-white rounded-lg border border-orange-200">
-              <div className="flex items-center">
-                <ComputerDesktopIcon className="w-5 h-5 text-orange-500 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Chrome sur Windows</p>
-                  <p className="text-sm text-gray-500">Paris, France • Session actuelle</p>
-                </div>
+            {loadingSessions ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-orange-500 border-t-transparent mx-auto"></div>
+                <p className="text-gray-500 text-sm mt-2">Chargement des sessions...</p>
               </div>
-              <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-medium">Actif</span>
-            </div>
-            
-            <div className="flex items-center justify-between py-3 px-4 bg-white rounded-lg border">
-              <div className="flex items-center">
-                <DevicePhoneMobileIcon className="w-5 h-5 text-gray-400 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Safari sur iPhone</p>
-                  <p className="text-sm text-gray-500">Paris, France • Il y a 2 heures</p>
-                </div>
+            ) : sessions.length === 0 ? (
+              <div className="text-center py-8">
+                <ComputerDesktopIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">Aucune session active</p>
               </div>
-              <button className="text-red-600 hover:text-red-800 text-sm font-medium">Déconnecter</button>
-            </div>
+            ) : (
+              sessions.map((session) => (
+                <div
+                  key={session.id}
+                  className={`flex items-center justify-between py-3 px-4 bg-white rounded-lg border ${
+                    session.isCurrent ? 'border-orange-200' : ''
+                  }`}
+                >
+                  <div className="flex items-center">
+                    {session.deviceType.toLowerCase().includes('mobile') ? (
+                      <DevicePhoneMobileIcon className="w-5 h-5 text-gray-400 mr-3" />
+                    ) : (
+                      <ComputerDesktopIcon className="w-5 h-5 text-gray-400 mr-3" />
+                    )}
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {session.browser} sur {session.os}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {session.location || 'Localisation inconnue'}
+                        {session.isCurrent ? ' • Session actuelle' : ` • ${formatTimeAgo(session.lastActivity)}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    {session.isCurrent ? (
+                      <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs font-medium">
+                        Actif
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleLogoutSession(session.id)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Déconnecter
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

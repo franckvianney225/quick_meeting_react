@@ -13,6 +13,7 @@ exports.User = void 0;
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
 const meeting_entity_1 = require("../meeting/meeting.entity");
+const session_entity_1 = require("../session/session.entity");
 let User = class User {
     constructor() {
         this.id = 0;
@@ -117,6 +118,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => meeting_entity_1.Meeting, meeting => meeting.createdBy),
     __metadata("design:type", Array)
 ], User.prototype, "meetings", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => session_entity_1.Session, session => session.user),
+    __metadata("design:type", Array)
+], User.prototype, "sessions", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)('users')
 ], User);

@@ -9,6 +9,7 @@ import { OrganizationSettings } from './organization/organization.entity';
 import { EmailConfig } from './email/email-config.entity';
 import { AdminLog } from './admin/admin-log.entity';
 import { Backup } from './backup/backup.entity';
+import { Session } from './session/session.entity';
 import { MeetingModule } from './meeting/meeting.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
@@ -18,6 +19,7 @@ import { EmailModule } from './email/email.module';
 import { AdminModule } from './admin/admin.module';
 import { BackupModule } from './backup/backup.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        entities: [Meeting, Entreprise, Participant, User, OrganizationSettings, EmailConfig, AdminLog, Backup],
+        entities: [Meeting, Entreprise, Participant, User, OrganizationSettings, EmailConfig, AdminLog, Backup, Session],
         synchronize: process.env.NODE_ENV !== 'production',
         logging: process.env.NODE_ENV === 'development',
       })
@@ -43,6 +45,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AdminModule,
     BackupModule,
     DashboardModule,
+    SessionModule,
   ],
   controllers: [],
   providers: [],

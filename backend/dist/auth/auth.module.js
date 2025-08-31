@@ -18,6 +18,7 @@ const jwt_strategy_1 = require("./jwt.strategy");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const admin_guard_1 = require("./admin.guard");
 const email_module_1 = require("../email/email.module");
+const session_module_1 = require("../session/session.module");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -27,6 +28,7 @@ exports.AuthModule = AuthModule = __decorate([
             user_module_1.UserModule,
             organization_module_1.OrganizationModule,
             email_module_1.EmailModule,
+            session_module_1.SessionModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',

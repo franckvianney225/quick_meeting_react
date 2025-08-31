@@ -9,12 +9,14 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AdminGuard } from './admin.guard';
 import { EmailModule } from '../email/email.module';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
     UserModule,
     OrganizationModule,
     EmailModule,
+    SessionModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',

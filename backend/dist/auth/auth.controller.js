@@ -24,9 +24,9 @@ let AuthController = class AuthController {
         this.userService = userService;
         this.emailService = emailService;
     }
-    async login(loginDto) {
+    async login(loginDto, req) {
         const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-        return this.authService.login(user);
+        return this.authService.login(user, req);
     }
     async getProfile(req) {
         const user = req.user;
@@ -127,8 +127,9 @@ __decorate([
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([

@@ -17,6 +17,7 @@ const organization_entity_1 = require("./organization/organization.entity");
 const email_config_entity_1 = require("./email/email-config.entity");
 const admin_log_entity_1 = require("./admin/admin-log.entity");
 const backup_entity_1 = require("./backup/backup.entity");
+const session_entity_1 = require("./session/session.entity");
 const meeting_module_1 = require("./meeting/meeting.module");
 const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
@@ -26,6 +27,7 @@ const email_module_1 = require("./email/email.module");
 const admin_module_1 = require("./admin/admin.module");
 const backup_module_1 = require("./backup/backup.module");
 const dashboard_module_1 = require("./dashboard/dashboard.module");
+const session_module_1 = require("./session/session.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,7 +42,7 @@ exports.AppModule = AppModule = __decorate([
                     username: process.env.DB_USER,
                     password: process.env.DB_PASSWORD,
                     database: process.env.DB_NAME,
-                    entities: [meeting_entity_1.Meeting, entreprise_entity_1.Entreprise, participant_entity_1.Participant, user_entity_1.User, organization_entity_1.OrganizationSettings, email_config_entity_1.EmailConfig, admin_log_entity_1.AdminLog, backup_entity_1.Backup],
+                    entities: [meeting_entity_1.Meeting, entreprise_entity_1.Entreprise, participant_entity_1.Participant, user_entity_1.User, organization_entity_1.OrganizationSettings, email_config_entity_1.EmailConfig, admin_log_entity_1.AdminLog, backup_entity_1.Backup, session_entity_1.Session],
                     synchronize: process.env.NODE_ENV !== 'production',
                     logging: process.env.NODE_ENV === 'development',
                 })
@@ -54,6 +56,7 @@ exports.AppModule = AppModule = __decorate([
             admin_module_1.AdminModule,
             backup_module_1.BackupModule,
             dashboard_module_1.DashboardModule,
+            session_module_1.SessionModule,
         ],
         controllers: [],
         providers: [],

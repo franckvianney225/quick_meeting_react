@@ -14,12 +14,14 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const user_service_1 = require("../user/user.service");
 const organization_service_1 = require("../organization/organization.service");
+const session_service_1 = require("../session/session.service");
 const bcrypt = require("bcrypt");
 let AuthService = class AuthService {
-    constructor(userService, jwtService, organizationService) {
+    constructor(userService, jwtService, organizationService, sessionService) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.organizationService = organizationService;
+        this.sessionService = sessionService;
     }
     async validateUser(email, password) {
         const user = await this.userService.findByEmail(email);
@@ -60,15 +62,29 @@ let AuthService = class AuthService {
         const { password: _, ...result } = user;
         return result;
     }
-    async login(user) {
+    async login(user, request) {
         const payload = {
             email: user.email,
             sub: user.id,
             role: user.role
         };
+        const token = this.jwtService.sign(payload);
         await this.userService.updateLastLogin(user.id);
+        if (request) {
+            try {
+                const userAgent = Array.isArray(request.headers['user-agent'])
+                    ? request.headers['user-agent'][0]
+                    : request.headers['user-agent'] || '';
+                const ipAddress = request.ip || request.connection?.remoteAddress;
+                const deviceInfo = await this.sessionService.getSessionDeviceInfo(userAgent, ipAddress || '');
+                await this.sessionService.createSession(user, token, deviceInfo);
+            }
+            catch (error) {
+                console.error('Erreur lors de la création de la session:', error);
+            }
+        }
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: token,
             user: {
                 id: user.id,
                 name: user.name,
@@ -98,6 +114,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [user_service_1.UserService,
         jwt_1.JwtService,
-        organization_service_1.OrganizationService])
+        organization_service_1.OrganizationService,
+        session_service_1.SessionService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

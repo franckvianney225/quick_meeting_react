@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Meeting } from '../meeting/meeting.entity';
+import { Session } from '../session/session.entity';
 export declare class User {
     id: number;
     name: string;
@@ -21,4 +22,5 @@ export declare class User {
     reset_token: string | null;
     reset_token_expires: Date | null;
     meetings: Meeting[];
+    sessions: Session[];
 }
