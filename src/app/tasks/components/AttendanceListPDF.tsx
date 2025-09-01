@@ -234,10 +234,17 @@ const AttendanceListPDF = forwardRef(({
     
     tableHeaders.forEach((header, index) => {
       doc.text(header, xPos + 3, yPos, { maxWidth: adjustedColWidths[index] - 6 });
+      
+      // Dessiner trait de séparation vertical entre les colonnes (sauf après la dernière)
+      if (index < tableHeaders.length - 1) {
+        doc.setDrawColor(200, 200, 200);
+        doc.line(xPos + adjustedColWidths[index], yPos - 5, xPos + adjustedColWidths[index], yPos + 5);
+      }
+      
       xPos += adjustedColWidths[index];
     });
     
-    // Ligne de séparation - utiliser toute la largeur
+    // Ligne de séparation horizontale - utiliser toute la largeur
     doc.setDrawColor(...secondaryColor);
     doc.line(5, yPos + 2, pageWidth - 5, yPos + 2);
     
@@ -286,30 +293,51 @@ const AttendanceListPDF = forwardRef(({
       
       // Numéro
       doc.text((index + 1).toString(), xPos + 3, yPos);
+      // Trait de séparation après la colonne numéro
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[0], yPos - 4, xPos + adjustedColWidths[0], yPos + 10);
       xPos += adjustedColWidths[0];
       
       // Prénoms (d'abord comme dans l'interface utilisateur)
       doc.text(sanitizeValue(participant.firstName).toUpperCase(), xPos + 3, yPos, { maxWidth: adjustedColWidths[1] - 6 });
+      // Trait de séparation après la colonne prénoms
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[1], yPos - 4, xPos + adjustedColWidths[1], yPos + 10);
       xPos += adjustedColWidths[1];
       
       // Nom (en majuscules)
       doc.text(sanitizeValue(participant.lastName), xPos + 3, yPos, { maxWidth: adjustedColWidths[2] - 6 });
+      // Trait de séparation après la colonne nom
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[2], yPos - 4, xPos + adjustedColWidths[2], yPos + 10);
       xPos += adjustedColWidths[2];
       
       // Email
       doc.text(sanitizeValue(participant.email), xPos + 3, yPos, { maxWidth: adjustedColWidths[3] - 6 });
+      // Trait de séparation après la colonne email
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[3], yPos - 4, xPos + adjustedColWidths[3], yPos + 10);
       xPos += adjustedColWidths[3];
       
       // Structure/Organisation
       doc.text(sanitizeValue(participant.organization), xPos + 3, yPos, { maxWidth: adjustedColWidths[4] - 6 });
+      // Trait de séparation après la colonne structure
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[4], yPos - 4, xPos + adjustedColWidths[4], yPos + 10);
       xPos += adjustedColWidths[4];
       
       // Fonction
       doc.text(sanitizeValue(participant.function), xPos + 3, yPos, { maxWidth: adjustedColWidths[5] - 6 });
+      // Trait de séparation après la colonne fonction
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[5], yPos - 4, xPos + adjustedColWidths[5], yPos + 10);
       xPos += adjustedColWidths[5];
       
       // Contact
       doc.text(sanitizeValue(participant.phone), xPos + 3, yPos, { maxWidth: adjustedColWidths[6] - 6 });
+      // Trait de séparation après la colonne contact
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[6], yPos - 4, xPos + adjustedColWidths[6], yPos + 10);
       xPos += adjustedColWidths[6];
       
       // Date de signature (avec date et heure)
@@ -323,6 +351,9 @@ const AttendanceListPDF = forwardRef(({
           minute: '2-digit'
         }) : 'Non signé';
       doc.text(sanitizeValue(signatureDate), xPos + 3, yPos, { maxWidth: adjustedColWidths[7] - 6 });
+      // Trait de séparation après la colonne date de signature
+      doc.setDrawColor(200, 200, 200);
+      doc.line(xPos + adjustedColWidths[7], yPos - 4, xPos + adjustedColWidths[7], yPos + 10);
       xPos += adjustedColWidths[7];
       
       // Case signature - afficher la signature si elle existe
