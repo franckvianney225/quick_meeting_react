@@ -65,7 +65,7 @@ export default function LegalStep({ onAgree, onDisagree }: LegalStepProps) {
       <div className="text-center">
         <button
           onClick={onAgree}
-          className="bg-black text-white py-4 px-12 rounded-lg font-medium text-lg hover:opacity-90 transition-opacity flex items-center mx-auto"
+          className="bg-orange-500 text-white py-4 px-12 rounded-lg font-medium text-lg hover:opacity-90 transition-opacity flex items-center mx-auto"
         >
           <Check className="w-5 h-5 mr-3" />
           J&apos;accepte les conditions

@@ -317,18 +317,18 @@ export default function FormStep({
 
           {/* Boutons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-8">
-            <button
+            {/* <button
               type="button"
               onClick={onBack}
               className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center border border-gray-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour
-            </button>
+            </button> */}
             
             <button
               onClick={handleSubmit}
-              className="flex-1 bg-black text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all duration-200 flex items-center justify-center"
+              className="flex-1 bg-orange-500 text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-all duration-200 flex items-center justify-center"
             >
               Suivant
               <ArrowRight className="w-4 h-4 ml-2" />
