@@ -162,14 +162,20 @@ const AttendanceListPDF = forwardRef(({
     doc.setTextColor(0, 0, 0);
     
     // Titre principal
-    doc.setFontSize(16);
+    doc.setFontSize(25);
     doc.setFont('helvetica', 'bold');
     doc.text('LISTE DE PRÉSENCE', pageWidth / 2, 40, { align: 'center' });
     
     // Nom de la réunion
-    doc.setFontSize(14);
+    doc.setFontSize(20); // Taille augmentée de 14 à 16
     doc.setFont('helvetica', 'bold');
     doc.text(meetingTitle, pageWidth / 2, 50, { align: 'center' });
+    
+    // Souligner le nom de la réunion
+    const textWidth = doc.getTextWidth(meetingTitle);
+    const underlineY = 51; // Position Y pour la ligne de soulignement (montée un peu)
+    doc.setDrawColor(0, 0, 0);
+    doc.line(pageWidth / 2 - textWidth / 2, underlineY, pageWidth / 2 + textWidth / 2, underlineY);
     
     // Informations de la réunion
     let yPos = 65;
@@ -214,7 +220,7 @@ const AttendanceListPDF = forwardRef(({
     const totalAvailableWidth = pageWidth - 20;
     
     // Largeurs des colonnes proportionnelles pour utiliser tout l'espace
-    const colWidths = [15, 30, 30, 45, 40, 30, 30, 40, 40];
+    const colWidths = [15, 40, 35, 50, 40, 30, 30, 40, 25];
     
     // Ajuster pour utiliser exactement toute la largeur disponible
     const totalColWidth = colWidths.reduce((sum, width) => sum + width, 0);
@@ -356,26 +362,23 @@ const AttendanceListPDF = forwardRef(({
       doc.line(xPos + adjustedColWidths[7], yPos - 4, xPos + adjustedColWidths[7], yPos + 10);
       xPos += adjustedColWidths[7];
       
-      // Case signature - afficher la signature si elle existe
-      doc.rect(xPos + 1, yPos - 4, adjustedColWidths[8] - 2, rowHeight);
-      
       // Ajouter la signature si elle existe (format data URL)
       if (participant.signature) {
         try {
-          // Meilleur placement de la signature dans la case
+          // Meilleur placement de la signature dans la colonne
           const signatureWidth = adjustedColWidths[8] - 6;
           const signatureHeight = rowHeight - 6;
           doc.addImage(
             participant.signature,
             'PNG',
             xPos + 3,
-            yPos - 1,
+            yPos - 3, // Signature montée un peu plus haut
             signatureWidth,
             signatureHeight
           );
         } catch (error) {
           console.warn('Erreur chargement signature:', error);
-          // En cas d'erreur, on laisse la case vide
+          // En cas d'erreur, on laisse la colonne vide
         }
       }
       
