@@ -81,50 +81,73 @@ export default function SignatureStep({
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Signature électronique</h2>
-      
-      <div className="mb-6">
-        <p className="text-sm mb-4">Veuillez signer dans la zone ci-dessous :</p>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg touch-none">
+    <div className="max-w-md mx-auto">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Signature électronique</h2>
+        <p className="text-gray-600 text-sm">
+          Signez dans la zone ci-dessous pour confirmer votre présence
+        </p>
+      </div>
+
+      <div className="mb-8">
+        <div className="border-2 border-dashed border-gray-300 rounded-xl touch-none bg-white p-4">
           <canvas
             ref={canvasRef}
-            className="w-full h-48 bg-gray-50 cursor-crosshair touch-none"
+            className="w-full h-56 bg-gray-50 cursor-crosshair touch-none rounded-lg"
           />
         </div>
-        <button
-          type="button"
-          onClick={clearSignature}
-          className="mt-2 text-sm text-blue-600 hover:text-blue-800"
-        >
-          Effacer la signature
-        </button>
-        {showSignatureError && (
-          <div className="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-            <svg className="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        
+        <div className="flex items-center justify-between mt-4">
+          <button
+            type="button"
+            onClick={clearSignature}
+            className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            La signature est obligatoire pour confirmer votre présence.
+            Effacer
+          </button>
+          
+          <div className="text-xs text-gray-500">
+            Faites glisser votre doigt ou votre souris pour signer
+          </div>
+        </div>
+
+        {showSignatureError && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-red-700 text-sm">La signature est obligatoire pour confirmer votre présence</span>
+            </div>
           </div>
         )}
       </div>
 
-      <div className="flex justify-between">
-        {/* <button
-          type="button"
-          onClick={onBack}
-          className="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 transition-colors"
-        >
-          Retour
-        </button> */}
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Signer et valider
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={!hasSigned}
+        className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+      >
+        {hasSigned ? (
+          <div className="flex items-center justify-center">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Confirmer la signature
+          </div>
+        ) : (
+          'Signer et valider'
+        )}
+      </button>
     </div>
   );
 }
