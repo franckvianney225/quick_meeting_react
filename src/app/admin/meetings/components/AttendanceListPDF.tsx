@@ -40,7 +40,7 @@ const AttendanceListPDF = forwardRef(({
   meetingLocation,
   participants,
   companyInfo = {
-    name: "Ministère de l'Intérieur",
+    name: "Ministère de l'a Transition Numérique et de la digitalisation",
     address: "Plateau, Abidjan, Côte d'Ivoire",
     phone: "+225 XX XX XX XX",
     email: "contact@ministere.gouv.ci",

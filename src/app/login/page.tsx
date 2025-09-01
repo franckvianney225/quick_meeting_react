@@ -156,7 +156,7 @@ export default function LoginPage() {
         <div className="relative z-10 max-w-lg">
 
           <h1 className="text-6xl font-bold mb-8 leading-tight text-white">
-            BIENVENUE AU <br />{organizationName.toUpperCase()}
+            BIENVENUE 
           </h1>
 
           <p className="text-xl mb-10 text-white leading-relaxed font-light">
@@ -309,8 +309,8 @@ export default function LoginPage() {
           </form>
 
           {/* Informations de test */}
-          <div className="mt-6 p-4 bg-orange-50/60 backdrop-blur-sm border border-orange-200/40 rounded-2xl">
-            <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+          {/* <div className="mt-6 p-4 bg-orange-50/60 backdrop-blur-sm border border-orange-200/40 rounded-2xl"> */}
+            {/* <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
               <svg className="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -319,10 +319,10 @@ export default function LoginPage() {
             <div className="space-y-1 text-xs text-gray-600 mb-3">
               <div><strong>Email:</strong> admin@ministere.gov</div>
               <div><strong>Mot de passe:</strong> admin123</div>
-            </div>
+            </div> */}
 
             {/* Bouton de nettoyage du localStorage */}
-            <button
+            {/* <button
               type="button"
               onClick={() => {
                 localStorage.clear();
@@ -332,8 +332,8 @@ export default function LoginPage() {
               className="w-full py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all duration-300 font-medium text-xs border border-red-300/50 hover:border-red-400/50"
             >
               🔄 Nettoyer le cache d&apos;authentification
-            </button>
-          </div>
+            </button> */}
+          {/* </div> */}
         </div>
 
         {/* Modal de réinitialisation de mot de passe */}

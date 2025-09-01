@@ -470,7 +470,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
           >
             Réinitialiser
           </button>
-          <button
+          {/* <button
             onClick={handleClearAll}
             disabled={isSaving}
             className={`px-6 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors ${
@@ -478,7 +478,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
             }`}
           >
             Vider la table
-          </button>
+          </button> */}
           <button
             onClick={handleSaveSettings}
             disabled={isSaving}

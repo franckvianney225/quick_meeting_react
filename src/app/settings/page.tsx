@@ -142,7 +142,7 @@ export default function SettingsPage() {
     password: '',
     encryption: 'tls',
     from_email: 'noreply@ministere.gov',
-    from_name: "Ministère de l'Intérieur"
+    from_name: "Ministère de l'a Transition Numérique et de la digitalisation"
   });
 
   // États pour les sauvegardes

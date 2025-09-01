@@ -165,7 +165,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
               </button>
 
               {/* Toggle de mode nuit */}
-              <div className="px-6 py-3 border-t border-gray-200/30 dark:border-gray-700/30">
+              {/* <div className="px-6 py-3 border-t border-gray-200/30 dark:border-gray-700/30">
                 <button
                   onClick={toggleTheme}
                   className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 rounded-xl transition-all duration-200"
@@ -194,7 +194,7 @@ export const UserProfile = ({ user, onLogout, onProfile }: UserProfileProps) => 
                     <div className="w-3 h-3 bg-white rounded-full transition-all duration-300"></div>
                   </div>
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </>

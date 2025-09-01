@@ -2,7 +2,7 @@ QUICKMEETING_BACKUP_v1.0
 FILE:.env
 SIZE:271
 # Database
-DB_HOST=localhost
+DB_HOST=192.168.1.77
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=password
@@ -14,8 +14,8 @@ JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 # App
 PORT=3001
 NODE_ENV=development
-APP_URL=http://localhost:3001
-FRONTEND_URL=http://localhost:3000
+APP_URL=http://192.168.1.77:3001
+FRONTEND_URL=http://192.168.1.77:3000
 FILE:package.json
 SIZE:1677
 {

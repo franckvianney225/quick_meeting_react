@@ -21,7 +21,7 @@ export default function AlreadyRegisteredStep({
         </div>
         <h2 className="text-xl font-bold text-gray-900 mb-2">Déjà inscrit</h2>
         <p className="text-gray-600 mb-4">
-          L'adresse email <strong>{email}</strong> est déjà inscrite 
+          L&apos;adresse email <strong>{email}</strong> est déjà inscrite 
           {meetingName ? ` à la réunion "${meetingName}"` : ' à cette réunion'}.
         </p>
         <p className="text-sm text-gray-500">
@@ -30,7 +30,7 @@ export default function AlreadyRegisteredStep({
       </div>
       <button
         onClick={onBackToHome}
-        className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
+        className="bg-orange-500 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors"
       >
         Retour à l&apos;accueil
       </button>

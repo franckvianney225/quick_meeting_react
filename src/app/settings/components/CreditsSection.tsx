@@ -30,7 +30,7 @@ export const CreditsSection = () => {
             { id: 'technologies', label: 'Technologies', icon: CodeBracketIcon },
             { id: 'team', label: 'Équipe', icon: UserGroupIcon },
             { id: 'project', label: 'Projet', icon: CogIcon },
-            { id: 'stats', label: 'Statistiques', icon: ChartBarIcon }
+            // { id: 'stats', label: 'Statistiques', icon: ChartBarIcon }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -124,10 +124,11 @@ export const CreditsSection = () => {
                   
                   <div className="space-y-4">
                     {[
-                      { initials: 'MD', name: 'Ministère Digital', role: 'Équipe de développement', color: 'from-indigo-400 to-purple-500' },
-                      { initials: 'DT', name: 'Direction Technique', role: 'Architecture & Infrastructure', color: 'from-green-400 to-blue-500' },
-                      { initials: 'QS', name: 'Quality Squad', role: 'Assurance qualité', color: 'from-orange-400 to-red-500' },
-                      { initials: 'DS', name: 'Design System', role: 'Expérience utilisateur', color: 'from-pink-400 to-rose-500' }
+                      { initials: 'MTND', name: 'Ministère de la Transition Numérique et de la Digitalisation', role: 'Équipe de développement', color: 'from-indigo-400 to-purple-500' },
+                      { initials: 'DSI', name: 'Direction des Systèmes d’Information', role: 'Architecture & Infrastructure', color: 'from-green-400 to-blue-500' },
+                      { initials: 'SDD', name: 'Sous-Direction Développement', role: 'Conception et réalisation du projet', color: 'from-orange-400 to-red-500' },
+                      { initials: 'SDR', name: 'Sous-Direction Réseaux', role: 'Mise en place de l’architecture d’hébergement', color: 'from-pink-400 to-rose-500' },
+                      { initials: 'SDS', name: 'Sous-Direction Support', role: 'Expérience utilisateur et proposition UI/UX', color: 'from-green-400 to-green-500' }
                     ].map((member, index) => (
                       <div key={index} className={`p-4 bg-gradient-to-r ${member.color} rounded-xl text-white`}>
                         <div className="flex items-center space-x-3">
@@ -149,7 +150,7 @@ export const CreditsSection = () => {
                   
                   <div className="space-y-4">
                     {[
-                      { name: 'Gouvernement Digital', role: 'Soutien institutionnel' },
+                      { name: 'DTDA', role: 'Soutien institutionnel' },
                       { name: 'Tech Foundation', role: 'Support technique' },
                       { name: 'Open Source Community', role: 'Contributions' }
                     ].map((partner, index) => (
@@ -201,7 +202,7 @@ export const CreditsSection = () => {
                       '✅ Interface responsive',
                       '✅ Sécurité renforcée',
                       '✅ Export PDF des participants',
-                      '✅ Multi-langues supporté',
+                      '✅ Multi-langues supportées',
                       '✅ Thème sombre/clair'
                     ].map((feature, index) => (
                       <div key={index} className="flex items-center space-x-2 text-sm text-gray-700">
@@ -215,7 +216,7 @@ export const CreditsSection = () => {
           )}
 
           {/* Onglet Statistiques */}
-          {activeTab === 'stats' && (
+          {/* {activeTab === 'stats' && (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <ChartBarIcon className="w-8 h-8 text-gray-400" />
@@ -225,7 +226,7 @@ export const CreditsSection = () => {
                 Cette fonctionnalité sera disponible prochainement
               </p>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ function ProfilePage() {
     email: 'jean.dupont@example.com',
     phone: '+33 6 12 34 56 78',
     role: 'Administrateur',
-    department: 'Ministère de l\'Intérieur',
+    department: 'Ministère de l\'a Transition Numérique et de la digitalisation',
     position: '',
     civility: '',
     avatar: '/default-avatar.jpg',
