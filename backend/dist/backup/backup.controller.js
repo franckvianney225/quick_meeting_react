@@ -54,7 +54,18 @@ let BackupController = class BackupController {
         return { message: 'Backup supprimé avec succès' };
     }
     async restoreBackup(id) {
-        return { message: 'Fonctionnalité de restauration à implémenter' };
+        try {
+            await this.backupService.restoreBackup(id);
+            return { message: 'Restauration terminée avec succès' };
+        }
+        catch (error) {
+            console.error('Erreur restauration détaillée:', error);
+            return {
+                message: 'Erreur lors de la restauration',
+                error: error.message,
+                stack: error.stack
+            };
+        }
     }
 };
 exports.BackupController = BackupController;

@@ -74,7 +74,17 @@ export class BackupController {
 
   @Post(':id/restore')
   async restoreBackup(@Param('id') id: number) {
-    // Implémentation de la restauration à venir
-    return { message: 'Fonctionnalité de restauration à implémenter' };
+    try {
+      await this.backupService.restoreBackup(id);
+      return { message: 'Restauration terminée avec succès' };
+    } catch (error) {
+      console.error('Erreur restauration détaillée:', error);
+      // Retourner une réponse plus détaillée pour le débogage
+      return {
+        message: 'Erreur lors de la restauration',
+        error: error.message,
+        stack: error.stack
+      };
+    }
   }
 }

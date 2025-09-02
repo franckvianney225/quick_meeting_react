@@ -21,5 +21,11 @@ export declare class BackupController {
     }>;
     restoreBackup(id: number): Promise<{
         message: string;
+        error?: undefined;
+        stack?: undefined;
+    } | {
+        message: string;
+        error: any;
+        stack: any;
     }>;
 }

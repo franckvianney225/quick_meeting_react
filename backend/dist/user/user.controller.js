@@ -81,6 +81,9 @@ let UserController = class UserController {
             if (error instanceof Error && error.message.includes('non trouvé')) {
                 throw new common_1.HttpException(error.message, common_1.HttpStatus.NOT_FOUND);
             }
+            if (error instanceof Error && error.message.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {
+                throw new common_1.HttpException(error.message, common_1.HttpStatus.CONFLICT);
+            }
             throw new common_1.HttpException('Erreur lors de la suppression de l\'utilisateur', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

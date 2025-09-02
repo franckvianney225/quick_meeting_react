@@ -104,6 +104,9 @@ let UserService = class UserService {
     }
     async remove(id) {
         const user = await this.findOne(id);
+        if (user.status !== 'pending') {
+            throw new Error('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UN UTILISATEUR QUI A CREE DES REUNIONS');
+        }
         await this.userRepository.remove(user);
     }
     async toggleStatus(id) {

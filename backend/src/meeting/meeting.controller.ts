@@ -140,12 +140,25 @@ export class MeetingController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async remove(@Param('id') id: number, @Req() req: AuthenticatedRequest): Promise<void> {
-    const meeting = await this.service.findOne(id);
-    // L'admin peut supprimer toutes les réunions
-    if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
-      throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+    try {
+      const meeting = await this.service.findOne(id);
+      // L'admin peut supprimer toutes les réunions
+      if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
+        throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+      }
+      return this.service.remove(id);
+    } catch (err) {
+      if (err.message.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {
+        throw new HttpException(
+          err.message,
+          HttpStatus.CONFLICT // 409 Conflict est approprié pour ce cas
+        );
+      }
+      throw new HttpException(
+        err.message || 'Erreur lors de la suppression',
+        HttpStatus.BAD_REQUEST
+      );
     }
-    return this.service.remove(id);
   }
 
   @Post(':code/participants')

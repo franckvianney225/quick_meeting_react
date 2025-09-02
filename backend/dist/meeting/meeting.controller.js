@@ -72,11 +72,19 @@ let MeetingController = class MeetingController {
         }
     }
     async remove(id, req) {
-        const meeting = await this.service.findOne(id);
-        if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
-            throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+        try {
+            const meeting = await this.service.findOne(id);
+            if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
+                throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+            }
+            return this.service.remove(id);
         }
-        return this.service.remove(id);
+        catch (err) {
+            if (err.message.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {
+                throw new common_1.HttpException(err.message, common_1.HttpStatus.CONFLICT);
+            }
+            throw new common_1.HttpException(err.message || 'Erreur lors de la suppression', common_1.HttpStatus.BAD_REQUEST);
+        }
     }
     async handleParticipantRegistration(code, participantData) {
         try {

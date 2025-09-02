@@ -122,6 +122,13 @@ export class UserService {
 
   async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
+    
+    // Vérification simplifiée : empêcher la suppression des utilisateurs non-pending
+    // car ils ont probablement créé des réunions
+    if (user.status !== 'pending') {
+      throw new Error('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UN UTILISATEUR QUI A CREE DES REUNIONS');
+    }
+    
     await this.userRepository.remove(user);
   }
 

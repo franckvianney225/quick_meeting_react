@@ -23,6 +23,7 @@ const fsSync = require("fs");
 const path = require("path");
 const typeorm_3 = require("typeorm");
 const archiver = require("archiver");
+const AdmZip = require("adm-zip");
 let BackupService = BackupService_1 = class BackupService {
     constructor(backupRepository, dataSource) {
         this.backupRepository = backupRepository;
@@ -121,10 +122,22 @@ let BackupService = BackupService_1 = class BackupService {
             let sqlDump = '';
             for (const table of tables) {
                 const tableName = table.table_name;
-                const createTable = await queryRunner.query(`
-          SELECT pg_get_tabledef('${tableName}')
+                const tableStructure = await queryRunner.query(`
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns
+          WHERE table_name = '${tableName}'
+          ORDER BY ordinal_position
         `);
-                sqlDump += createTable[0].pg_get_tabledef + ';\n\n';
+                sqlDump += `CREATE TABLE ${tableName} (\n`;
+                const columns = tableStructure.map(col => {
+                    let columnDef = `  ${col.column_name} ${col.data_type}`;
+                    if (col.is_nullable === 'NO')
+                        columnDef += ' NOT NULL';
+                    if (col.column_default)
+                        columnDef += ` DEFAULT ${col.column_default}`;
+                    return columnDef;
+                });
+                sqlDump += columns.join(',\n') + '\n);\n\n';
                 const data = await queryRunner.query(`SELECT * FROM ${tableName}`);
                 if (data.length > 0) {
                     sqlDump += `-- Données pour la table ${tableName}\n`;
@@ -213,6 +226,63 @@ let BackupService = BackupService_1 = class BackupService {
             throw new Error('Backup non trouvé');
         }
         return fsSync.createReadStream(backup.path);
+    }
+    async restoreBackup(id) {
+        const backup = await this.backupRepository.findOne({ where: { id } });
+        if (!backup || !backup.path) {
+            throw new Error('Backup non trouvé');
+        }
+        const zip = new AdmZip(backup.path);
+        const entries = zip.getEntries();
+        const sqlEntry = entries.find(entry => entry.entryName === 'database_backup.sql');
+        if (!sqlEntry) {
+            throw new Error('Fichier database_backup.sql non trouvé dans l\'archive');
+        }
+        const sqlDump = sqlEntry.getData().toString('utf8');
+        const queryRunner = this.dataSource.createQueryRunner();
+        try {
+            await queryRunner.connect();
+            this.logger.log('Début de la restauration de la base de données...');
+            const sqlStatements = sqlDump.split(';').filter(statement => statement.trim().length > 0);
+            for (const statement of sqlStatements) {
+                const trimmedStatement = statement.trim();
+                if (trimmedStatement) {
+                    try {
+                        if (!trimmedStatement.startsWith('--')) {
+                            await queryRunner.query(trimmedStatement + ';');
+                        }
+                    }
+                    catch (error) {
+                        this.logger.warn(`Erreur exécution statement SQL: ${error.message}`);
+                        this.logger.warn(`Statement problématique: ${trimmedStatement}`);
+                    }
+                }
+            }
+            this.logger.log('Restauration de la base de données terminée');
+        }
+        catch (error) {
+            this.logger.error('Erreur majeure lors de la restauration:', error);
+            throw error;
+        }
+        finally {
+            await queryRunner.release();
+        }
+        for (const entry of entries) {
+            if (entry.entryName !== 'database_backup.sql' && !entry.entryName.startsWith('uploads/')) {
+                const filePath = path.join(process.cwd(), entry.entryName);
+                const dirPath = path.dirname(filePath);
+                await fs.mkdir(dirPath, { recursive: true });
+                await fs.writeFile(filePath, entry.getData());
+            }
+        }
+        const uploadEntries = entries.filter(entry => entry.entryName.startsWith('uploads/'));
+        for (const entry of uploadEntries) {
+            const filePath = path.join(process.cwd(), entry.entryName);
+            const dirPath = path.dirname(filePath);
+            await fs.mkdir(dirPath, { recursive: true });
+            await fs.writeFile(filePath, entry.getData());
+        }
+        this.logger.log(`Restauration terminée pour le backup ${id}`);
     }
 };
 exports.BackupService = BackupService;

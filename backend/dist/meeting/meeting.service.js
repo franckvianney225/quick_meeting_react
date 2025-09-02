@@ -119,6 +119,12 @@ let MeetingService = class MeetingService {
     }
     async remove(id) {
         const meeting = await this.findOne(id);
+        const participants = await this.participantRepository.find({
+            where: { meeting: { id } }
+        });
+        if (participants.length > 0) {
+            throw new Error('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANTS DEJA ENREGISTRES');
+        }
         await this.meetingRepository.remove(meeting);
     }
     async getMeetingParticipants(meetingId) {

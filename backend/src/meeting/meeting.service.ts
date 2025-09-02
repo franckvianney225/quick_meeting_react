@@ -179,6 +179,16 @@ export class MeetingService {
 
   async remove(id: number): Promise<void> {
     const meeting = await this.findOne(id);
+    
+    // Vérifier si la réunion a des participants
+    const participants = await this.participantRepository.find({
+      where: { meeting: { id } }
+    });
+    
+    if (participants.length > 0) {
+      throw new Error('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANTS DEJA ENREGISTRES');
+    }
+    
     await this.meetingRepository.remove(meeting);
   }
 

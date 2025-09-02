@@ -101,6 +101,12 @@ export class UserController {
       if (error instanceof Error && error.message.includes('non trouvé')) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       }
+      if (error instanceof Error && error.message.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.CONFLICT // 409 Conflict est approprié pour ce cas
+        );
+      }
       throw new HttpException(
         'Erreur lors de la suppression de l\'utilisateur',
         HttpStatus.INTERNAL_SERVER_ERROR

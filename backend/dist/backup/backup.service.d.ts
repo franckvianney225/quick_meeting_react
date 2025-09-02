@@ -23,4 +23,5 @@ export declare class BackupService {
     }>;
     private formatBytes;
     getBackupFileStream(id: number): Promise<fsSync.ReadStream>;
+    restoreBackup(id: number): Promise<void>;
 }
