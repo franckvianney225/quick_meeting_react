@@ -10,7 +10,6 @@ import {
   EyeIcon,
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
-import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { generateAttendancePDF } from './AttendanceListPDF';
 import { generateMeetingQRPDF } from './MeetingQRPDF';
 import { AuthService } from '@/lib/auth';
@@ -49,6 +48,7 @@ interface MeetingCardProps {
   onView: (meetingId: number) => void;
   onGenerateQR?: (meetingId: number) => void;
   onAttendanceList?: (meetingId: number) => void;
+  onDeleteRequest?: (meetingId: number, meetingTitle: string) => void;
 }
 
 export const MeetingCard = ({
@@ -57,15 +57,27 @@ export const MeetingCard = ({
   onDelete,
   onView,
   onGenerateQR,
-  onAttendanceList
+  onAttendanceList,
+  onDeleteRequest
 }: MeetingCardProps) => {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUniqueCode, setShowUniqueCode] = useState(false);
   const [participantsCount, setParticipantsCount] = useState(meeting.participants_count || 0);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
 
-  const handleDeleteClick = () => {
-    setShowDeleteModal(true);
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteRequest) {
+      onDeleteRequest(meeting.id, meeting.title);
+    } else {
+      // Fallback si onDeleteRequest n'est pas fourni
+      const confirmed = window.confirm(
+        `Êtes-vous sûr de vouloir supprimer définitivement la réunion "${meeting.title}" ? Cette action ne peut pas être annulée.`
+      );
+      
+      if (confirmed) {
+        onDelete(meeting.id);
+      }
+    }
   };
 
   const handleGenerateQR = async () => {
@@ -172,16 +184,6 @@ export const MeetingCard = ({
     loadParticipantsCount();
   }, [meeting.id, meeting.participants_count]);
 
-  const handleConfirmDelete = () => {
-    setShowDeleteModal(false);
-    if (meeting.id) {
-      onDelete(meeting.id);
-    }
-  };
-
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-  };
 
   const getStatusColor = (status: string) => {
     switch(status) {
@@ -322,10 +324,7 @@ export const MeetingCard = ({
             </button>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteClick();
-              }}
+              onClick={handleDeleteClick}
               className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
@@ -359,16 +358,6 @@ export const MeetingCard = ({
         </div>
       </div>
 
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Supprimer la réunion"
-        message={`Êtes-vous sûr de vouloir supprimer définitivement la réunion "${meeting.title}" ? Cette action ne peut pas être annulée.`}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-        confirmText="Oui, supprimer"
-        cancelText="Annuler"
-        type="danger"
-      />
     </>
   );
 };

@@ -689,6 +689,7 @@ export default function TasksPage() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onAttendanceList={handleAttendanceList}
+                      onDeleteRequest={handleDeleteRequest}
                     />
                   ))}
                 </div>
