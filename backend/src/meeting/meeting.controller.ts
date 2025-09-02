@@ -146,6 +146,16 @@ export class MeetingController {
       if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
         throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
       }
+      
+      // Vérifier d'abord si la réunion a des participants
+      const participants = await this.service.getMeetingParticipants(id);
+      if (participants.length > 0) {
+        throw new HttpException(
+          'OUPPS VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANTS DEJA ENREGISTRES',
+          HttpStatus.CONFLICT
+        );
+      }
+      
       return this.service.remove(id);
     } catch (err) {
       if (err.message.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {

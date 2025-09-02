@@ -77,6 +77,10 @@ let MeetingController = class MeetingController {
             if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
                 throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
             }
+            const participants = await this.service.getMeetingParticipants(id);
+            if (participants.length > 0) {
+                throw new common_1.HttpException('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANTS DEJA ENREGISTRES', common_1.HttpStatus.CONFLICT);
+            }
             return this.service.remove(id);
         }
         catch (err) {

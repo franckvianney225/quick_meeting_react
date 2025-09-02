@@ -221,17 +221,26 @@ export default function TasksPage() {
         let errorMessage = 'Erreur lors de la suppression';
         try {
           const errorData = await response.json();
+          console.log('Réponse d\'erreur complète:', errorData);
+          
+          // Nest retourne souvent le message dans errorData.message
           if (errorData.message) {
             errorMessage = errorData.message;
           }
         } catch {
           // Si on ne peut pas parser le JSON, on garde le message par défaut
+          console.log('Impossible de parser la réponse JSON, statut:', response.status);
         }
         
-        if (response.status === 409) {
+        console.log('Erreur de suppression - Statut:', response.status, 'Message:', errorMessage);
+        
+        // Vérifier si c'est l'erreur spécifique de participants
+        if (response.status === 409 ||
+            errorMessage.toLowerCase().includes('participant') ||
+            errorMessage.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {
           // Erreur de conflit (réunion avec participants)
-          setErrorModalTitle('Impossible de supprimer');
-          setErrorModalMessage(errorMessage);
+          setErrorModalTitle('OUUUPS');
+          setErrorModalMessage('VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANT DEJA ENREGISTRER');
           setShowErrorModal(true);
           return;
         }
