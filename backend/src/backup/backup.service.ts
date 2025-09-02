@@ -7,6 +7,7 @@ import * as fsSync from 'fs';
 import * as path from 'path';
 import { createWriteStream } from 'fs';
 import { DataSource } from 'typeorm';
+import * as archiver from 'archiver';
 
 @Injectable()
 export class BackupService {
@@ -41,7 +42,7 @@ export class BackupService {
 
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `backup-${timestamp}.tar.gz`;
+      const filename = `backup-${timestamp}.zip`;
       const filepath = path.join(this.backupDir, filename);
 
       // Utiliser tar pour créer l'archive (plus simple que archiver)
@@ -70,48 +71,103 @@ export class BackupService {
   }
 
   private async createTarArchive(filepath: string): Promise<void> {
-    // Pour l'instant, créer une archive simple avec les fichiers essentiels
-    // En production, vous utiliseriez une commande système comme tar
     const essentialFiles = [
       '.env',
       'package.json',
-      'docker-compose.yml'
+      'docker-compose.yml',
+      'Dockerfile'
     ];
 
     const output = fsSync.createWriteStream(filepath);
-    
-    // Écrire un header d'archive simple
-    const header = Buffer.from('QUICKMEETING_BACKUP_v1.0\n');
-    output.write(header);
+    const archive = archiver('zip', {
+      zlib: { level: 9 } // Compression maximale
+    });
 
-    // Pour chaque fichier, écrire le nom et le contenu
-    for (const file of essentialFiles) {
-      try {
-        const content = await fs.readFile(path.join(process.cwd(), file), 'utf8');
-        const fileHeader = Buffer.from(`FILE:${file}\nSIZE:${content.length}\n`);
-        output.write(fileHeader);
-        output.write(content);
-        output.write('\n');
-      } catch (error) {
-        this.logger.warn(`Fichier ${file} non trouvé pour la sauvegarde`);
-      }
-    }
-
-    output.end();
-
-    // Attendre que l'écriture soit terminée
     return new Promise((resolve, reject) => {
-      output.on('finish', resolve);
+      output.on('close', resolve);
       output.on('error', reject);
+      
+      archive.pipe(output);
+
+      // Sauvegarder la base de données en SQL
+      this.backupDatabase().then(sqlDump => {
+        archive.append(sqlDump, { name: 'database_backup.sql' });
+
+        // Ajouter les fichiers essentiels
+        for (const file of essentialFiles) {
+          try {
+            const filePath = path.join(process.cwd(), file);
+            if (fsSync.existsSync(filePath)) {
+              archive.file(filePath, { name: file });
+            }
+          } catch (error) {
+            this.logger.warn(`Fichier ${file} non trouvé pour la sauvegarde`);
+          }
+        }
+
+        // Ajouter le répertoire uploads s'il existe
+        const uploadsDir = path.join(process.cwd(), 'backend', 'uploads');
+        if (fsSync.existsSync(uploadsDir)) {
+          archive.directory(uploadsDir, 'uploads');
+        }
+
+        archive.finalize();
+      }).catch(error => {
+        reject(error);
+      });
     });
   }
 
   // Méthodes de sauvegarde simplifiées - à implémenter avec des commandes système réelles
   private async backupDatabase(): Promise<string> {
-    // En production, utiliser pg_dump ou mysqldump
     const queryRunner = this.dataSource.createQueryRunner();
     
     try {
+      await queryRunner.connect();
+      
+      // Récupérer la structure des tables
+      const tables = await queryRunner.query(`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        ORDER BY table_name
+      `);
+
+      let sqlDump = '';
+      
+      // Générer le dump SQL
+      for (const table of tables) {
+        const tableName = table.table_name;
+        
+        // Structure de la table
+        const createTable = await queryRunner.query(`
+          SELECT pg_get_tabledef('${tableName}')
+        `);
+        sqlDump += createTable[0].pg_get_tabledef + ';\n\n';
+        
+        // Données de la table
+        const data = await queryRunner.query(`SELECT * FROM ${tableName}`);
+        if (data.length > 0) {
+          sqlDump += `-- Données pour la table ${tableName}\n`;
+          for (const row of data) {
+            const columns = Object.keys(row).join(', ');
+            const values = Object.values(row).map(val => {
+              if (val === null) return 'NULL';
+              if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
+              return val;
+            }).join(', ');
+            
+            sqlDump += `INSERT INTO ${tableName} (${columns}) VALUES (${values});\n`;
+          }
+          sqlDump += '\n';
+        }
+      }
+      
+      return sqlDump;
+    } catch (error) {
+      this.logger.error('Erreur génération dump SQL:', error);
+      
+      // Fallback: retourner le format JSON si échec
       const tables = await queryRunner.query(`
         SELECT table_name
         FROM information_schema.tables
