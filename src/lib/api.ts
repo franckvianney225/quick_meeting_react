@@ -13,7 +13,7 @@ export const getApiUrl = (): string => {
       throw new Error('NEXT_PUBLIC_API_URL environment variable is required in production');
     }
     // Fallback for development only
-    return 'http://localhost:3001';
+    return 'http://164.160.40.182:3001';
   }
   return apiUrl;
 };
