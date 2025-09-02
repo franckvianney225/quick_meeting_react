@@ -5,6 +5,7 @@ import { MeetingListItem } from './components/MeetingListItem';
 import { MeetingForm } from './components/MeetingForm';
 import { MeetingDetails } from './components/MeetingDetails';
 import { UserProfile } from '../../components/ui/UserProfile';
+import { ErrorModal } from '@/components/ui/ErrorModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthService } from '@/lib/auth';
@@ -23,6 +24,9 @@ export default function TasksPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalTitle, setErrorModalTitle] = useState('');
+  const [errorModalMessage, setErrorModalMessage] = useState('');
 
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -201,7 +205,30 @@ export default function TasksPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la suppression');
+        // Essayer de récupérer le message d'erreur du backend
+        let errorMessage = 'Erreur lors de la suppression';
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch {
+          // Si on ne peut pas parser le JSON, on garde le message par défaut
+        }
+        
+        if (response.status === 409) {
+          // Erreur de conflit (réunion avec participants)
+          setErrorModalTitle('Impossible de supprimer');
+          setErrorModalMessage(errorMessage);
+          setShowErrorModal(true);
+          return;
+        }
+        
+        // Pour les autres erreurs, afficher aussi dans le modal
+        setErrorModalTitle('Erreur de suppression');
+        setErrorModalMessage(errorMessage);
+        setShowErrorModal(true);
+        return;
       }
 
       setMeetings(meetings.filter(m => m.id !== meetingId));
@@ -210,7 +237,10 @@ export default function TasksPage() {
       }
     } catch (err) {
       console.error('Erreur:', err);
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      // Afficher l'erreur dans un modal doux
+      setErrorModalTitle('Erreur de suppression');
+      setErrorModalMessage(err instanceof Error ? err.message : 'Erreur inconnue lors de la suppression');
+      setShowErrorModal(true);
     }
   };
 

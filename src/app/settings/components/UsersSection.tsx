@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { UserModal } from './Users/UserModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { ErrorModal } from '@/components/ui/ErrorModal';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
 
@@ -34,6 +35,9 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalTitle, setErrorModalTitle] = useState('');
+  const [errorModalMessage, setErrorModalMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sendingResetEmail, setSendingResetEmail] = useState<number | null>(null);
   const itemsPerPage = 30;
@@ -141,13 +145,23 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // Vérifier si c'est une erreur 409 (conflit) avec un message personnalisé
+        if (response.status === 409) {
+          setErrorModalTitle('Impossible de supprimer');
+          setErrorModalMessage(errorData.message || 'Cet utilisateur ne peut pas être supprimé car il a créé des réunions.');
+          setShowErrorModal(true);
+          return;
+        }
+        
         throw new Error(errorData.message || 'Erreur lors de la suppression');
       }
 
       setUsers(users.filter(u => u.id !== userToDelete.id));
       setUserToDelete(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression');
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la suppression';
+      setError(errorMessage);
     }
   };
 
@@ -517,6 +531,14 @@ export const UsersSection = ({ users, setUsers }: UsersSectionProps) => {
           type="danger"
         />
       )}
+
+      {/* Modal d'erreur pour les suppressions impossibles */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorModalTitle}
+        message={errorModalMessage}
+      />
     </>
   );
 };
