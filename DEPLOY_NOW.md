@@ -69,7 +69,7 @@ docker-compose ps
 docker-compose logs -f
 
 # Tester l'API
-curl http://192.168.1.77:3001/api/health
+curl http://localhost:3001/api/health
 ```
 
 ## 🎯 URLs d'Accès

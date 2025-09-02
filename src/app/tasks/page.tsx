@@ -6,6 +6,7 @@ import { MeetingForm } from './components/MeetingForm';
 import { MeetingDetails } from './components/MeetingDetails';
 import { UserProfile } from '../../components/ui/UserProfile';
 import { ErrorModal } from '@/components/ui/ErrorModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthService } from '@/lib/auth';
@@ -27,6 +28,9 @@ export default function TasksPage() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorModalTitle, setErrorModalTitle] = useState('');
   const [errorModalMessage, setErrorModalMessage] = useState('');
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [meetingToDelete, setMeetingToDelete] = useState<{id: number, title: string} | null>(null);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -196,10 +200,18 @@ export default function TasksPage() {
     window.history.pushState({}, '', url.toString());
   };
 
-  // Suppression d'une réunion
-  const handleDelete = async (meetingId: number) => {
+  // Gestion de la demande de suppression
+  const handleDeleteRequest = (meetingId: number, meetingTitle: string) => {
+    setMeetingToDelete({ id: meetingId, title: meetingTitle });
+    setShowDeleteModal(true);
+  };
+
+  // Confirmation de suppression
+  const handleConfirmDelete = async () => {
+    if (!meetingToDelete) return;
+    
     try {
-      const response = await fetch(apiUrl(`/meetings/${meetingId}`), {
+      const response = await fetch(apiUrl(`/meetings/${meetingToDelete.id}`), {
         method: 'DELETE',
         headers: AuthService.getAuthHeaders()
       });
@@ -231,8 +243,8 @@ export default function TasksPage() {
         return;
       }
 
-      setMeetings(meetings.filter(m => m.id !== meetingId));
-      if (selectedMeetingId === meetingId) {
+      setMeetings(meetings.filter(m => m.id !== meetingToDelete.id));
+      if (selectedMeetingId === meetingToDelete.id) {
         setSelectedMeetingId(null);
       }
     } catch (err) {
@@ -241,6 +253,23 @@ export default function TasksPage() {
       setErrorModalTitle('Erreur de suppression');
       setErrorModalMessage(err instanceof Error ? err.message : 'Erreur inconnue lors de la suppression');
       setShowErrorModal(true);
+    } finally {
+      setShowDeleteModal(false);
+      setMeetingToDelete(null);
+    }
+  };
+
+  // Annulation de suppression
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setMeetingToDelete(null);
+  };
+
+  // Suppression d'une réunion (compatibilité arrière)
+  const handleDelete = async (meetingId: number) => {
+    const meeting = meetings.find(m => m.id === meetingId);
+    if (meeting) {
+      handleDeleteRequest(meetingId, meeting.title);
     }
   };
 
@@ -691,6 +720,7 @@ export default function TasksPage() {
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onAttendanceList={handleAttendanceList}
+                          onDeleteRequest={handleDeleteRequest}
                         />
                       ))}
                     </tbody>
@@ -759,6 +789,17 @@ export default function TasksPage() {
           }}
         />
       )}
-    </AuthGuard>
+    {/* Modal de confirmation de suppression */}
+    <ConfirmModal
+      isOpen={showDeleteModal}
+      title="Supprimer la réunion"
+      message={`Êtes-vous sûr de vouloir supprimer définitivement la réunion "${meetingToDelete?.title}" ? Cette action ne peut pas être annulée.`}
+      onConfirm={handleConfirmDelete}
+      onCancel={handleCancelDelete}
+      confirmText="Oui, supprimer"
+      cancelText="Annuler"
+      type="danger"
+    />
+  </AuthGuard>
   );
 }

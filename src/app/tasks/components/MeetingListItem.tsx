@@ -20,17 +20,16 @@ interface ExtendedMeeting extends Meeting {
   startDate?: string;
 }
 import { generateAttendancePDF } from './AttendanceListPDF';
-import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
-export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanceList }: {
+export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onGenerateQR, onAttendanceList, onDeleteRequest }: {
   meeting: ExtendedMeeting;
   onView: (meetingId: number) => void;
   onEdit: (meetingId: number) => void;
   onDelete: (meetingId: number) => void;
   onGenerateQR?: (meetingId: number) => void;
   onAttendanceList: (meetingId: number) => void;
+  onDeleteRequest?: (meetingId: number, meetingTitle: string) => void;
 }) => {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [participantsCount, setParticipantsCount] = useState(meeting.participants_count || 0);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
 
@@ -113,17 +112,20 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
     }
   };
 
-  const handleDeleteClick = () => {
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = () => {
-    setShowDeleteModal(false);
-    onDelete(meeting.id);
-  };
-
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteRequest) {
+      onDeleteRequest(meeting.id, meeting.title);
+    } else {
+      // Fallback si la fonction n'est pas fournie
+      const confirmed = window.confirm(
+        `Êtes-vous sûr de vouloir supprimer définitivement la réunion "${meeting.title}" ? Cette action ne peut pas être annulée.`
+      );
+      
+      if (confirmed) {
+        onDelete(meeting.id);
+      }
+    }
   };
 
   // Charger le nombre de participants si non fourni
@@ -287,10 +289,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
             </button>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteClick();
-              }}
+              onClick={handleDeleteClick}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
@@ -299,17 +298,6 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onAttendanc
           </div>
         </td>
       </tr>
-
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Supprimer la réunion"
-        message={`Êtes-vous sûr de vouloir supprimer définitivement la réunion "${meeting.title}" ? Cette action ne peut pas être annulée.`}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-        confirmText="Oui, supprimer"
-        cancelText="Annuler"
-        type="danger"
-      />
     </>
   );
 };
