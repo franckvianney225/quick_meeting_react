@@ -801,6 +801,14 @@ export default function TasksPage() {
       cancelText="Annuler"
       type="danger"
     />
+
+    {/* Modal d'erreur pour les suppressions impossibles */}
+    <ErrorModal
+      isOpen={showErrorModal}
+      onClose={() => setShowErrorModal(false)}
+      title={errorModalTitle}
+      message={errorModalMessage}
+    />
   </AuthGuard>
   );
 }
