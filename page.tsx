@@ -6,7 +6,6 @@ import { MeetingForm } from './components/MeetingForm';
 import { MeetingDetails } from './components/MeetingDetails';
 import { UserProfile } from '../../components/ui/UserProfile';
 import { ErrorModal } from '@/components/ui/ErrorModal';
-import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthService } from '@/lib/auth';
@@ -28,9 +27,6 @@ export default function TasksPage() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorModalTitle, setErrorModalTitle] = useState('');
   const [errorModalMessage, setErrorModalMessage] = useState('');
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [meetingToDelete, setMeetingToDelete] = useState<{id: number, title: string} | null>(null);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -200,18 +196,10 @@ export default function TasksPage() {
     window.history.pushState({}, '', url.toString());
   };
 
-  // Gestion de la demande de suppression
-  const handleDeleteRequest = (meetingId: number, meetingTitle: string) => {
-    setMeetingToDelete({ id: meetingId, title: meetingTitle });
-    setShowDeleteModal(true);
-  };
-
-  // Confirmation de suppression
-  const handleConfirmDelete = async () => {
-    if (!meetingToDelete) return;
-    
+  // Suppression d'une réunion
+  const handleDelete = async (meetingId: number): Promise<void> => {
     try {
-      const response = await fetch(apiUrl(`/meetings/${meetingToDelete.id}`), {
+      const response = await fetch(apiUrl(`/meetings/${meetingId}`), {
         method: 'DELETE',
         headers: AuthService.getAuthHeaders()
       });
@@ -221,39 +209,30 @@ export default function TasksPage() {
         let errorMessage = 'Erreur lors de la suppression';
         try {
           const errorData = await response.json();
-          console.log('Réponse d\'erreur complète:', errorData);
-          
-          // Nest retourne souvent le message dans errorData.message
           if (errorData.message) {
             errorMessage = errorData.message;
           }
         } catch {
           // Si on ne peut pas parser le JSON, on garde le message par défaut
-          console.log('Impossible de parser la réponse JSON, statut:', response.status);
         }
         
-        console.log('Erreur de suppression - Statut:', response.status, 'Message:', errorMessage);
-        
-        // Vérifier si c'est l'erreur spécifique de participants
-        if (response.status === 409 ||
-            errorMessage.toLowerCase().includes('participant') ||
-            errorMessage.includes('OUPPS VOUS NE POUVEZ PAS SUPPRIMER')) {
+        if (response.status === 409) {
           // Erreur de conflit (réunion avec participants)
-          setErrorModalTitle('OUUUPS');
-          setErrorModalMessage('VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANT DEJA ENREGISTRER');
+          setErrorModalTitle('Impossible de supprimer');
+          setErrorModalMessage(errorMessage);
           setShowErrorModal(true);
-          return;
+          return; // Juste afficher le modal, pas besoin de lancer d'erreur
         }
         
         // Pour les autres erreurs, afficher aussi dans le modal
         setErrorModalTitle('Erreur de suppression');
         setErrorModalMessage(errorMessage);
         setShowErrorModal(true);
-        return;
+        return; // Juste afficher le modal, pas besoin de lancer d'erreur
       }
 
-      setMeetings(meetings.filter(m => m.id !== meetingToDelete.id));
-      if (selectedMeetingId === meetingToDelete.id) {
+      setMeetings(meetings.filter(m => m.id !== meetingId));
+      if (selectedMeetingId === meetingId) {
         setSelectedMeetingId(null);
       }
     } catch (err) {
@@ -262,23 +241,7 @@ export default function TasksPage() {
       setErrorModalTitle('Erreur de suppression');
       setErrorModalMessage(err instanceof Error ? err.message : 'Erreur inconnue lors de la suppression');
       setShowErrorModal(true);
-    } finally {
-      setShowDeleteModal(false);
-      setMeetingToDelete(null);
-    }
-  };
-
-  // Annulation de suppression
-  const handleCancelDelete = () => {
-    setShowDeleteModal(false);
-    setMeetingToDelete(null);
-  };
-
-  // Suppression d'une réunion (compatibilité arrière)
-  const handleDelete = async (meetingId: number) => {
-    const meeting = meetings.find(m => m.id === meetingId);
-    if (meeting) {
-      handleDeleteRequest(meetingId, meeting.title);
+      // Pas besoin de relancer l'erreur, le modal est déjà affiché
     }
   };
 
@@ -445,64 +408,62 @@ export default function TasksPage() {
   // Page principale avec formulaire optionnel
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 pb-20 sm:pb-24 pt-4 w-full relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 pb-24 pt-4 w-full relative overflow-hidden">
         {/* Éléments décoratifs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-60 sm:w-80 h-60 sm:h-80 bg-gradient-to-br from-orange-200/20 to-green-200/20 rounded-full blur-2xl sm:blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-60 sm:w-80 h-60 sm:h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-2xl sm:blur-3xl"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-green-200/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
         </div>
 
-        <div className="w-full px-3 sm:px-6 lg:px-8 relative z-10">
+        <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Header avec profil utilisateur */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
-            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-0">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black leading-tight">
+          <div className="flex items-center justify-between mb-8">
+            <div className="space-y-3">
+              <h1 className="text-4xl font-bold text-black">
                 Gestion des Réunions
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">
+              <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
                 Organisez et gérez vos réunions
               </p>
             </div>
 
             {/* Profil utilisateur en haut à droite */}
-            <div className="self-end sm:self-auto">
-              <UserProfile
-                user={currentUser}
-                onLogout={handleLogout}
-              />
-            </div>
+            <UserProfile
+              user={currentUser}
+              onLogout={handleLogout}
+            />
           </div>
 
           {/* Statistiques */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                <Squares2X2Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-4">
+                <Squares2X2Icon className="w-6 h-6 text-white" />
               </div>
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{meetings.length}</div>
-              <div className="text-gray-600 text-xs sm:text-sm font-medium">Total Réunions</div>
+              <div className="text-3xl font-bold text-gray-900">{meetings.length}</div>
+              <div className="text-gray-600 text-sm font-medium">Total Réunions</div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                <ListBulletIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
+                <ListBulletIcon className="w-6 h-6 text-white" />
               </div>
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+              <div className="text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'active').length}
               </div>
-              <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions En cours</div>
+              <div className="text-gray-600 text-sm font-medium">Réunions En cours</div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-4">
+                <PlusIcon className="w-6 h-6 text-white" />
               </div>
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+              <div className="text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'completed').length}
               </div>
-              <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions Terminées</div>
+              <div className="text-gray-600 text-sm font-medium">Réunions Terminées</div>
             </div>
           </div>
 
-          {/* Barre de filtres avec toggle vue - Version initiale avec adaptations mobiles légères */}
+          {/* Barre de filtres avec toggle vue */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
               <div className="relative flex-1 md:max-w-md">
@@ -516,7 +477,7 @@ export default function TasksPage() {
                 />
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 md:gap-4">
+              <div className="flex items-center space-x-4">
                 {/* Toggle Vue Grille/Liste */}
                 <div className="flex items-center bg-gray-100/80 rounded-xl p-1">
                   <button
@@ -553,11 +514,12 @@ export default function TasksPage() {
                     <option value="">Tous les statuts</option>
                     <option value="active">En cours</option>
                     <option value="completed">Terminé</option>
+                    {/* <option value="inactive">En attente</option> */}
                   </select>
                 </div>
 
-                {/* Sélecteur d'items par page - masqué sur mobile très petit */}
-                <div className="hidden sm:flex items-center space-x-2">
+                {/* Sélecteur d'items par page */}
+                <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">Afficher</span>
                   <select
                     value={itemsPerPage}
@@ -586,30 +548,30 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* Affichage conditionnel selon l'état - optimisé pour mobile */}
+          {/* Affichage conditionnel selon l'état */}
           {loading ? (
-            <div className="text-center py-8 sm:py-12">
-              <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-orange-500 border-t-transparent mx-auto mb-4 sm:mb-6"></div>
-              <p className="text-gray-600 text-sm sm:text-base lg:text-lg">Chargement des réunions...</p>
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto mb-6"></div>
+              <p className="text-gray-600 text-lg">Chargement des réunions...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-8 sm:py-12">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-red-400 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <FunnelIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-r from-red-400 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <FunnelIcon className="w-8 h-8 text-white" />
               </div>
-              <div className={`text-base sm:text-lg mb-2 ${
+              <div className={`text-lg mb-2 ${
                 error.includes('succès')
                   ? 'text-green-500'
                   : 'text-red-500'
               }`}>
                 {error.includes('succès') ? 'Succès' : 'Erreur'}
               </div>
-              <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4 px-4">{error}</p>
+              <p className="text-gray-600 mb-4">{error}</p>
               {!error.includes('succès') && (
-                <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
+                <div className="flex flex-col space-y-3">
                   <button
                     onClick={() => setRefreshKey(prev => prev + 1)}
-                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-lg sm:rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 font-semibold text-sm sm:text-base"
+                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 font-semibold"
                   >
                     Réessayer
                   </button>
@@ -619,7 +581,7 @@ export default function TasksPage() {
                         AuthService.clearAllAuthData();
                         window.location.href = '/login';
                       }}
-                      className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg sm:rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold text-xs sm:text-sm"
+                      className="px-6 py-3 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold text-sm"
                     >
                       Nettoyer et reconnecter
                     </button>
@@ -628,12 +590,12 @@ export default function TasksPage() {
               )}
             </div>
           ) : filteredMeetings.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <ListBulletIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <ListBulletIcon className="w-10 h-10 text-white" />
               </div>
-              <p className="text-gray-500 text-lg sm:text-xl font-medium">Aucune réunion trouvée</p>
-              <p className="text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 px-4">
+              <p className="text-gray-500 text-xl font-medium">Aucune réunion trouvée</p>
+              <p className="text-gray-400 text-sm mt-2">
                 {searchTerm || statusFilter
                   ? 'Essayez de modifier vos critères de recherche'
                   : 'Créez votre première réunion pour commencer'
@@ -642,21 +604,20 @@ export default function TasksPage() {
             </div>
           ) : (
             <>
-              {/* Informations de pagination - optimisée pour mobile */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 space-y-3 sm:space-y-0">
-                <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-                  Affichage {startIndex + 1}-{Math.min(endIndex, filteredMeetings.length)} sur {filteredMeetings.length}
+              {/* Informations de pagination */}
+              <div className="flex items-center justify-between mb-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
+                <div className="text-sm text-gray-600">
+                  Affichage de {startIndex + 1} à {Math.min(endIndex, filteredMeetings.length)} sur {filteredMeetings.length} réunions
                 </div>
                 
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+                  <div className="flex items-center space-x-2">
                     <button
                       onClick={goToPrevPage}
                       disabled={currentPage === 1}
-                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      title="Page précédente"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      ←
+                      Précédent
                     </button>
                     
                     <div className="flex items-center space-x-1">
@@ -665,7 +626,7 @@ export default function TasksPage() {
                           key={index}
                           onClick={() => typeof page === 'number' && goToPage(page)}
                           disabled={typeof page !== 'number'}
-                          className={`px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md sm:rounded-lg transition-colors min-w-[2rem] sm:min-w-[2.5rem] ${
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                             page === currentPage
                               ? 'bg-orange-600 text-white'
                               : typeof page === 'number'
@@ -681,18 +642,17 @@ export default function TasksPage() {
                     <button
                       onClick={goToNextPage}
                       disabled={currentPage === totalPages}
-                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      title="Page suivante"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      →
+                      Suivant
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Vue Grille - optimisée pour mobile */}
+              {/* Vue Grille */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {paginatedMeetings.map((meeting) => (
                     <MeetingCard
                       key={meeting.id}
@@ -701,7 +661,6 @@ export default function TasksPage() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onAttendanceList={handleAttendanceList}
-                      onDeleteRequest={handleDeleteRequest}
                     />
                   ))}
                 </div>
@@ -733,7 +692,6 @@ export default function TasksPage() {
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onAttendanceList={handleAttendanceList}
-                          onDeleteRequest={handleDeleteRequest}
                         />
                       ))}
                     </tbody>
@@ -741,30 +699,29 @@ export default function TasksPage() {
                 </div>
               )}
 
-              {/* Pagination en bas - optimisée pour mobile */}
+              {/* Pagination en bas */}
               {totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 sm:mt-6 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 space-y-3 sm:space-y-0">
-                  <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                <div className="flex items-center justify-between mt-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
+                  <div className="text-sm text-gray-600">
                     Page {currentPage} sur {totalPages}
                   </div>
                   
-                  <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+                  <div className="flex items-center space-x-2">
                     <button
                       onClick={goToPrevPage}
                       disabled={currentPage === 1}
-                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      title="Page précédente"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      ← Préc.
+                      Précédent
                     </button>
                     
                     <div className="flex items-center space-x-1">
-                      {getPageNumbers().slice(0, 3).map((page, index) => (
+                      {getPageNumbers().map((page, index) => (
                         <button
                           key={index}
                           onClick={() => typeof page === 'number' && goToPage(page)}
                           disabled={typeof page !== 'number'}
-                          className={`px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md sm:rounded-lg transition-colors min-w-[2rem] sm:min-w-[2.5rem] ${
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                             page === currentPage
                               ? 'bg-orange-600 text-white'
                               : typeof page === 'number'
@@ -775,18 +732,14 @@ export default function TasksPage() {
                           {page}
                         </button>
                       ))}
-                      {getPageNumbers().length > 3 && (
-                        <span className="text-xs sm:text-sm text-gray-400 px-1">...</span>
-                      )}
                     </div>
                     
                     <button
                       onClick={goToNextPage}
                       disabled={currentPage === totalPages}
-                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      title="Page suivante"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Suiv. →
+                      Suivant
                     </button>
                   </div>
                 </div>
@@ -807,25 +760,6 @@ export default function TasksPage() {
           }}
         />
       )}
-    {/* Modal de confirmation de suppression */}
-    <ConfirmModal
-      isOpen={showDeleteModal}
-      title="Supprimer la réunion"
-      message={`Êtes-vous sûr de vouloir supprimer définitivement la réunion "${meetingToDelete?.title}" ? Cette action ne peut pas être annulée.`}
-      onConfirm={handleConfirmDelete}
-      onCancel={handleCancelDelete}
-      confirmText="Oui, supprimer"
-      cancelText="Annuler"
-      type="danger"
-    />
-
-    {/* Modal d'erreur pour les suppressions impossibles */}
-    <ErrorModal
-      isOpen={showErrorModal}
-      onClose={() => setShowErrorModal(false)}
-      title={errorModalTitle}
-      message={errorModalMessage}
-    />
-  </AuthGuard>
+    </AuthGuard>
   );
 }
