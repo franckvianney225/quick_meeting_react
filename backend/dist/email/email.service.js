@@ -126,7 +126,7 @@ let EmailService = EmailService_1 = class EmailService {
         if (!config) {
             throw new Error('Configuration SMTP non trouvée');
         }
-        const activationLink = `${process.env.FRONTEND_URL || 'http://192.168.1.77:3000'}/activate-account?token=${activationToken}`;
+        const activationLink = `${process.env.FRONTEND_URL || 'http://164.160.40.182:3000'}/activate-account?token=${activationToken}`;
         const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -199,7 +199,7 @@ let EmailService = EmailService_1 = class EmailService {
         if (!config) {
             throw new Error('Configuration SMTP non trouvée');
         }
-        const resetLink = `${process.env.FRONTEND_URL || 'http://192.168.1.77:3000'}/reset-password?token=${resetToken}`;
+        const resetLink = `${process.env.FRONTEND_URL || 'http://164.160.40.182:3000'}/reset-password?token=${resetToken}`;
         const htmlContent = `
       <!DOCTYPE html>
       <html>

@@ -98,7 +98,7 @@ docker-compose down
 Les services seront accessibles aux URLs suivantes :
 - **Frontend** : http://votre-domaine.com:3000
 - **Backend API** : http://votre-domaine.com:3001
-- **Base de données** : 192.168.1.77:5432
+- **Base de données** : 164.160.40.182:5432
 
 ### 6. Commandes utiles
 

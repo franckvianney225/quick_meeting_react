@@ -21,7 +21,7 @@ async function bootstrap() {
   }
   
   app.enableCors({
-    origin: frontendUrl || 'http://192.168.1.77:3000',
+    origin: frontendUrl || 'http://164.160.40.182:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
