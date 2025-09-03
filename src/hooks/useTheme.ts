@@ -9,10 +9,8 @@ export function useTheme() {
 
   useEffect(() => {
     setMounted(true);
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    // Forcer le mode clair par défaut, ignorer les préférences système
+    const initialTheme = 'light';
     setTheme(initialTheme);
     applyTheme(initialTheme);
   }, []);

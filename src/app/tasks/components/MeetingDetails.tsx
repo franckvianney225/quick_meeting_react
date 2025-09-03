@@ -282,46 +282,46 @@ export const MeetingDetails = ({
   return (
     <>
       <div className="min-h-screen bg-gray-50">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Header avec bouton retour stylisé */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <button
               onClick={onBack}
               disabled={isSubmitting}
-              className={`group inline-flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 mb-6 ${
-                isSubmitting 
-                  ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+              className={`group inline-flex items-center space-x-2 sm:space-x-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 mb-4 sm:mb-6 ${
+                isSubmitting
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
                   : 'text-gray-600 hover:text-orange-600 bg-white hover:bg-orange-50 border border-gray-200 hover:border-orange-200 shadow-sm hover:shadow-md'
               }`}
             >
-              <div className={`p-1 rounded-lg transition-colors ${
-                isSubmitting 
-                  ? 'bg-gray-200' 
+              <div className={`p-1 rounded-md sm:rounded-lg transition-colors ${
+                isSubmitting
+                  ? 'bg-gray-200'
                   : 'bg-gray-100 group-hover:bg-orange-100'
               }`}>
-                <ArrowLeftIcon className="h-4 w-4" />
+                <ArrowLeftIcon className="h-3 w-3 sm:h-4 sm:w-4" />
               </div>
-              <span className="font-medium">Retour à la liste</span>
+              <span className="font-medium text-sm sm:text-base">Retour à la liste</span>
             </button>
             
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-3 break-words whitespace-normal">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 break-words whitespace-normal">
                   {currentMeeting.title.length > 20 ? (
                     <span className="break-all">{currentMeeting.title}</span>
                   ) : (
                     currentMeeting.title
                   )}
                 </h1>
-                <div className="flex items-center space-x-3">
-                  <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border ${statusConfig.color}`}>
-                    <div className={`w-3 h-3 rounded-full ${statusConfig.indicator}`} />
-                    <span className="text-sm font-medium">{statusConfig.label}</span>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <div className={`flex items-center space-x-2 px-3 sm:px-4 py-1 sm:py-2 rounded-full border ${statusConfig.color}`}>
+                    <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${statusConfig.indicator}`} />
+                    <span className="text-xs sm:text-sm font-medium">{statusConfig.label}</span>
                   </div>
                   {/* Affichage des dates de début et fin si définies - AVANT le code unique */}
                   {(currentMeeting.meetingStartDate || currentMeeting.meetingEndDate) && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                      <CalendarIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600 bg-gray-50 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg border border-gray-200">
+                      <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
                       <span>
                         {currentMeeting.meetingStartDate && formatDate(currentMeeting.meetingStartDate)}
                         {currentMeeting.meetingEndDate && ` → ${formatDate(currentMeeting.meetingEndDate)}`}
@@ -330,7 +330,7 @@ export const MeetingDetails = ({
                   )}
                   {currentMeeting.uniqueCode && (
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-2 rounded-lg">
+                      <span className="text-xs sm:text-sm text-gray-500 font-mono bg-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg">
                         {showUniqueCode ? currentMeeting.uniqueCode : '*******'}
                       </span>
                       <button
@@ -338,7 +338,7 @@ export const MeetingDetails = ({
                         className="text-gray-500 hover:text-gray-700 transition-colors"
                         title={showUniqueCode ? 'Masquer le code' : 'Afficher le code'}
                       >
-                        <EyeIcon className="h-4 w-4" />
+                        <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                       <button
                         onClick={() => {
@@ -348,7 +348,7 @@ export const MeetingDetails = ({
                         className="text-gray-500 hover:text-gray-700 transition-colors"
                         title="Copier le code"
                       >
-                        <ClipboardDocumentListIcon className="h-4 w-4" />
+                        <ClipboardDocumentListIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                     </div>
                   )}
@@ -357,12 +357,12 @@ export const MeetingDetails = ({
 
               {/* Actions */}
               
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-0">
                 {currentMeeting.status !== 'completed' ? (
                   <button
                     onClick={handleToggleStatus}
                     disabled={isSubmitting}
-                    className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-colors font-medium`}
+                    className={`flex items-center space-x-1 sm:space-x-2 px-4 sm:px-6 py-2 sm:py-3 ${isSubmitting ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white rounded-md sm:rounded-lg transition-colors font-medium text-xs sm:text-sm`}
                   >
                     <span>Cloturer</span>
                   </button>
@@ -370,7 +370,7 @@ export const MeetingDetails = ({
                   <button
                     onClick={handleToggleStatus}
                     disabled={isSubmitting}
-                    className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg transition-colors font-medium`}
+                    className={`flex items-center space-x-1 sm:space-x-2 px-4 sm:px-6 py-2 sm:py-3 ${isSubmitting ? 'bg-green-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white rounded-md sm:rounded-lg transition-colors font-medium text-xs sm:text-sm`}
                   >
                     <span>Réouvrir</span>
                   </button>
@@ -379,9 +379,9 @@ export const MeetingDetails = ({
                 <button
                   onClick={handleAttendanceListClick}
                   disabled={isSubmitting}
-                  className={`flex items-center space-x-2 px-6 py-3 ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded-lg transition-colors font-medium`}
+                  className={`flex items-center space-x-1 sm:space-x-2 px-4 sm:px-6 py-2 sm:py-3 ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded-md sm:rounded-lg transition-colors font-medium text-xs sm:text-sm`}
                 >
-                  <ClipboardDocumentListIcon className="h-5 w-5" />
+                  <ClipboardDocumentListIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>Liste de présence</span>
                 </button>
               </div>
@@ -389,79 +389,79 @@ export const MeetingDetails = ({
           </div>
 
           {/* Contenu principal en pleine largeur */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8">
             
             {/* Section principale - 3 colonnes sur desktop */}
-            <div className="xl:col-span-3 space-y-8">
+            <div className="xl:col-span-3 space-y-6 sm:space-y-8">
               {/* Section Description */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                <div className="flex items-center space-x-3 mb-6">
-                  <DocumentTextIcon className="h-6 w-6 text-gray-600" />
-                  <h2 className="text-2xl font-semibold text-gray-900">Description</h2>
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+                <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+                  <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
+                  <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Description</h2>
                 </div>
-                <p className="text-gray-700 leading-relaxed text-lg">
+                <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
                   {currentMeeting.description || 'Aucune description fournie pour cette réunion.'}
                 </p>
               </div>
 
               {/* Détails de la réunion */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-8">Détails de la réunion</h2>
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-6 sm:mb-8">Détails de la réunion</h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                   {/* Date et heure */}
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">
-                      <div className="p-3 bg-blue-100 rounded-lg">
-                        <CalendarIcon className="h-6 w-6 text-blue-600" />
+                      <div className="p-2 sm:p-3 bg-blue-100 rounded-md sm:rounded-lg">
+                        <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Date de creation</h3>
-                      <p className="text-gray-600">{formatDate(currentMeeting.start_date || currentMeeting.startDate)}</p>
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Date de creation</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm">{formatDate(currentMeeting.start_date || currentMeeting.startDate)}</p>
                     </div>
                   </div>
 
                   {/* Lieu */}
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">
-                      <div className="p-3 bg-red-100 rounded-lg">
-                        <MapPinIcon className="h-6 w-6 text-red-600" />
+                      <div className="p-2 sm:p-3 bg-red-100 rounded-md sm:rounded-lg">
+                        <MapPinIcon className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Lieu</h3>
-                      <p className="text-gray-600">{currentMeeting.location || 'Lieu non défini'}</p>
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Lieu</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm">{currentMeeting.location || 'Lieu non défini'}</p>
                     </div>
                   </div>
 
                   {/* Participants */}
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">
-                      <div className="p-3 bg-green-100 rounded-lg">
-                        <UserGroupIcon className="h-6 w-6 text-green-600" />
+                      <div className="p-2 sm:p-3 bg-green-100 rounded-md sm:rounded-lg">
+                        <UserGroupIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Participants max:</h3>
-                      <p className="text-gray-600">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Participants max:</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm">
                         {currentMeeting.max_participants ? `${currentMeeting.max_participants} personnes` : 'Illimité'}
                       </p>
                     </div>
                   </div>
 
                   {/* Code unique */}
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">
-                      <div className="p-3 bg-purple-100 rounded-lg">
-                        <TagIcon className="h-6 w-6 text-purple-600" />
+                      <div className="p-2 sm:p-3 bg-purple-100 rounded-md sm:rounded-lg">
+                        <TagIcon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Code accès</h3>
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Code accès</h3>
                       {currentMeeting.uniqueCode ? (
                         <div className="flex items-center space-x-2">
-                          <p className="text-gray-600 font-mono bg-gray-100 px-3 py-2 rounded-lg text-sm inline-block">
+                          <p className="text-gray-600 font-mono bg-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm inline-block">
                             {showUniqueCode ? currentMeeting.uniqueCode : '*******'}
                           </p>
                           <button
@@ -469,7 +469,7 @@ export const MeetingDetails = ({
                             className="text-gray-500 hover:text-gray-700 transition-colors"
                             title={showUniqueCode ? 'Masquer le code' : 'Afficher le code'}
                           >
-                            <EyeIcon className="h-4 w-4" />
+                            <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                           </button>
                           <button
                             onClick={() => {
@@ -479,47 +479,49 @@ export const MeetingDetails = ({
                             className="text-gray-500 hover:text-gray-700 transition-colors"
                             title="Copier le code"
                           >
-                            <ClipboardDocumentListIcon className="h-4 w-4" />
+                            <ClipboardDocumentListIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                           </button>
                         </div>
                       ) : (
-                        <p className="text-gray-600">Code non défini</p>
+                        <p className="text-gray-600 text-xs sm:text-sm">Code non défini</p>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Liste des participants */}
-              <ParticipantsList
-                meetingId={currentMeeting.id}
-                meetingTitle={currentMeeting.title}
-              />
+              {/* Liste des participants - Masquée sur mobile */}
+              <div className="hidden sm:block">
+                <ParticipantsList
+                  meetingId={currentMeeting.id}
+                  meetingTitle={currentMeeting.title}
+                />
+              </div>
             </div>
 
             {/* Sidebar - 1 colonne sur desktop */}
             <div className="xl:col-span-1">
               {/* Statistiques rapides */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Statistiques</h3>
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 sticky top-4 sm:top-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 sm:mb-6">Statistiques</h3>
                 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="text-center">
-                    <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3">
-                      <UsersIcon className="h-6 w-6 text-blue-600" />
+                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full mx-auto mb-2 sm:mb-3">
+                      <UsersIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">{participantCount}</div>
-                    <div className="text-sm text-gray-600">Inscrits</div>
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">{participantCount}</div>
+                    <div className="text-xs sm:text-sm text-gray-600">Inscrits</div>
                   </div>
                   
                   <div className="text-center">
-                    <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mx-auto mb-3">
-                      <ClockIcon className="h-6 w-6 text-orange-600" />
+                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-full mx-auto mb-2 sm:mb-3">
+                      <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">
                       {calculateDuration(currentMeeting.meetingStartDate, currentMeeting.meetingEndDate)}
                     </div>
-                    <div className="text-sm text-gray-600">Durée estimée</div>
+                    <div className="text-xs sm:text-sm text-gray-600">Durée estimée</div>
                   </div>
                 </div>
               </div>

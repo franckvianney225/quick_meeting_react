@@ -20,27 +20,47 @@ export const Sidebar = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-hide après 5 secondes
+  // Détection du type d'appareil
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, 5000);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-    return () => clearTimeout(timer);
-  }, [pathname]);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
 
-  // Gestion du hover avec délais
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-hide après 5 secondes seulement sur desktop
+  useEffect(() => {
+    if (!isMobile) {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, isMobile]);
+
+  // Gestion du hover avec délais seulement sur desktop
   const handleMouseEnter = () => {
-    if (timeoutRef.current) {
+    if (!isMobile && timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    setIsVisible(true);
+    if (!isMobile) {
+      setIsVisible(true);
+    }
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsVisible(false);
-    }, 1000);
+    if (!isMobile) {
+      timeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 1000);
+    }
   };
 
   // Nettoyage des timeouts
@@ -59,27 +79,31 @@ export const Sidebar = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Flèche indicatrice - positionnée exactement où sera la sidebar */}
-      <div
-        className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
-          isVisible ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
-        }`}
-      >
-        <div className="bg-gradient-to-r from-orange-500 to-green-600 rounded-full p-3 shadow-lg cursor-pointer">
-          <ChevronUpIcon className="h-5 w-5 text-white" />
+      {/* Flèche indicatrice - seulement sur desktop */}
+      {!isMobile && (
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+            isVisible ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+          }`}
+        >
+          <div className="bg-gradient-to-r from-orange-500 to-green-600 rounded-full p-3 shadow-lg cursor-pointer">
+            <ChevronUpIcon className="h-5 w-5 text-white" />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Sidebar principale */}
+      {/* Sidebar principale - toujours visible sur mobile */}
       <nav
         className={`transition-all duration-700 ease-out ${
-          isVisible
-            ? 'opacity-100 translate-y-0 scale-100'
-            : 'opacity-0 translate-y-6 scale-90 pointer-events-none'
+          isMobile
+            ? 'opacity-100 translate-y-0 scale-100' // Toujours visible sur mobile
+            : isVisible
+              ? 'opacity-100 translate-y-0 scale-100'
+              : 'opacity-0 translate-y-6 scale-90 pointer-events-none'
         }`}
       >
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl px-8 py-4 shadow-xl border border-white/20 ring-1 ring-gray-200/50">
-          <div className="flex items-center space-x-8">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl px-3 sm:px-6 md:px-8 py-2 sm:py-4 shadow-xl border border-white/20 ring-1 ring-gray-200/50 mx-2 sm:mx-0">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-4 md:space-x-6 lg:space-x-8">
             {[
               { href: '/', icon: HomeIcon, title: 'Accueil' },
               { href: '/tasks', icon: ClipboardDocumentIcon, title: 'Réunions' },
@@ -93,10 +117,10 @@ export const Sidebar = () => {
               <Link
                 key={href}
                 href={href}
-                className="relative p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-green-50 transition-all duration-300 hover:scale-110 active:scale-95 group"
+                className="relative p-2 sm:p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-green-50 transition-all duration-300 hover:scale-110 active:scale-95 group"
                 title={title}
               >
-                <Icon className={`h-6 w-6 transition-all duration-300 ${
+                <Icon className={`h-5 w-5 sm:h-6 sm:w-6 transition-all duration-300 ${
                   pathname === href
                     ? 'text-orange-500 scale-110'
                     : 'text-gray-600 group-hover:text-orange-500 group-hover:scale-105'

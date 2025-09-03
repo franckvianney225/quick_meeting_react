@@ -1,14 +1,14 @@
-# 🚀 Déploiement Immédiat - Serveur localhost
+# 🚀 Déploiement Immédiat - Serveur 192.168.1.77
 
 ## Prérequis
-- Accès SSH au serveur (root@localhost)
+- Accès SSH au serveur (root@192.168.1.77)
 - Docker et Docker Compose installés sur le serveur
 
 ## 📋 Étapes de Déploiement
 
 ### 1. Connexion au Serveur
 ```bash
-ssh root@localhost
+ssh root@192.168.1.77
 ```
 
 ### 2. Préparation du Dossier
@@ -27,7 +27,7 @@ git clone <votre-repo-git> .
 **Option B - Via SCP (transfert manuel)**
 Depuis votre machine locale :
 ```bash
-scp -r . root@localhost:/opt/quick-meeting/
+scp -r . root@192.168.1.77:/opt/quick-meeting/
 ```
 
 ### 4. Configuration des Variables d'Environnement
@@ -44,7 +44,7 @@ nano backend/.env
 **Modifiez ces valeurs dans `.env` et `backend/.env` :**
 ```env
 # Dans .env (frontend)
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://192.168.1.77:3001
 
 # Dans backend/.env
 DB_PASSWORD=votre-mot-de-passe-postgres-tres-securise
@@ -69,12 +69,12 @@ docker-compose ps
 docker-compose logs -f
 
 # Tester l'API
-curl http://localhost:3001/api/health
+curl http://192.168.1.77:3001/api/health
 ```
 
 ## 🎯 URLs d'Accès
-- **Application** : http://localhost:3000
-- **API** : http://localhost:3001/api/health
+- **Application** : http://192.168.1.77:3000
+- **API** : http://192.168.1.77:3001/api/health
 
 ## 🔧 Commandes Utiles
 ```bash
@@ -92,8 +92,8 @@ docker-compose up -d --build
 ```
 
 ## ✅ Validation du Déploiement
-1. Ouvrez http://localhost:3000 dans votre navigateur
-2. Testez la connexion à l'API : http://localhost:3001/api/health
+1. Ouvrez http://192.168.1.77:3000 dans votre navigateur
+2. Testez la connexion à l'API : http://192.168.1.77:3001/api/health
 3. Vérifiez que la base de données PostgreSQL est accessible
 
 ## 🚨 Résolution de Problèmes

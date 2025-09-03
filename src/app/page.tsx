@@ -123,22 +123,23 @@ export default function HomePage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-3 sm:px-6 lg:px-8 relative z-10">
         {/* Header avec profil utilisateur */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold text-black">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+          <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-0">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black leading-tight">
               Bonjour 👋 {user.civility ? `${user.civility} ` : ''}
-              <br/>
+              <br className="hidden sm:block"/>
+              <span className="sm:hidden"> </span>
               {user.name}
             </h1>
-            <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
+            <p className="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">
               Bienvenu sur votre tableau de bord. Ici vous pourrez gérer vos réunions et récupérer les listes de présence
             </p>
           </div>
 
           {/* Profil utilisateur en haut à droite */}
-          <div className="-mt-8">
+          <div className="self-end sm:self-auto sm:-mt-8">
             <UserProfile
               user={currentUser}
               onLogout={handleLogout}
@@ -148,7 +149,7 @@ export default function HomePage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Link href="/tasks">
             <StatCard
               title="Total Réunions"
@@ -180,16 +181,16 @@ export default function HomePage() {
 
         {/* Recent Meetings */}
         <Card>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
-                <CalendarIcon className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-xl flex items-center justify-center">
+                <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Réunions Récentes</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Réunions Récentes</h2>
             </div>
             <Link
               href="/tasks"
-              className="inline-flex items-center px-4 py-2 bg-orange-500 text-white font-medium rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+              className="inline-flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 bg-orange-500 text-white font-medium text-sm sm:text-base rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               Voir tout →
             </Link>
@@ -206,12 +207,12 @@ export default function HomePage() {
                 />
               ))
             ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <CalendarIcon className="w-8 h-8 text-white" />
+              <div className="text-center py-8 sm:py-12">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <p className="text-gray-500 text-lg font-medium">Aucune réunion trouvée</p>
-                <p className="text-gray-400 text-sm mt-2">Créez votre première réunion pour commencer</p>
+                <p className="text-gray-500 text-base sm:text-lg font-medium">Aucune réunion trouvée</p>
+                <p className="text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2">Créez votre première réunion pour commencer</p>
               </div>
             )}
           </div>
@@ -233,15 +234,15 @@ function MeetingListItem({ meeting, index, onMeetingClick }: MeetingListItemProp
 
   return (
     <div
-      className="group flex items-center justify-between p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01] cursor-pointer"
+      className="group flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-xl hover:bg-white/80 hover:border-orange-200/50 hover:shadow-md transition-all duration-300 hover:scale-[1.01] cursor-pointer"
       style={{ animationDelay: `${index * 100}ms` }}
       onClick={onMeetingClick}
     >
-      <div className="flex-1">
-        <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-200">{meeting.title}</h3>
-        <p className="text-sm text-gray-600 mt-2 flex items-center space-x-4">
-          <span className="flex items-center space-x-1">
-            <UserGroupIcon className="w-4 h-4 text-gray-400" />
+      <div className="flex-1 mb-3 sm:mb-0">
+        <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors duration-200 text-sm sm:text-base mb-2">{meeting.title}</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
+          <span className="flex items-center space-x-1 text-xs sm:text-sm text-gray-600">
+            <UserGroupIcon className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
             <span>
               {loading ? (
                 <span className="text-gray-400">Chargement...</span>
@@ -250,15 +251,15 @@ function MeetingListItem({ meeting, index, onMeetingClick }: MeetingListItemProp
               )}
             </span>
           </span>
-          <span className="flex items-center space-x-1">
-            <ClockIcon className="w-4 h-4 text-gray-400" />
-            <span>{meeting.location}</span>
+          <span className="flex items-center space-x-1 text-xs sm:text-sm text-gray-600">
+            <ClockIcon className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+            <span className="truncate max-w-[200px] sm:max-w-none">{meeting.location}</span>
           </span>
-        </p>
+        </div>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-end sm:justify-center">
         <span className={`
-          px-4 py-2 rounded-full text-xs font-bold transition-all duration-300
+          px-2 py-1 sm:px-4 sm:py-2 rounded-full text-xs font-bold transition-all duration-300 whitespace-nowrap
           ${meeting.status === 'active' || meeting.status === 'scheduled'
             ? 'bg-green-500 text-white shadow-md hover:shadow-lg'
             : meeting.status === 'inactive'

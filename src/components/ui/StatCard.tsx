@@ -52,19 +52,19 @@ export const StatCard = ({ title, value, icon: Icon, color = "blue", trend }: St
   const currentStyle = colorStyles[color as keyof typeof colorStyles] || colorStyles.blue;
 
   return (
-    <div className={`${currentStyle.background} rounded-xl p-6 border ${currentStyle.border} hover:scale-105 transition-all duration-300`}>
+    <div className={`${currentStyle.background} rounded-xl p-4 sm:p-6 border ${currentStyle.border} hover:scale-105 transition-all duration-300`}>
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className={`text-3xl font-bold ${currentStyle.text} mt-2`}>{value}</p>
-          {trend && (
-            <p className={`text-sm mt-1 ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <div className="flex-1 min-w-0">
+          <p className="text-gray-600 text-xs sm:text-sm font-medium truncate">{title}</p>
+          <p className={`text-xl sm:text-2xl lg:text-3xl font-bold ${currentStyle.text} mt-1 sm:mt-2`}>{value}</p>
+          {trend !== undefined && trend !== 0 && (
+            <p className={`text-xs sm:text-sm mt-1 ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {trend > 0 ? '+' : ''}{trend}% ce mois
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-full ${currentStyle.iconBg}`}>
-          <Icon className="h-8 w-8 text-white" />
+        <div className={`p-2 sm:p-3 rounded-full ${currentStyle.iconBg} ml-2 sm:ml-3 flex-shrink-0`}>
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white" />
         </div>
       </div>
     </div>

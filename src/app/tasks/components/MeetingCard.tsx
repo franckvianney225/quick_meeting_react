@@ -223,75 +223,94 @@ export const MeetingCard = ({
   return (
     <>
       <div
-        className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] cursor-pointer"
+        className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/30 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] cursor-pointer"
         onClick={() => meeting.id && onView(meeting.id)}
       >
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-orange-600 transition-colors duration-200">
-              {meeting.title.length > 50 ? `${meeting.title.substring(0, 50)}...` : meeting.title}
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 hover:text-orange-600 transition-colors duration-200">
+              {meeting.title.length > 40 ? `${meeting.title.substring(0, 40)}...` : meeting.title}
             </h3>
-            <p className="text-gray-600 text-sm line-clamp-2">{meeting.description}</p>
+            <p className="text-gray-600 text-xs sm:text-sm line-clamp-2">{meeting.description}</p>
           </div>
-          <span className={`px-4 py-2 rounded-xl text-xs font-bold border ${getStatusColor(meeting.status)}`}>
+          <span className={`px-2 sm:px-3 py-1 sm:py-2 rounded-lg sm:rounded-xl text-xs font-bold border ${getStatusColor(meeting.status)}`}>
             {getStatusLabel(meeting.status)}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="flex items-center space-x-3 text-gray-600">
-            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
-              <CalendarIcon className="h-4 w-4 text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center space-x-2 sm:space-x-3 text-gray-600">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-orange-400 to-orange-500 rounded-md sm:rounded-lg flex items-center justify-center">
+              <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
             </div>
-            <span className="text-sm font-medium">{formatDate(meeting.start_date || meeting.startDate)}</span>
+            <span className="text-xs sm:text-sm font-medium">{formatDate(meeting.start_date || meeting.startDate)}</span>
           </div>
 
-          <div className="flex items-center space-x-3 text-gray-600">
-            <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
-              <MapPinIcon className="h-4 w-4 text-white" />
+          <div className="flex items-center space-x-2 sm:space-x-3 text-gray-600">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-md sm:rounded-lg flex items-center justify-center">
+              <MapPinIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
             </div>
-            <span className="text-sm font-medium">{meeting.location || 'Lieu non défini'}</span>
+            <span className="text-xs sm:text-sm font-medium truncate max-w-[120px] sm:max-w-none">{meeting.location || 'Lieu non défini'}</span>
           </div>
 
-          <div className="flex items-center space-x-3 text-gray-600">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
-              <UserGroupIcon className="h-4 w-4 text-white" />
+          <div className="flex items-center space-x-2 sm:space-x-3 text-gray-600">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-md sm:rounded-lg flex items-center justify-center">
+              <UserGroupIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
             </div>
-            <span className="text-sm font-medium">
+            <span className="text-xs sm:text-sm font-medium">
               {loadingParticipants ? (
-                <span className="text-gray-400">Chargement...</span>
+                <span className="text-gray-400">...</span>
               ) : (
-                `${participantsCount} participant${participantsCount !== 1 ? 's' : ''} enregistré${participantsCount !== 1 ? 's' : ''}`
+                `${participantsCount} participant${participantsCount !== 1 ? 's' : ''}`
               )}
             </span>
           </div>
 
-          <div className="flex items-center space-x-3 text-gray-600">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg flex items-center justify-center">
-              <QrCodeIcon className="h-4 w-4 text-white" />
+          <div className="flex items-center space-x-2 sm:space-x-3 text-gray-600">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-400 to-purple-500 rounded-md sm:rounded-lg flex items-center justify-center">
+              <QrCodeIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
             </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium font-mono">
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="text-xs sm:text-sm font-medium font-mono">
                 {meeting.uniqueCode ? (showUniqueCode ? meeting.uniqueCode : '*******') : 'Non généré'}
               </span>
               {meeting.uniqueCode && (
                 <>
                   <button
-                    onClick={() => setShowUniqueCode(!showUniqueCode)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowUniqueCode(!showUniqueCode);
+                    }}
                     className="text-purple-600 hover:text-purple-700 transition-colors"
                     title={showUniqueCode ? 'Masquer le code' : 'Afficher le code'}
                   >
-                    <EyeIcon className="h-4 w-4" />
+                    <EyeIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(meeting.uniqueCode);
-                      alert('Code copié dans le presse-papier !');
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                        navigator.clipboard.writeText(meeting.uniqueCode);
+                        alert('Code copié !');
+                      } else {
+                        // Fallback pour les environnements sans clipboard API
+                        const textArea = document.createElement('textarea');
+                        textArea.value = meeting.uniqueCode;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                          document.execCommand('copy');
+                          alert('Code copié !');
+                        } catch (err) {
+                          alert('Impossible de copier le code. Veuillez le copier manuellement.');
+                        }
+                        document.body.removeChild(textArea);
+                      }
                     }}
                     className="text-purple-600 hover:text-purple-700 transition-colors"
                     title="Copier le code"
                   >
-                    <ClipboardDocumentListIcon className="h-4 w-4" />
+                    <ClipboardDocumentListIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </button>
                 </>
               )}
@@ -299,17 +318,17 @@ export const MeetingCard = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-orange-200/30">
-          <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-orange-200/30 space-y-3 sm:space-y-0">
+          <div className="flex justify-center sm:justify-start space-x-2 sm:space-x-3">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 meeting.id && onView(meeting.id);
               }}
-              className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-110"
+              className="p-3 sm:p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Voir détails"
             >
-              <EyeIcon className="h-4 w-4" />
+              <EyeIcon className="h-4 w-4 sm:h-4 sm:w-4" />
             </button>
 
             <button
@@ -317,42 +336,43 @@ export const MeetingCard = ({
                 e.stopPropagation();
                 meeting.id && onEdit(meeting.id);
               }}
-              className="p-3 text-green-600 hover:bg-green-50 rounded-xl transition-all duration-200 hover:scale-110"
+              className="p-3 sm:p-3 text-green-600 hover:bg-green-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Modifier"
             >
-              <PencilIcon className="h-4 w-4" />
+              <PencilIcon className="h-4 w-4 sm:h-4 sm:w-4" />
             </button>
 
             <button
               onClick={handleDeleteClick}
-              className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110"
+              className="p-3 sm:p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110"
               title="Supprimer"
             >
-              <TrashIcon className="h-4 w-4" />
+              <TrashIcon className="h-4 w-4 sm:h-4 sm:w-4" />
             </button>
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex justify-center sm:justify-end space-x-2 sm:space-x-3">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleGenerateQR();
               }}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+              className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg sm:rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm sm:shadow-md hover:shadow-md sm:hover:shadow-lg text-sm font-medium"
             >
-              <QrCodeIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">QR Code</span>
+              <QrCodeIcon className="h-4 w-4 sm:h-4 sm:w-4" />
+              <span>Code QR</span>
             </button>
 
+            {/* Bouton Liste de présence - masqué sur mobile */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleAttendanceList();
               }}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+              className="hidden sm:flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 sm:py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg sm:rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm sm:shadow-md hover:shadow-md sm:hover:shadow-lg text-sm font-medium"
             >
-              <ClipboardDocumentListIcon className="h-4 w-4" />
-              <span className="text-sm font-medium">Liste de présence</span>
+              <ClipboardDocumentListIcon className="h-4 w-4 sm:h-4 sm:w-4" />
+              <span>Liste de présence</span>
             </button>
           </div>
         </div>

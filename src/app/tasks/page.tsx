@@ -445,170 +445,178 @@ export default function TasksPage() {
   // Page principale avec formulaire optionnel
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 pb-24 pt-4 w-full relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50/80 via-white to-green-50/80 pb-20 sm:pb-24 pt-4 w-full relative overflow-hidden">
         {/* Éléments décoratifs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-200/20 to-green-200/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
+          <div className="absolute -top-40 -right-40 w-60 sm:w-80 h-60 sm:h-80 bg-gradient-to-br from-orange-200/20 to-green-200/20 rounded-full blur-2xl sm:blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-60 sm:w-80 h-60 sm:h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-2xl sm:blur-3xl"></div>
         </div>
 
-        <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="w-full px-3 sm:px-6 lg:px-8 relative z-10">
           {/* Header avec profil utilisateur */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="space-y-3">
-              <h1 className="text-4xl font-bold text-black">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-0">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-black leading-tight">
                 Gestion des Réunions
               </h1>
-              <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">
                 Organisez et gérez vos réunions
               </p>
             </div>
 
             {/* Profil utilisateur en haut à droite */}
-            <UserProfile
-              user={currentUser}
-              onLogout={handleLogout}
-            />
+            <div className="self-end sm:self-auto">
+              <UserProfile
+                user={currentUser}
+                onLogout={handleLogout}
+              />
+            </div>
           </div>
 
           {/* Statistiques */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-4">
-                <Squares2X2Icon className="w-6 h-6 text-white" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                <Squares2X2Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">{meetings.length}</div>
-              <div className="text-gray-600 text-sm font-medium">Total Réunions</div>
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{meetings.length}</div>
+              <div className="text-gray-600 text-xs sm:text-sm font-medium">Total Réunions</div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4">
-                <ListBulletIcon className="w-6 h-6 text-white" />
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                <ListBulletIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'active').length}
               </div>
-              <div className="text-gray-600 text-sm font-medium">Réunions En cours</div>
+              <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions En cours</div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-4">
-                <PlusIcon className="w-6 h-6 text-white" />
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'completed').length}
               </div>
-              <div className="text-gray-600 text-sm font-medium">Réunions Terminées</div>
+              <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions Terminées</div>
             </div>
           </div>
 
-          {/* Barre de filtres avec toggle vue */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-              <div className="relative flex-1 md:max-w-md">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black-400" />
+          {/* Barre de filtres avec toggle vue - optimisée pour mobile */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/30 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col space-y-4 sm:space-y-0">
+              {/* Ligne 1: Recherche */}
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Rechercher une réunion, description ou salle..."
+                  placeholder="Rechercher réunion, description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
+                  className="w-full pl-10 sm:pl-12 pr-4 py-2 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 sm:focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-sm sm:text-base"
                 />
               </div>
 
-              <div className="flex items-center space-x-4">
-                {/* Toggle Vue Grille/Liste */}
-                <div className="flex items-center bg-gray-100/80 rounded-xl p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-3 rounded-lg transition-all duration-300 ${
-                      viewMode === 'grid'
-                        ? 'bg-orange-500 text-white shadow-md'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                    title="Vue grille"
-                  >
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-3 rounded-lg transition-all duration-300 ${
-                      viewMode === 'list'
-                        ? 'bg-orange-500 text-white shadow-md'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                    title="Vue liste"
-                  >
-                    <ListBulletIcon className="h-5 w-5" />
-                  </button>
+              {/* Ligne 2: Filtres et actions */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                {/* Filtres groupés */}
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  {/* Toggle Vue Grille/Liste */}
+                  <div className="flex items-center bg-gray-100/80 rounded-lg sm:rounded-xl p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 sm:p-3 rounded-md sm:rounded-lg transition-all duration-300 ${
+                        viewMode === 'grid'
+                          ? 'bg-orange-500 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                      title="Vue grille"
+                    >
+                      <Squares2X2Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 sm:p-3 rounded-md sm:rounded-lg transition-all duration-300 ${
+                        viewMode === 'list'
+                          ? 'bg-orange-500 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                      title="Vue liste"
+                    >
+                      <ListBulletIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </button>
+                  </div>
+
+                  {/* Filtre de statut */}
+                  <div className="flex items-center space-x-2">
+                    <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="border border-gray-200 rounded-lg sm:rounded-xl px-2 sm:px-4 py-1 sm:py-2 focus:ring-2 sm:focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-xs sm:text-sm"
+                    >
+                      <option value="">Tous</option>
+                      <option value="active">En cours</option>
+                      <option value="completed">Terminé</option>
+                    </select>
+                  </div>
+
+                  {/* Sélecteur d'items par page - masqué sur mobile très petit */}
+                  <div className="hidden xs:flex items-center space-x-1 sm:space-x-2">
+                    <span className="text-xs sm:text-sm text-gray-600">Afficher</span>
+                    <select
+                      value={itemsPerPage}
+                      onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="border border-gray-200 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1 sm:py-2 focus:ring-1 sm:focus:ring-2 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-xs sm:text-sm"
+                    >
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <FunnelIcon className="h-5 w-5 text-gray-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
-                  >
-                    <option value="">Tous les statuts</option>
-                    <option value="active">En cours</option>
-                    <option value="completed">Terminé</option>
-                    {/* <option value="inactive">En attente</option> */}
-                  </select>
-                </div>
-
-                {/* Sélecteur d'items par page */}
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Afficher</span>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                    className="border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-sm"
-                  >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                  </select>
-                  <span className="text-sm text-gray-600">par page</span>
-                </div>
-
+                {/* Bouton Nouvelle Réunion */}
                 <button
                   onClick={handleCreateNew}
-                  className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
+                  className="flex items-center justify-center space-x-2 sm:space-x-3 px-4 sm:px-6 py-2 sm:py-3 bg-orange-500 text-white rounded-lg sm:rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md sm:shadow-lg hover:shadow-lg sm:hover:shadow-xl font-semibold text-sm sm:text-base"
                 >
-                  <PlusIcon className="h-5 w-5" />
-                  <span>Nouvelle Réunion</span>
+                  <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden xs:inline">Nouvelle Réunion</span>
+                  <span className="xs:hidden">Nouveau</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Affichage conditionnel selon l'état */}
+          {/* Affichage conditionnel selon l'état - optimisé pour mobile */}
           {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto mb-6"></div>
-              <p className="text-gray-600 text-lg">Chargement des réunions...</p>
+            <div className="text-center py-8 sm:py-12">
+              <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-orange-500 border-t-transparent mx-auto mb-4 sm:mb-6"></div>
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg">Chargement des réunions...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gradient-to-r from-red-400 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <FunnelIcon className="w-8 h-8 text-white" />
+            <div className="text-center py-8 sm:py-12">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-red-400 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <FunnelIcon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
-              <div className={`text-lg mb-2 ${
+              <div className={`text-base sm:text-lg mb-2 ${
                 error.includes('succès')
                   ? 'text-green-500'
                   : 'text-red-500'
               }`}>
                 {error.includes('succès') ? 'Succès' : 'Erreur'}
               </div>
-              <p className="text-gray-600 mb-4">{error}</p>
+              <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4 px-4">{error}</p>
               {!error.includes('succès') && (
-                <div className="flex flex-col space-y-3">
+                <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
                   <button
                     onClick={() => setRefreshKey(prev => prev + 1)}
-                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 font-semibold"
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-500 to-green-600 text-white rounded-lg sm:rounded-xl hover:from-orange-600 hover:to-green-700 transition-all duration-300 font-semibold text-sm sm:text-base"
                   >
                     Réessayer
                   </button>
@@ -618,7 +626,7 @@ export default function TasksPage() {
                         AuthService.clearAllAuthData();
                         window.location.href = '/login';
                       }}
-                      className="px-6 py-3 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold text-sm"
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg sm:rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold text-xs sm:text-sm"
                     >
                       Nettoyer et reconnecter
                     </button>
@@ -627,12 +635,12 @@ export default function TasksPage() {
               )}
             </div>
           ) : filteredMeetings.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <ListBulletIcon className="w-10 h-10 text-white" />
+            <div className="text-center py-8 sm:py-12">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-orange-400 to-green-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <ListBulletIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <p className="text-gray-500 text-xl font-medium">Aucune réunion trouvée</p>
-              <p className="text-gray-400 text-sm mt-2">
+              <p className="text-gray-500 text-lg sm:text-xl font-medium">Aucune réunion trouvée</p>
+              <p className="text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2 px-4">
                 {searchTerm || statusFilter
                   ? 'Essayez de modifier vos critères de recherche'
                   : 'Créez votre première réunion pour commencer'
@@ -641,20 +649,21 @@ export default function TasksPage() {
             </div>
           ) : (
             <>
-              {/* Informations de pagination */}
-              <div className="flex items-center justify-between mb-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
-                <div className="text-sm text-gray-600">
-                  Affichage de {startIndex + 1} à {Math.min(endIndex, filteredMeetings.length)} sur {filteredMeetings.length} réunions
+              {/* Informations de pagination - optimisée pour mobile */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 space-y-3 sm:space-y-0">
+                <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                  Affichage {startIndex + 1}-{Math.min(endIndex, filteredMeetings.length)} sur {filteredMeetings.length}
                 </div>
                 
                 {totalPages > 1 && (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center justify-center space-x-1 sm:space-x-2">
                     <button
                       onClick={goToPrevPage}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Page précédente"
                     >
-                      Précédent
+                      ←
                     </button>
                     
                     <div className="flex items-center space-x-1">
@@ -663,7 +672,7 @@ export default function TasksPage() {
                           key={index}
                           onClick={() => typeof page === 'number' && goToPage(page)}
                           disabled={typeof page !== 'number'}
-                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                          className={`px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md sm:rounded-lg transition-colors min-w-[2rem] sm:min-w-[2.5rem] ${
                             page === currentPage
                               ? 'bg-orange-600 text-white'
                               : typeof page === 'number'
@@ -679,17 +688,18 @@ export default function TasksPage() {
                     <button
                       onClick={goToNextPage}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Page suivante"
                     >
-                      Suivant
+                      →
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Vue Grille */}
+              {/* Vue Grille - optimisée pour mobile */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                   {paginatedMeetings.map((meeting) => (
                     <MeetingCard
                       key={meeting.id}
@@ -738,29 +748,30 @@ export default function TasksPage() {
                 </div>
               )}
 
-              {/* Pagination en bas */}
+              {/* Pagination en bas - optimisée pour mobile */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
-                  <div className="text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 sm:mt-6 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 space-y-3 sm:space-y-0">
+                  <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                     Page {currentPage} sur {totalPages}
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center justify-center space-x-1 sm:space-x-2">
                     <button
                       onClick={goToPrevPage}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Page précédente"
                     >
-                      Précédent
+                      ← Préc.
                     </button>
                     
                     <div className="flex items-center space-x-1">
-                      {getPageNumbers().map((page, index) => (
+                      {getPageNumbers().slice(0, 3).map((page, index) => (
                         <button
                           key={index}
                           onClick={() => typeof page === 'number' && goToPage(page)}
                           disabled={typeof page !== 'number'}
-                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                          className={`px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md sm:rounded-lg transition-colors min-w-[2rem] sm:min-w-[2.5rem] ${
                             page === currentPage
                               ? 'bg-orange-600 text-white'
                               : typeof page === 'number'
@@ -771,14 +782,18 @@ export default function TasksPage() {
                           {page}
                         </button>
                       ))}
+                      {getPageNumbers().length > 3 && (
+                        <span className="text-xs sm:text-sm text-gray-400 px-1">...</span>
+                      )}
                     </div>
                     
                     <button
                       onClick={goToNextPage}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md sm:rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Page suivante"
                     >
-                      Suivant
+                      Suiv. →
                     </button>
                   </div>
                 </div>
