@@ -107,13 +107,34 @@ export const MeetingCard = ({
 
   const handleAttendanceList = async () => {
     try {
-      const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants?order=DESC`), {
-        headers: AuthService.getAuthHeaders()
+      console.log('Début récupération participants pour meeting:', meeting.id);
+      
+      const authHeaders = AuthService.getAuthHeaders();
+      console.log('Auth headers:', authHeaders);
+      
+      const url = apiUrl(`/meetings/${meeting.id}/participants?order=DESC`);
+      console.log('URL:', url);
+      
+      const response = await fetch(url, {
+        headers: authHeaders
       });
+      
+      console.log('Réponse status:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des participants');
+        let errorMessage = `Erreur HTTP ${response.status}`;
+        try {
+          const errorData = await response.text();
+          console.log('Détails erreur:', errorData);
+          errorMessage += ` - ${errorData}`;
+        } catch (e) {
+          console.log('Impossible de lire le message d\'erreur');
+        }
+        throw new Error(errorMessage);
       }
+      
       const apiParticipants = await response.json();
+      console.log('Participants récupérés:', apiParticipants.length);
 
       // Définir l'interface pour les données de l'API
       interface ApiParticipant {
@@ -149,13 +170,18 @@ export const MeetingCard = ({
         signature: p.signature
       }));
 
+      console.log('Génération PDF avec', mappedParticipants.length, 'participants');
+      
       await generateAttendancePDF({
         meetingTitle: meeting.title,
         participants: mappedParticipants,
         onClose: () => {}
       });
+      
+      console.log('PDF généré avec succès');
     } catch (error) {
       console.error('Erreur lors de la génération de la liste:', error);
+      alert(`Erreur lors de l'impression: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     }
   };
 
