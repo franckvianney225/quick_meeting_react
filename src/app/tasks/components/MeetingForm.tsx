@@ -72,14 +72,27 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
   // État pour l'onglet actif
   const [activeTab, setActiveTab] = useState<'general' | 'qrcode'>('general');
 
+  // Validation des dates initiales
+  useEffect(() => {
+    if (formData.meetingStartDate && formData.meetingEndDate) {
+      validateMeetingEndDate(formData.meetingEndDate, formData.meetingStartDate);
+    }
+  }, []); // Exécuté seulement au montage du composant
+
   // Régénérer le code si c'est une nouvelle réunion
   // Plus besoin de cet useEffect car le code unique est maintenant géré dans l'initialisation
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // État pour la validation en temps réel de la date de fin
+  const [dateValidationError, setDateValidationError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
+
+    // Reset la validation temps réel lors de la soumission
+    setDateValidationError(null);
     
     try {
       // Préparer les données à envoyer au backend
@@ -87,10 +100,29 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
         throw new Error('La date de début est requise');
       }
 
-      // Vérifier que la date est valide
+      // Vérifier que les dates sont valides
       const dateObj = new Date(formData.start_date);
       if (isNaN(dateObj.getTime())) {
         throw new Error('Format de date invalide');
+      }
+
+      // Vérifier que la date de fin de réunion n'est pas inférieure à la date de début
+      if (formData.meetingStartDate && formData.meetingEndDate) {
+        const startDateTime = new Date(formData.meetingStartDate);
+        const endDateTime = new Date(formData.meetingEndDate);
+
+        if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+          throw new Error('Format de date de réunion invalide');
+        }
+
+        if (endDateTime <= startDateTime) {
+          throw new Error('L\'heure de la fin ne peut pas être inférieure ou égale à l\'heure de la début de réunion');
+        }
+      }
+
+      // Vérifier aussi l'erreur de validation temps réel
+      if (dateValidationError) {
+        throw new Error(dateValidationError);
       }
       
       // Convertir les dates en format ISO et nettoyer les données avant envoi
@@ -183,6 +215,35 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       ...prev,
       [name]: name === 'max_participants' ? parseInt(value) || 0 : value
     }));
+
+    // Validation en temps réel pour la date de fin
+    if (name === 'meetingEndDate') {
+      validateMeetingEndDate(value, formData.meetingStartDate);
+    }
+
+    // Validation en temps réel pour la date de début aussi
+    if (name === 'meetingStartDate') {
+      if (formData.meetingEndDate) {
+        validateMeetingEndDate(formData.meetingEndDate, value);
+      }
+    }
+  };
+
+  const validateMeetingEndDate = (endDateValue: string, startDateValue?: string) => {
+    if (endDateValue && startDateValue) {
+      const startDate = new Date(startDateValue);
+      const endDate = new Date(endDateValue);
+
+      if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+        if (endDate <= startDate) {
+          setDateValidationError('L\'heure de fin ne peut pas être inférieure ou égale à l\'heure de début');
+        } else {
+          setDateValidationError(null);
+        }
+      }
+    } else {
+      setDateValidationError(null);
+    }
   };
 
   const handleQRConfigChange = (field: keyof QRConfig, value: string | number | boolean) => {
@@ -420,8 +481,15 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         name="meetingEndDate"
                         value={formData.meetingEndDate}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                          dateValidationError
+                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300'
+                        }`}
                       />
+                      {dateValidationError && (
+                        <p className="mt-1 text-sm text-red-600">{dateValidationError}</p>
+                      )}
                     </div>
 
                     <div>
