@@ -502,10 +502,11 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* Barre de filtres avec toggle vue - Version initiale avec adaptations mobiles légères */}
+          {/* Barre de filtres avec toggle vue - Optimisée mobile sans changer web */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-              <div className="relative flex-1 md:max-w-md">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              {/* Recherche - Pleine largeur sur mobile, réduite sur desktop */}
+              <div className="relative flex-1 lg:max-w-md">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black-400" />
                 <input
                   type="text"
@@ -516,72 +517,80 @@ export default function TasksPage() {
                 />
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 md:gap-4">
-                {/* Toggle Vue Grille/Liste */}
-                <div className="flex items-center bg-gray-100/80 rounded-xl p-1">
+              {/* Contrôles - Organisation responsive */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* Première ligne mobile: Filtres de base */}
+                <div className="flex items-center justify-between sm:justify-start gap-3">
+                  {/* Toggle Vue Grille/Liste - Masqué sur mobile */}
+                  <div className="hidden sm:flex items-center bg-gray-100/80 rounded-xl p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-3 rounded-lg transition-all duration-300 ${
+                        viewMode === 'grid'
+                          ? 'bg-orange-500 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                      title="Vue grille"
+                    >
+                      <Squares2X2Icon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-3 rounded-lg transition-all duration-300 ${
+                        viewMode === 'list'
+                          ? 'bg-orange-500 text-white shadow-md'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                      title="Vue liste"
+                    >
+                      <ListBulletIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Filtre de statut */}
+                  <div className="flex items-center space-x-3">
+                    <FunnelIcon className="h-5 w-5 text-gray-400" />
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="border border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
+                    >
+                      <option value="">Tous les statuts</option>
+                      <option value="active">En cours</option>
+                      <option value="completed">Terminé</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Deuxième ligne mobile: Pagination et actions */}
+                <div className="flex items-center justify-between sm:justify-end gap-3">
+                  {/* Sélecteur d'items par page - masqué sur mobile très petit */}
+                  <div className="hidden sm:flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">Afficher</span>
+                    <select
+                      value={itemsPerPage}
+                      onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-sm"
+                    >
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                    <span className="text-sm text-gray-600">par page</span>
+                  </div>
+
                   <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-3 rounded-lg transition-all duration-300 ${
-                      viewMode === 'grid'
-                        ? 'bg-orange-500 text-white shadow-md'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                    title="Vue grille"
+                    onClick={handleCreateNew}
+                    className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
                   >
-                    <Squares2X2Icon className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-3 rounded-lg transition-all duration-300 ${
-                      viewMode === 'list'
-                        ? 'bg-orange-500 text-white shadow-md'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                    title="Vue liste"
-                  >
-                    <ListBulletIcon className="h-5 w-5" />
+                    <PlusIcon className="h-5 w-5" />
+                    <span>Nouvelle Réunion</span>
                   </button>
                 </div>
-
-                <div className="flex items-center space-x-3">
-                  <FunnelIcon className="h-5 w-5 text-gray-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-200 rounded-xl px-4 py-3 focus:ring-4 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
-                  >
-                    <option value="">Tous les statuts</option>
-                    <option value="active">En cours</option>
-                    <option value="completed">Terminé</option>
-                  </select>
-                </div>
-
-                {/* Sélecteur d'items par page - masqué sur mobile très petit */}
-                <div className="hidden sm:flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Afficher</span>
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                    className="border border-gray-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-300/30 focus:border-orange-400 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300 text-sm"
-                  >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                  </select>
-                  <span className="text-sm text-gray-600">par page</span>
-                </div>
-
-                <button
-                  onClick={handleCreateNew}
-                  className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
-                >
-                  <PlusIcon className="h-5 w-5" />
-                  <span>Nouvelle Réunion</span>
-                </button>
               </div>
             </div>
           </div>
