@@ -140,13 +140,13 @@ Pour tester le système de sauvegarde :
 
 ```bash
 # Créer une sauvegarde de test
-curl -X POST http://164.160.40.182:3001/backup \
+curl -X POST http://192.168.1.72:3001/backup \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"type":"full","description":"Test"}'
 
 # Lister les sauvegardes
-curl http://164.160.40.182:3001/backup \
+curl http://192.168.1.72:3001/backup \
   -H "Authorization: Bearer <token>"
 ```
 

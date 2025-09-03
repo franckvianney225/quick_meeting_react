@@ -96,10 +96,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       // Convertir les dates en format ISO et nettoyer les données avant envoi
       const meetingWithQR = {
         ...formData,
-        startDate: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
-        meetingStartDate: formData.meetingStartDate ? new Date(formData.meetingStartDate).toISOString() : undefined,
-        meetingEndDate: formData.meetingEndDate ? new Date(formData.meetingEndDate).toISOString() : undefined,
-        start_date: undefined, // Supprimer l'ancien format
+        start_date: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
+        meetingstartdate: formData.meetingStartDate ? new Date(formData.meetingStartDate).toISOString() : undefined,
+        meetingenddate: formData.meetingEndDate ? new Date(formData.meetingEndDate).toISOString() : undefined,
+        startDate: undefined, // Supprimer l'ancien format
+        meetingStartDate: undefined, // Supprimer le format camelCase
+        meetingEndDate: undefined, // Supprimer le format camelCase
         uniqueCode: initialData?.uniqueCode, // Conserver le code existant pour les modifications
         qrConfig: qrConfig
       };
@@ -132,17 +134,17 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
 
       const data = await response.json();
       console.log('Meeting saved:', data);
-      console.log('Meeting start date from server:', data.meetingstartdate);
-      console.log('Meeting end date from server:', data.meetingenddate);
+      console.log('Meeting start date from server:', data.meetingStartDate || data.meetingstartdate);
+      console.log('Meeting end date from server:', data.meetingEndDate || data.meetingenddate);
       
       // Transmettre les données sauvegardées au parent via onSave
       await onSave({
         ...data,
         id: data.id || initialData?.id,
         uniqueCode: data.uniqueCode,
-        startDate: data.startDate,
-        meetingStartDate: data.meetingStartDate,
-        meetingEndDate: data.meetingEndDate,
+        startDate: data.startDate || data.start_date,
+        meetingStartDate: data.meetingStartDate || data.meetingstartdate,
+        meetingEndDate: data.meetingEndDate || data.meetingenddate,
         // Forcer la mise à jour du code unique dans le formulaire
         qrConfig: qrConfig
       });

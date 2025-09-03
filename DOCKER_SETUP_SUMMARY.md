@@ -11,7 +11,7 @@
 ### 2. Automatisation et Documentation
 - [`deploy.sh`](deploy.sh) - Script de déploiement automatisé
 - [`DEPLOYMENT.md`](DEPLOYMENT.md) - Guide complet de déploiement
-- [`production.env.example`](production.env.example) - Configuration pour le serveur 164.160.40.182
+- [`production.env.example`](production.env.example) - Configuration pour le serveur 192.168.1.72
 
 ## 🚀 Services Docker Configurés
 
@@ -22,12 +22,12 @@
 
 ### 2. Backend NestJS API  
 - **Port**: 3001
-- **URL**: http://164.160.40.182:3001
+- **URL**: http://192.168.1.72:3001
 - **Dépend**: PostgreSQL
 
 ### 3. Frontend Next.js
 - **Port**: 3000  
-- **URL**: http://164.160.40.182:3000
+- **URL**: http://192.168.1.72:3000
 - **Dépend**: Backend API
 
 ## 🔧 Configuration des Variables d'Environnement
@@ -40,22 +40,22 @@ DB_USER=postgres
 DB_PASSWORD=votre-mot-de-passe-securise
 DB_NAME=meeting_db
 JWT_SECRET=votre-super-secret-jwt-key
-APP_URL=http://164.160.40.182:3001
-FRONTEND_URL=http://164.160.40.182:3000
+APP_URL=http://192.168.1.72:3001
+FRONTEND_URL=http://192.168.1.72:3000
 ```
 
 ### Frontend (`.env`)
 ```env
-NEXT_PUBLIC_API_URL=http://164.160.40.182:3001
+NEXT_PUBLIC_API_URL=http://192.168.1.72:3001
 ```
 
 ## 📋 Commandes de Déploiement
 
-### Sur le serveur 164.160.40.182
+### Sur le serveur 192.168.1.72
 
 ```bash
 # 1. Se connecter au serveur
-ssh root@164.160.40.182
+ssh root@192.168.1.72
 
 # 2. Créer le dossier du projet
 mkdir -p /opt/quick-meeting
@@ -91,16 +91,16 @@ docker-compose restart  # Redémarrer les services
 
 ## 🌐 URLs d'Accès
 
-- **Application**: http://164.160.40.182:3000
-- **API**: http://164.160.40.182:3001
-- **Base de données**: 164.160.40.182:5432
+- **Application**: http://192.168.1.72:3000
+- **API**: http://192.168.1.72:3001
+- **Base de données**: 192.168.1.72:5432
 
 ## ✅ Validation
 
 Pour vérifier que tout fonctionne :
 
-1. **Frontend**: Ouvrir http://164.160.40.182:3000
-2. **Backend**: Tester http://164.160.40.182:3001/api/health
+1. **Frontend**: Ouvrir http://192.168.1.72:3000
+2. **Backend**: Tester http://192.168.1.72:3001/api/health
 3. **Base de données**: Vérifier la connexion PostgreSQL
 
 ## 🔒 Sécurité
@@ -119,4 +119,4 @@ En cas de problème, consultez :
 
 ---
 
-**Votre application est maintenant prête pour le déploiement sur le serveur 164.160.40.182!** 🎉
+**Votre application est maintenant prête pour le déploiement sur le serveur 192.168.1.72!** 🎉
