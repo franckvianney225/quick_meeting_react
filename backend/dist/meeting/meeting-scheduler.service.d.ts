@@ -4,5 +4,6 @@ export declare class MeetingSchedulerService {
     private readonly logger;
     constructor(meetingService: MeetingService);
     handleMeetingStatusChecks(): Promise<void>;
+    sendExpirationReminders(): Promise<void>;
     handleFrequentMeetingStatusChecks(): Promise<void>;
 }

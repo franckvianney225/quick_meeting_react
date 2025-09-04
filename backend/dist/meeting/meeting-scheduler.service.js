@@ -22,11 +22,46 @@ let MeetingSchedulerService = MeetingSchedulerService_1 = class MeetingScheduler
     async handleMeetingStatusChecks() {
         this.logger.log('Démarrage de la vérification automatique des statuts de réunion');
         try {
+            await this.sendExpirationReminders();
             await this.meetingService.checkAndUpdateExpiredMeetings();
             this.logger.log('Vérification automatique terminée avec succès');
         }
         catch (error) {
             this.logger.error(`Erreur lors de la vérification automatique: ${error.message}`, error.stack);
+        }
+    }
+    async sendExpirationReminders() {
+        try {
+            const meetings = await this.meetingService.findAll();
+            const activeMeetings = meetings.filter(m => m.status === 'active');
+            const now = new Date();
+            let notificationsSent = 0;
+            for (const meeting of activeMeetings) {
+                let endDate;
+                if (meeting.meetingEndDate) {
+                    endDate = new Date(meeting.meetingEndDate);
+                }
+                else if (meeting.startDate) {
+                    endDate = new Date(meeting.startDate);
+                    endDate.setDate(endDate.getDate() + 1);
+                }
+                else {
+                    continue;
+                }
+                const threeHoursEarlier = new Date(endDate.getTime() - 3 * 60 * 60 * 1000);
+                const threeHoursLater = new Date(endDate.getTime() - 3 * 60 * 60 * 1000 + 30 * 60 * 1000);
+                if (now >= threeHoursEarlier && now <= threeHoursLater && endDate > now) {
+                    this.logger.log(`Envoi d'une notification pour la réunion ${meeting.title} (ID: ${meeting.id})`);
+                    await this.meetingService.sendMeetingExpirationNotification(meeting, endDate);
+                    notificationsSent++;
+                }
+            }
+            if (notificationsSent > 0) {
+                this.logger.log(`${notificationsSent} notification(s) d'expiration envoyée(s)`);
+            }
+        }
+        catch (error) {
+            this.logger.error(`Erreur lors de l'envoi des rappels d'expiration: ${error.message}`, error.stack);
         }
     }
     async handleFrequentMeetingStatusChecks() {
@@ -36,6 +71,7 @@ let MeetingSchedulerService = MeetingSchedulerService_1 = class MeetingScheduler
         }
         this.logger.log('Vérification fréquente (développement) démarrée');
         try {
+            await this.sendExpirationReminders();
             await this.meetingService.checkAndUpdateExpiredMeetings();
             this.logger.log('Vérification fréquente terminée');
         }

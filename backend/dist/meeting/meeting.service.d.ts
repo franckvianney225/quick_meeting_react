@@ -17,11 +17,13 @@ interface ParticipantResponse {
 }
 import { Participant } from '../participant/participant.entity';
 import { QrCodeService } from '../qrcode/qrcode.service';
+import { EmailService } from '../email/email.service';
 export declare class MeetingService {
     private meetingRepository;
     private participantRepository;
     private qrCodeService;
-    constructor(meetingRepository: Repository<Meeting>, participantRepository: Repository<Participant>, qrCodeService: QrCodeService);
+    private emailService;
+    constructor(meetingRepository: Repository<Meeting>, participantRepository: Repository<Participant>, qrCodeService: QrCodeService, emailService: EmailService);
     create(meetingData: {
         title: string;
         description?: string;
@@ -78,6 +80,7 @@ export declare class MeetingService {
         status: string;
         title: string;
     }>;
+    sendMeetingExpirationNotification(meeting: Meeting, endDate: Date): Promise<void>;
     checkAndUpdateExpiredMeetings(): Promise<void>;
 }
 export {};
