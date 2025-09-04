@@ -11,6 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@nestjs/config": "^4.0.2",
+    "@nestjs/schedule": "^6.0.0",
     "@types/jspdf": "^2.0.0",
     "@types/qrcode": "^1.5.5",
     "@types/qrcode.react": "^3.0.0",

@@ -78,5 +78,6 @@ export declare class MeetingService {
         status: string;
         title: string;
     }>;
+    checkAndUpdateExpiredMeetings(): Promise<void>;
 }
 export {};

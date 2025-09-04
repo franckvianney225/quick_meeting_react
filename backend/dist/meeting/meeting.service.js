@@ -213,6 +213,25 @@ let MeetingService = class MeetingService {
             title: meeting.title
         };
     }
+    async checkAndUpdateExpiredMeetings() {
+        const now = new Date();
+        const expiredMeetings = await this.meetingRepository
+            .createQueryBuilder('meeting')
+            .where('meeting.status = :status', { status: 'active' })
+            .andWhere('meeting.meeting_end_date IS NOT NULL')
+            .andWhere('meeting.meeting_end_date <= :now', { now })
+            .getMany();
+        if (expiredMeetings.length === 0) {
+            return;
+        }
+        await this.meetingRepository
+            .createQueryBuilder()
+            .update(meeting_entity_1.Meeting)
+            .set({ status: 'completed' })
+            .whereInIds(expiredMeetings.map(m => m.id))
+            .execute();
+        console.log(`${expiredMeetings.length} réunion(s) ont été marquées comme 'completed' suite à l'expiration de leur date de fin`);
+    }
 };
 exports.MeetingService = MeetingService;
 exports.MeetingService = MeetingService = __decorate([

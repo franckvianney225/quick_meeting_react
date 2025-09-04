@@ -297,11 +297,11 @@ export class MeetingService {
   }
 
   /**
-   * Valide que l'ID et le code correspondent à la même réunion
-   * @param meetingId L'ID de la réunion fourni dans l'URL
-   * @param code Le code unique de la réunion fourni dans l'URL
-   * @returns La réunion si les deux paramètres sont cohérents, sinon lance une erreur
-   */
+    * Valide que l'ID et le code correspondent à la même réunion
+    * @param meetingId L'ID de la réunion fourni dans l'URL
+    * @param code Le code unique de la réunion fourni dans l'URL
+    * @returns La réunion si les deux paramètres sont cohérents, sinon lance une erreur
+    */
   async validateMeetingIdAndCode(meetingId: number, code: string): Promise<{ status: string; title: string }> {
     // Récupérer la réunion par son code unique
     const meeting = await this.meetingRepository.findOne({
@@ -321,5 +321,36 @@ export class MeetingService {
       status: meeting.status,
       title: meeting.title
     };
+  }
+
+  /**
+   * Vérifie et met à jour le statut des réunions dont la date de fin est expirée
+   * Si meetingEndDate est défini et que la date actuelle dépasse cette date,
+   * le statut passe automatiquement à 'completed'
+   */
+  async checkAndUpdateExpiredMeetings(): Promise<void> {
+    const now = new Date();
+
+    // Trouver toutes les réunions actives avec une date de fin définie et expirée
+    const expiredMeetings = await this.meetingRepository
+      .createQueryBuilder('meeting')
+      .where('meeting.status = :status', { status: 'active' })
+      .andWhere('meeting.meeting_end_date IS NOT NULL')
+      .andWhere('meeting.meeting_end_date <= :now', { now })
+      .getMany();
+
+    if (expiredMeetings.length === 0) {
+      return;
+    }
+
+    // Mettre à jour le statut des réunions expirées
+    await this.meetingRepository
+      .createQueryBuilder()
+      .update(Meeting)
+      .set({ status: 'completed' })
+      .whereInIds(expiredMeetings.map(m => m.id))
+      .execute();
+
+    console.log(`${expiredMeetings.length} réunion(s) ont été marquées comme 'completed' suite à l'expiration de leur date de fin`);
   }
 }
