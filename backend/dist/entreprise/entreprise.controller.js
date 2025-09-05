@@ -14,8 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EntrepriseController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const entreprise_entity_1 = require("./entreprise.entity");
 const entreprise_service_1 = require("./entreprise.service");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let EntrepriseController = class EntrepriseController {
     constructor(service) {
         this.service = service;
@@ -43,6 +45,7 @@ __decorate([
 ], EntrepriseController.prototype, "create", null);
 exports.EntrepriseController = EntrepriseController = __decorate([
     (0, common_1.Controller)('entreprises'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, throttler_1.ThrottlerGuard),
     __metadata("design:paramtypes", [entreprise_service_1.EntrepriseService])
 ], EntrepriseController);
 //# sourceMappingURL=entreprise.controller.js.map

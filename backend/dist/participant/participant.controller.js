@@ -14,8 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParticipantController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const participant_service_1 = require("./participant.service");
 const create_participant_dto_1 = require("./dto/create-participant.dto");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let ParticipantController = class ParticipantController {
     constructor(service) {
         this.service = service;
@@ -55,6 +57,7 @@ __decorate([
 ], ParticipantController.prototype, "remove", null);
 exports.ParticipantController = ParticipantController = __decorate([
     (0, common_1.Controller)('meetings/:uniqueCode/participants'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, throttler_1.ThrottlerGuard),
     __metadata("design:paramtypes", [participant_service_1.ParticipantService])
 ], ParticipantController);
 //# sourceMappingURL=participant.controller.js.map

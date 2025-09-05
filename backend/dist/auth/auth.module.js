@@ -17,6 +17,7 @@ const organization_module_1 = require("../organization/organization.module");
 const jwt_strategy_1 = require("./jwt.strategy");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const admin_guard_1 = require("./admin.guard");
+const security_controller_1 = require("./security.controller");
 const email_module_1 = require("../email/email.module");
 const session_module_1 = require("../session/session.module");
 let AuthModule = class AuthModule {
@@ -31,11 +32,11 @@ exports.AuthModule = AuthModule = __decorate([
             session_module_1.SessionModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
-                signOptions: { expiresIn: '24h' },
+                secret: process.env.JWT_SECRET || process.env.NODE_ENV === 'production' ? 'CHANGE_THIS_IN_PRODUCTION' : 'development-secret-key-temp',
+                signOptions: { expiresIn: '1h' },
             }),
         ],
-        controllers: [auth_controller_1.AuthController],
+        controllers: [auth_controller_1.AuthController, security_controller_1.SecurityController],
         providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard],
         exports: [auth_service_1.AuthService, jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard],
     })

@@ -11,18 +11,24 @@ import {
   HttpStatus,
   UseInterceptors,
   UploadedFile,
-  BadRequestException
+  BadRequestException,
+  UseGuards
 } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly service: UserService) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get()
   async findAll(): Promise<User[]> {
     try {

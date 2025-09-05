@@ -8,6 +8,7 @@ import { OrganizationModule } from '../organization/organization.module';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AdminGuard } from './admin.guard';
+import { SecurityController } from './security.controller';
 import { EmailModule } from '../email/email.module';
 import { SessionModule } from '../session/session.module';
 
@@ -19,11 +20,11 @@ import { SessionModule } from '../session/session.module';
     SessionModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
-      signOptions: { expiresIn: '24h' },
+      secret: process.env.JWT_SECRET || process.env.NODE_ENV === 'production' ? 'CHANGE_THIS_IN_PRODUCTION' : 'development-secret-key-temp', // Toujours configurer la variable d'environnement
+      signOptions: { expiresIn: '1h' }, // Réduire l'expiration à 1h pour plus de sécurité
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, SecurityController],
   providers: [AuthService, JwtStrategy, JwtAuthGuard, AdminGuard],
   exports: [AuthService, JwtAuthGuard, AdminGuard],
 })

@@ -14,8 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const auth_service_1 = require("./auth.service");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
+const login_dto_1 = require("./dto/login.dto");
 const user_service_1 = require("../user/user.service");
 const email_service_1 = require("../email/email.service");
 let AuthController = class AuthController {
@@ -25,8 +27,14 @@ let AuthController = class AuthController {
         this.emailService = emailService;
     }
     async login(loginDto, req) {
-        const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-        return this.authService.login(user, req);
+        try {
+            const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+            return this.authService.login(user, req);
+        }
+        catch (error) {
+            console.error(`Tentative de connexion échouée pour ${loginDto.email}:`, error.message);
+            throw error;
+        }
     }
     async getProfile(req) {
         const user = req.user;
@@ -124,12 +132,14 @@ let AuthController = class AuthController {
 };
 exports.AuthController = AuthController;
 __decorate([
+    (0, common_1.UseGuards)(throttler_1.ThrottlerGuard),
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60000 } }),
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [login_dto_1.LoginDto, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([

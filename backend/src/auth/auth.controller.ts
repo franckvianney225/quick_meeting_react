@@ -1,6 +1,8 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, BadRequestException, Put } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { LoginDto } from './dto/login.dto';
 import { User } from '../user/user.entity';
 import { Request } from 'express';
 import { UserService } from '../user/user.service';
@@ -14,11 +16,19 @@ export class AuthController {
     private emailService: EmailService,
   ) {}
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 tentatives par minute
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: { email: string; password: string }, @Req() req: Request) {
-    const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-    return this.authService.login(user, req);
+  async login(@Body() loginDto: LoginDto, @Req() req: Request) {
+    try {
+      const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+      return this.authService.login(user, req);
+    } catch (error) {
+      // Log des tentatives échouées pour surveillance
+      console.error(`Tentative de connexion échouée pour ${loginDto.email}:`, error.message);
+      throw error;
+    }
   }
 
   @Get('profile')

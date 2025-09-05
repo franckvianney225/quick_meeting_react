@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
@@ -32,6 +33,7 @@ interface ParticipantResponse {
 import { Participant } from '../participant/participant.entity';
 
 @Controller('meetings')
+@UseGuards(ThrottlerGuard)
 export class MeetingController {
   constructor(
     private readonly service: MeetingService,
@@ -171,6 +173,7 @@ export class MeetingController {
     }
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post(':code/participants')
   async handleParticipantRegistration(
     @Param('code') code: string,

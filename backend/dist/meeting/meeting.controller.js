@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MeetingController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const meeting_service_1 = require("./meeting.service");
 const pdf_service_1 = require("../pdf/pdf.service");
 const email_service_1 = require("../email/email.service");
@@ -220,6 +221,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "remove", null);
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60000 } }),
     (0, common_1.Post)(':code/participants'),
     __param(0, (0, common_1.Param)('code')),
     __param(1, (0, common_1.Body)()),
@@ -271,6 +273,7 @@ __decorate([
 ], MeetingController.prototype, "sendEmailsToParticipants", null);
 exports.MeetingController = MeetingController = __decorate([
     (0, common_1.Controller)('meetings'),
+    (0, common_1.UseGuards)(throttler_1.ThrottlerGuard),
     __metadata("design:paramtypes", [meeting_service_1.MeetingService,
         pdf_service_1.PdfService,
         email_service_1.EmailService])

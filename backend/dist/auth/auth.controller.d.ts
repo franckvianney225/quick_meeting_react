@@ -1,4 +1,5 @@
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 import { User } from '../user/user.entity';
 import { Request } from 'express';
 import { UserService } from '../user/user.service';
@@ -8,10 +9,7 @@ export declare class AuthController {
     private userService;
     private emailService;
     constructor(authService: AuthService, userService: UserService, emailService: EmailService);
-    login(loginDto: {
-        email: string;
-        password: string;
-    }, req: Request): Promise<{
+    login(loginDto: LoginDto, req: Request): Promise<{
         access_token: string;
         user: {
             id: number;

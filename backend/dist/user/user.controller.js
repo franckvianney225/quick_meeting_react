@@ -14,10 +14,12 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const path_1 = require("path");
 const user_service_1 = require("./user.service");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let UserController = class UserController {
     constructor(service) {
         this.service = service;
@@ -191,6 +193,7 @@ let UserController = class UserController {
 };
 exports.UserController = UserController;
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60000 } }),
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -290,6 +293,7 @@ __decorate([
 ], UserController.prototype, "resendInvitation", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('users'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);
 //# sourceMappingURL=user.controller.js.map

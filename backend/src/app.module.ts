@@ -1,5 +1,6 @@
 // src/app.module.ts
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Meeting } from './meeting/meeting.entity';
 import { Entreprise } from './entreprise/entreprise.entity';
@@ -22,8 +23,13 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { SessionModule } from './session/session.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forRootAsync({
+imports: [
+  ThrottlerModule.forRoot([{
+    ttl: 60000,
+    limit: 10,
+    name: 'short',  // nom pour référence
+  }]),
+  TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
         host: process.env.DB_HOST,
