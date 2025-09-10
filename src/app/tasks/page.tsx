@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { MeetingCard, type Meeting } from './components/MeetingCard';
 import { MeetingListItem } from './components/MeetingListItem';
 import { MeetingForm } from './components/MeetingForm';
@@ -21,6 +22,7 @@ import {
 
 export default function TasksPage() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [selectedMeetingId, setSelectedMeetingId] = useState<number | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
@@ -174,6 +176,10 @@ export default function TasksPage() {
   // Handlers pour le profil utilisateur
   const handleLogout = () => {
     logout();
+  };
+
+  const handleProfile = () => {
+    router.push('/profile');
   };
 
   const handleSettings = () => {
@@ -469,6 +475,7 @@ export default function TasksPage() {
               <UserProfile
                 user={currentUser}
                 onLogout={handleLogout}
+                onProfile={handleProfile}
               />
             </div>
           </div>

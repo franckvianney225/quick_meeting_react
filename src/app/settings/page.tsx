@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { SettingsLayout } from './components/SettingsLayout';
 import { SettingsSidebar } from './components/SettingsSidebar';
 import { UsersSection } from './components/UsersSection';
@@ -55,6 +56,7 @@ interface Backup {
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState('users');
 
   // Données utilisateur connecté
@@ -69,6 +71,10 @@ export default function SettingsPage() {
   // Handlers pour le profil utilisateur
   const handleLogout = () => {
     logout();
+  };
+
+  const handleProfile = () => {
+    router.push('/profile');
   };
 
   const handleSettings = () => {
@@ -224,7 +230,7 @@ export default function SettingsPage() {
             <UserProfile
               user={currentUser}
               onLogout={handleLogout}
-              onProfile={handleSettings}
+              onProfile={handleProfile}
             />
           </div>
 

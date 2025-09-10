@@ -18,7 +18,7 @@ COPY src/ ./src/
 COPY public/ ./public/
 
 # Définir les variables d'environnement pour le build
-ENV NEXT_PUBLIC_API_URL=http://192.168.1.72:3001
+ENV NEXT_PUBLIC_API_URL=http://localhost:3001
 
 # Build l'application
 RUN npm run build -- --no-lint

@@ -40,8 +40,8 @@ services:
       - DB_PASSWORD=iVAP26hvSdyLBPNpZ0ZQVQQCwmNaybzUe031ZtAEL6u8cNLw96Q4rrHgydaOsslkeA0uiz1lsiKGYZyY1ZLw4aOJ7YcXU89eEt4SYzRLcsTfQcq6Z4s8P6wXLgV82x9u
       - DB_NAME=meeting_db
       - JWT_SECRET=XtV7JCR087OjF2R5N6l7G2ZbxLBJrxW5QsUU27ywrM4hEb0PIkMY2X0bJQnaM0aGW40UA2iqh3PR3R1coPPnu11gSTI0XlJCPfs8CS37DQRoKx1qBj4u0YjXqmsZ607T
-      - APP_URL=http://192.168.1.72:3001
-      - FRONTEND_URL=http://192.168.1.72:3000
+      - APP_URL=http://localhost:3001
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
       - postgres
     volumes:
@@ -60,7 +60,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://192.168.1.72:3001
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
     depends_on:
       - backend
     networks:

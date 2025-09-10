@@ -42,9 +42,9 @@ start_services() {
     echo "📊 Statut des services:"
     docker-compose ps
     echo ""
-    echo "🌐 Frontend: http://192.168.1.72:3000"
-    echo "🔧 Backend API: http://192.168.1.72:3001"
-    echo "🐘 PostgreSQL: 192.168.1.72:5432"
+    echo "🌐 Frontend: http://localhost:3000"
+    echo "🔧 Backend API: http://localhost:3001"
+    echo "🐘 PostgreSQL: localhost:5432"
     echo ""
     echo "📋 Pour voir les logs: ./deploy.sh logs"
 }
