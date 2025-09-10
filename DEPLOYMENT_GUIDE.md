@@ -13,7 +13,7 @@ FROM node:20-alpine
 **Problème**: `NEXT_PUBLIC_API_URL` non définie en production
 **Solution**: Ajouter dans Dockerfile frontend
 ```dockerfile
-ENV NEXT_PUBLIC_API_URL=http://localhost:3001
+ENV NEXT_PUBLIC_API_URL=http://164.160.40.182:3001
 ```
 
 ### 3. **Erreurs TypeScript - useSearchParams()**
