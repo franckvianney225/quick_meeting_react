@@ -1,5 +1,5 @@
 # Étape de build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ ENV NEXT_PUBLIC_API_URL=http://164.160.40.182:3001
 RUN npm run build -- --no-lint
 
 # Étape de production
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 WORKDIR /app
 
