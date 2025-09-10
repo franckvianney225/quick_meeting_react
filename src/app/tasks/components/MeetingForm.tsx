@@ -323,13 +323,14 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white/95 rounded-xl shadow-lg w-full max-w-4xl backdrop-blur-sm max-h-[90vh] overflow-hidden">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
+      <div className="bg-white/95 rounded-xl shadow-lg w-full max-w-4xl backdrop-blur-sm max-h-[90vh] overflow-hidden flex flex-col">
+        {/* En-tête fixe */}
+        <div className="p-6 border-b border-gray-200 flex-shrink-0">
+          <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900">
               {initialData ? 'Modifier Réunion' : 'Nouvelle Réunion'}
             </h2>
-            <button 
+            <button
               onClick={() => onCancel()}
               className="text-gray-400 hover:text-gray-500"
             >
@@ -338,7 +339,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
           </div>
 
           {/* Onglets */}
-          <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
+          <div className="flex space-x-1 mt-4 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
               onClick={() => setActiveTab('general')}
@@ -363,9 +364,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
               <span>Configuration QR Code</span>
             </button>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="max-h-[60vh] overflow-y-auto">
+        {/* Contenu scrollable */}
+        <div className="flex-1 overflow-hidden">
+          <form onSubmit={handleSubmit} className="h-full flex flex-col">
+            <div className="flex-1 overflow-y-auto p-6" style={{ maxHeight: 'calc(90vh - 200px)' }}>
               {/* Onglet Informations générales */}
               {activeTab === 'general' && (
                 <div className="space-y-6">
@@ -492,7 +496,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       )}
                     </div>
 
-                    <div>
+                    <div className="md:col-span-2">
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                         Lieu*
                       </label>
@@ -502,35 +506,6 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         placeholder="Entrez le lieu de la réunion (ex: Abidjan, Plateau)"
                         required
                       />
-                    </div>
-
-                    <div>
-                      <label htmlFor="uniqueCode" className="block text-sm font-medium text-gray-500 mb-1">
-                        Code Unique (généré automatiquement)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          id="uniqueCode"
-                          name="uniqueCode"
-                          value={formData.uniqueCode}
-                          readOnly
-                          disabled
-                          className="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed font-mono text-sm"
-                        />
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          {formData.uniqueCode ? (
-                            <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <ClockIcon className="h-4 w-4 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {formData.uniqueCode
-                          ? 'Code unique généré'
-                          : 'En attente de génération...'}
-                      </p>
                     </div>
                   </div>
 
@@ -755,43 +730,46 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
               )}
             </div>
 
-            <div className="mt-6 sm:mt-8 flex flex-col-reverse sm:flex-row sm:justify-end space-y-reverse space-y-2 sm:space-y-0 sm:space-x-3 border-t pt-4 sm:pt-6">
-              {submitError && (
-                <div className="flex-1 text-red-500 text-xs sm:text-sm">
-                  {submitError}
-                </div>
-              )}
-              <div className="flex space-x-2 sm:space-x-3">
-                <button
-                  type="button"
-                  onClick={() => onCancel()}
-                  disabled={isSaving}
-                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  <div className="flex items-center justify-center">
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span className="text-xs sm:text-sm">Enregistrement...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircleIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                        <span className="text-xs sm:text-sm">Enregistrer</span>
-                      </>
-                    )}
+            {/* Pied de page fixe avec boutons - Design modernisé */}
+            <div className="border-t border-orange-200/30 bg-white/95 backdrop-blur-sm p-6 flex-shrink-0">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-4">
+                {submitError && (
+                  <div className="flex-1 text-red-500 text-sm font-medium">
+                    {submitError}
                   </div>
-                </button>
+                )}
+                <div className="flex space-x-3 sm:space-x-4">
+                  <button
+                    type="button"
+                    onClick={() => onCancel()}
+                    disabled={isSaving}
+                    className="flex-1 sm:flex-none px-6 py-3.5 border border-orange-300 rounded-xl shadow-sm text-sm font-semibold text-orange-700 bg-white hover:bg-orange-50 hover:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:ring-offset-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex-1 sm:flex-none px-6 py-3.5 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:ring-offset-1 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <div className="flex items-center justify-center">
+                      {isSaving ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span className="font-medium">Enregistrement...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircleIcon className="h-5 w-5 mr-2" />
+                          <span className="font-medium">Enregistrer</span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
           </form>

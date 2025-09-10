@@ -133,7 +133,7 @@ export const LocationInput = ({ value, onChange, placeholder = "Entrez un lieu",
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
+          className="absolute z-50 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -159,7 +159,7 @@ export const LocationInput = ({ value, onChange, placeholder = "Entrez un lieu",
       )}
 
       {showSuggestions && suggestions.length === 0 && inputValue.length >= 3 && !isLoading && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-4">
+        <div className="absolute z-50 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg p-4">
           <div className="text-sm text-gray-500 text-center">
             Aucun résultat trouvé pour &ldquo;{inputValue}&rdquo;
           </div>
