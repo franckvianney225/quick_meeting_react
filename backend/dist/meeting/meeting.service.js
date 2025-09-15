@@ -17,15 +17,19 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const meeting_entity_1 = require("./meeting.entity");
+const user_entity_1 = require("../user/user.entity");
 const participant_entity_1 = require("../participant/participant.entity");
 const qrcode_service_1 = require("../qrcode/qrcode.service");
 const email_service_1 = require("../email/email.service");
+const activity_service_1 = require("../activity/activity.service");
 let MeetingService = class MeetingService {
-    constructor(meetingRepository, participantRepository, qrCodeService, emailService) {
+    constructor(meetingRepository, participantRepository, userRepository, qrCodeService, emailService, activityService) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
+        this.userRepository = userRepository;
         this.qrCodeService = qrCodeService;
         this.emailService = emailService;
+        this.activityService = activityService;
     }
     async create(meetingData, userId) {
         const dateString = meetingData.startDate ||
@@ -64,7 +68,19 @@ let MeetingService = class MeetingService {
             createdById: userId || null
         });
         meeting.qrCode = await this.qrCodeService.generateMeetingQRCode(meeting.uniqueCode);
-        return await this.meetingRepository.save(meeting);
+        const savedMeeting = await this.meetingRepository.save(meeting);
+        if (userId) {
+            try {
+                const user = await this.userRepository.findOne({ where: { id: userId } });
+                if (user) {
+                    await this.activityService.createMeetingCreatedLog(savedMeeting, user);
+                }
+            }
+            catch (error) {
+                console.error('Erreur lors de la création du log d\'activité:', error);
+            }
+        }
+        return savedMeeting;
     }
     async findAll(userId) {
         const where = userId ? { createdById: userId } : {};
@@ -324,6 +340,14 @@ let MeetingService = class MeetingService {
             .set({ status: 'completed' })
             .whereInIds(meetingsToComplete.map(m => m.id))
             .execute();
+        for (const meeting of meetingsToComplete) {
+            try {
+                await this.activityService.createMeetingClosedLog(meeting, meeting.createdBy, true);
+            }
+            catch (error) {
+                console.error('Erreur lors de la création du log d\'activité pour la réunion', meeting.id, error);
+            }
+        }
         console.log(`${meetingsToComplete.length} réunion(s) ont été marquées comme 'completed' suite à l'expiration de leur date de fin`);
     }
 };
@@ -332,9 +356,12 @@ exports.MeetingService = MeetingService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(meeting_entity_1.Meeting)),
     __param(1, (0, typeorm_1.InjectRepository)(participant_entity_1.Participant)),
+    __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
+        typeorm_2.Repository,
         qrcode_service_1.QrCodeService,
-        email_service_1.EmailService])
+        email_service_1.EmailService,
+        activity_service_1.ActivityService])
 ], MeetingService);
 //# sourceMappingURL=meeting.service.js.map

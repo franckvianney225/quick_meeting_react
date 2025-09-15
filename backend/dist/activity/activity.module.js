@@ -9,17 +9,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActivityModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const activity_controller_1 = require("./activity.controller");
-const activity_service_1 = require("./activity.service");
 const activity_log_entity_1 = require("./activity-log.entity");
+const activity_service_1 = require("./activity.service");
+const activity_controller_1 = require("./activity.controller");
 let ActivityModule = class ActivityModule {
 };
 exports.ActivityModule = ActivityModule;
 exports.ActivityModule = ActivityModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([activity_log_entity_1.ActivityLog])],
-        controllers: [activity_controller_1.ActivityController],
         providers: [activity_service_1.ActivityService],
+        controllers: [activity_controller_1.ActivityController],
         exports: [activity_service_1.ActivityService],
     })
 ], ActivityModule);

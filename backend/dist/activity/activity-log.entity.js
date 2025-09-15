@@ -8,166 +8,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var ActivityLog_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActivityLog = exports.ActivityType = void 0;
 const typeorm_1 = require("typeorm");
 const user_entity_1 = require("../user/user.entity");
+const meeting_entity_1 = require("../meeting/meeting.entity");
 var ActivityType;
 (function (ActivityType) {
-    ActivityType["LOGIN"] = "login";
-    ActivityType["LOGOUT"] = "logout";
-    ActivityType["LOGIN_FAILED"] = "login_failed";
-    ActivityType["PASSWORD_CHANGE"] = "password_change";
-    ActivityType["PROFILE_UPDATE"] = "profile_update";
     ActivityType["MEETING_CREATED"] = "meeting_created";
     ActivityType["MEETING_UPDATED"] = "meeting_updated";
-    ActivityType["MEETING_DELETED"] = "meeting_deleted";
-    ActivityType["PARTICIPANT_REGISTERED"] = "participant_registered";
-    ActivityType["SETTINGS_UPDATED"] = "settings_updated";
+    ActivityType["MEETING_CLOSED"] = "meeting_closed";
+    ActivityType["MEETING_REOPENED"] = "meeting_reopened";
+    ActivityType["MEETING_AUTO_CLOSED"] = "meeting_auto_closed";
+    ActivityType["ATTENDANCE_LIST_PRINTED"] = "attendance_list_printed";
+    ActivityType["QR_CODE_PRINTED"] = "qr_code_printed";
+    ActivityType["QR_CONFIG_UPDATED"] = "qr_config_updated";
+    ActivityType["PARTICIPANT_ADDED"] = "participant_added";
+    ActivityType["PARTICIPANT_REMOVED"] = "participant_removed";
 })(ActivityType || (exports.ActivityType = ActivityType = {}));
-let ActivityLog = ActivityLog_1 = class ActivityLog {
-    static createLoginSuccess(user, deviceInfo, ipAddress) {
-        const log = new ActivityLog_1();
-        log.user = user;
-        log.userId = user.id;
-        log.userEmail = user.email;
-        log.userName = user.name;
-        log.activityType = ActivityType.LOGIN;
-        log.description = `Connexion réussie`;
-        log.details = {
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.ipAddress = ipAddress;
-        log.userAgent = deviceInfo.userAgent;
-        log.deviceType = deviceInfo.deviceType;
-        log.browser = deviceInfo.browser;
-        log.os = deviceInfo.os;
-        log.location = deviceInfo.location;
-        log.success = true;
-        return log;
-    }
-    static createLoginFailed(email, reason, deviceInfo, ipAddress) {
-        const log = new ActivityLog_1();
-        log.userEmail = email;
-        log.activityType = ActivityType.LOGIN_FAILED;
-        log.description = `Tentative de connexion échouée: ${reason}`;
-        log.details = {
-            attemptEmail: email,
-            reason: reason,
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.ipAddress = ipAddress;
-        log.userAgent = deviceInfo.userAgent;
-        log.deviceType = deviceInfo.deviceType;
-        log.browser = deviceInfo.browser;
-        log.os = deviceInfo.os;
-        log.location = deviceInfo.location;
-        log.success = false;
-        log.errorMessage = reason;
-        return log;
-    }
-    static createLogout(user, deviceInfo, ipAddress) {
-        const log = new ActivityLog_1();
-        log.user = user;
-        log.userId = user.id;
-        log.userEmail = user.email;
-        log.userName = user.name;
-        log.activityType = ActivityType.LOGOUT;
-        log.description = `Déconnexion`;
-        log.details = {
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.ipAddress = ipAddress;
-        log.userAgent = deviceInfo.userAgent;
-        log.deviceType = deviceInfo.deviceType;
-        log.browser = deviceInfo.browser;
-        log.os = deviceInfo.os;
-        log.location = deviceInfo.location;
-        log.success = true;
-        return log;
-    }
-    static createPasswordChange(user, deviceInfo, ipAddress) {
-        const log = new ActivityLog_1();
-        log.user = user;
-        log.userId = user.id;
-        log.userEmail = user.email;
-        log.userName = user.name;
-        log.activityType = ActivityType.PASSWORD_CHANGE;
-        log.description = `Changement de mot de passe`;
-        log.details = {
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.ipAddress = ipAddress;
-        log.userAgent = deviceInfo.userAgent;
-        log.deviceType = deviceInfo.deviceType;
-        log.browser = deviceInfo.browser;
-        log.os = deviceInfo.os;
-        log.location = deviceInfo.location;
-        log.success = true;
-        return log;
-    }
-    static createMeetingActivity(user, activityType, meetingTitle, meetingId, deviceInfo) {
-        const log = new ActivityLog_1();
-        log.user = user;
-        log.userId = user.id;
-        log.userEmail = user.email;
-        log.userName = user.name;
-        log.activityType = activityType;
-        log.description = `${activityType === ActivityType.MEETING_CREATED ? 'Création' : activityType === ActivityType.MEETING_UPDATED ? 'Modification' : 'Suppression'} de la réunion: ${meetingTitle}`;
-        log.details = {
-            meetingId: meetingId,
-            meetingTitle: meetingTitle,
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.success = true;
-        return log;
-    }
-    static createParticipantActivity(user, activityType, participantName, meetingTitle, deviceInfo) {
-        const log = new ActivityLog_1();
-        log.user = user;
-        log.userId = user.id;
-        log.userEmail = user.email;
-        log.userName = user.name;
-        log.activityType = activityType;
-        log.description = `Inscription du participant ${participantName} à la réunion: ${meetingTitle}`;
-        log.details = {
-            participantName: participantName,
-            meetingTitle: meetingTitle,
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.success = true;
-        return log;
-    }
-    static createProfileUpdate(user, deviceInfo, changes) {
-        const log = new ActivityLog_1();
-        log.user = user;
-        log.userId = user.id;
-        log.userEmail = user.email;
-        log.userName = user.name;
-        log.activityType = ActivityType.PROFILE_UPDATE;
-        log.description = `Mise à jour du profil`;
-        log.details = {
-            changes: changes,
-            device: deviceInfo.deviceType,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os
-        };
-        log.success = true;
-        return log;
-    }
+let ActivityLog = class ActivityLog {
 };
 exports.ActivityLog = ActivityLog;
 __decorate([
@@ -175,73 +34,43 @@ __decorate([
     __metadata("design:type", Number)
 ], ActivityLog.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { onDelete: 'CASCADE' }),
-    __metadata("design:type", user_entity_1.User)
-], ActivityLog.prototype, "user", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", Number)
-], ActivityLog.prototype, "userId", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "userEmail", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "userName", void 0);
-__decorate([
     (0, typeorm_1.Column)({
         type: 'enum',
         enum: ActivityType,
     }),
     __metadata("design:type", String)
-], ActivityLog.prototype, "activityType", void 0);
+], ActivityLog.prototype, "type", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)('text'),
     __metadata("design:type", String)
 ], ActivityLog.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb', { default: {} }),
+    (0, typeorm_1.Column)('jsonb', { nullable: true }),
     __metadata("design:type", Object)
-], ActivityLog.prototype, "details", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "ipAddress", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "userAgent", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "deviceType", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "browser", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "os", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "location", void 0);
+], ActivityLog.prototype, "metadata", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
-], ActivityLog.prototype, "timestamp", void 0);
+], ActivityLog.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: true }),
-    __metadata("design:type", Boolean)
-], ActivityLog.prototype, "success", void 0);
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { eager: true, nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'userId' }),
+    __metadata("design:type", user_entity_1.User)
+], ActivityLog.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], ActivityLog.prototype, "errorMessage", void 0);
-exports.ActivityLog = ActivityLog = ActivityLog_1 = __decorate([
+    __metadata("design:type", Number)
+], ActivityLog.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => meeting_entity_1.Meeting, { eager: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'meetingId' }),
+    __metadata("design:type", meeting_entity_1.Meeting)
+], ActivityLog.prototype, "meeting", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], ActivityLog.prototype, "meetingId", void 0);
+exports.ActivityLog = ActivityLog = __decorate([
     (0, typeorm_1.Entity)('activity_logs')
 ], ActivityLog);
 //# sourceMappingURL=activity-log.entity.js.map

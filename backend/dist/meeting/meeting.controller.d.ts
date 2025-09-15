@@ -2,6 +2,7 @@ import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
 import { EmailService } from '../email/email.service';
+import { ActivityService } from '../activity/activity.service';
 import { Request } from 'express';
 interface AuthenticatedRequest extends Request {
     user: {
@@ -29,7 +30,8 @@ export declare class MeetingController {
     private readonly service;
     private readonly pdfService;
     private readonly emailService;
-    constructor(service: MeetingService, pdfService: PdfService, emailService: EmailService);
+    private readonly activityService;
+    constructor(service: MeetingService, pdfService: PdfService, emailService: EmailService, activityService: ActivityService);
     findAll(req: AuthenticatedRequest): Promise<Meeting[]>;
     findAllAdmin(req: AuthenticatedRequest): Promise<Meeting[]>;
     findOne(id: number, req: AuthenticatedRequest): Promise<Meeting>;
@@ -101,5 +103,8 @@ export declare class MeetingController {
             error?: string;
         }>;
     }>;
+    updateStatus(id: number, body: {
+        status: 'active' | 'completed';
+    }, req: AuthenticatedRequest): Promise<Meeting>;
 }
 export {};

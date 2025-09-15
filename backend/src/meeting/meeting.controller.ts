@@ -3,8 +3,10 @@ import { Meeting } from './meeting.entity';
 import { MeetingService } from './meeting.service';
 import { PdfService } from '../pdf/pdf.service';
 import { EmailService } from '../email/email.service';
+import { ActivityService } from '../activity/activity.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
+import { Participant } from '../participant/participant.entity';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -29,14 +31,14 @@ interface ParticipantResponse {
   signatureDate?: string;
   location?: string;
 }
-import { Participant } from '../participant/participant.entity';
 
 @Controller('meetings')
 export class MeetingController {
   constructor(
     private readonly service: MeetingService,
     private readonly pdfService: PdfService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+    private readonly activityService: ActivityService
   ) {}
 
   @Get()
@@ -330,6 +332,41 @@ export class MeetingController {
     } catch (err) {
       throw new HttpException(
         err.message || "Erreur lors de l'envoi des emails",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  @Put(':id/status')
+  @UseGuards(JwtAuthGuard)
+  async updateStatus(
+    @Param('id') id: number,
+    @Body() body: { status: 'active' | 'completed' },
+    @Req() req: AuthenticatedRequest
+  ): Promise<Meeting> {
+    try {
+      const meeting = await this.service.findOne(id);
+      
+      // Vérifier les permissions
+      if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
+        throw new HttpException('Accès non autorisé', HttpStatus.FORBIDDEN);
+      }
+
+      // Mettre à jour le statut
+      const updatedMeeting = await this.service.update(id, { status: body.status });
+
+      // Log d'activité
+      const user = { id: req.user.id, name: req.user.email.split('@')[0] } as any;
+      if (body.status === 'completed') {
+        await this.activityService.createMeetingClosedLog(updatedMeeting, user, false);
+      } else if (body.status === 'active' && meeting.status === 'completed') {
+        await this.activityService.createMeetingReopenedLog(updatedMeeting, user);
+      }
+
+      return updatedMeeting;
+    } catch (err) {
+      throw new HttpException(
+        err.message || 'Erreur lors de la mise à jour du statut',
         HttpStatus.BAD_REQUEST
       );
     }

@@ -14,64 +14,69 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActivityController = void 0;
 const common_1 = require("@nestjs/common");
+const typeorm_1 = require("@nestjs/typeorm");
+const typeorm_2 = require("typeorm");
 const activity_service_1 = require("./activity.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
-const admin_guard_1 = require("../auth/admin.guard");
+const activity_log_entity_1 = require("./activity-log.entity");
 let ActivityController = class ActivityController {
-    constructor(activityService) {
+    constructor(activityService, activityLogRepository) {
         this.activityService = activityService;
+        this.activityLogRepository = activityLogRepository;
     }
-    async findAll(filters) {
-        return this.activityService.findAll(filters);
+    async getMeetingActivities(meetingId, page, limit, type) {
+        const filters = {
+            meetingId: parseInt(meetingId),
+            page: page ? parseInt(page.toString()) : 1,
+            limit: limit ? parseInt(limit.toString()) : 20,
+            type: type,
+        };
+        return this.activityService.getMeetingActivities(filters);
     }
-    async getStats(startDate, endDate) {
-        const start = startDate ? new Date(startDate) : undefined;
-        const end = endDate ? new Date(endDate) : undefined;
-        return this.activityService.getStats(start, end);
-    }
-    async findByUserId(userId, limit = 50) {
-        return this.activityService.findByUserId(userId, limit);
-    }
-    async getFailedLoginAttempts(email, hours = 24) {
-        const count = await this.activityService.getFailedLoginAttempts(email, hours);
-        return { count };
+    async createActivityLog(meetingId, body, req) {
+        try {
+            const meeting = { id: parseInt(meetingId), title: 'Réunion' };
+            const log = this.activityLogRepository.create({
+                type: body.type,
+                description: body.description,
+                meeting: meeting,
+                meetingId: parseInt(meetingId)
+            });
+            await this.activityLogRepository.save(log);
+            return { success: true };
+        }
+        catch (error) {
+            console.error('Erreur lors de la création du log:', error);
+            throw new common_1.HttpException('Erreur lors de la création du log d\'activité', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 };
 exports.ActivityController = ActivityController;
 __decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)()),
+    (0, common_1.Get)('meeting/:meetingId'),
+    __param(0, (0, common_1.Param)('meetingId')),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('type')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [String, Number, Number, String]),
     __metadata("design:returntype", Promise)
-], ActivityController.prototype, "findAll", null);
+], ActivityController.prototype, "getMeetingActivities", null);
 __decorate([
-    (0, common_1.Get)('stats'),
-    __param(0, (0, common_1.Query)('startDate')),
-    __param(1, (0, common_1.Query)('endDate')),
+    (0, common_1.Post)('meeting/:meetingId/log'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('meetingId')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, Object, Object]),
     __metadata("design:returntype", Promise)
-], ActivityController.prototype, "getStats", null);
-__decorate([
-    (0, common_1.Get)('user/:userId'),
-    __param(0, (0, common_1.Query)('userId')),
-    __param(1, (0, common_1.Query)('limit')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
-    __metadata("design:returntype", Promise)
-], ActivityController.prototype, "findByUserId", null);
-__decorate([
-    (0, common_1.Get)('failed-logins'),
-    __param(0, (0, common_1.Query)('email')),
-    __param(1, (0, common_1.Query)('hours')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], ActivityController.prototype, "getFailedLoginAttempts", null);
+], ActivityController.prototype, "createActivityLog", null);
 exports.ActivityController = ActivityController = __decorate([
     (0, common_1.Controller)('activity'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, admin_guard_1.AdminGuard),
-    __metadata("design:paramtypes", [activity_service_1.ActivityService])
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(1, (0, typeorm_1.InjectRepository)(activity_log_entity_1.ActivityLog)),
+    __metadata("design:paramtypes", [activity_service_1.ActivityService,
+        typeorm_2.Repository])
 ], ActivityController);
 //# sourceMappingURL=activity.controller.js.map

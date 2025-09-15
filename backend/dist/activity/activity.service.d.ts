@@ -1,37 +1,27 @@
 import { Repository } from 'typeorm';
 import { ActivityLog, ActivityType } from './activity-log.entity';
+import { User } from '../user/user.entity';
+import { Meeting } from '../meeting/meeting.entity';
 export interface ActivityLogFilters {
+    meetingId?: number;
     userId?: number;
-    userEmail?: string;
-    activityType?: ActivityType;
-    startDate?: Date;
-    endDate?: Date;
-    search?: string;
-    success?: boolean;
+    type?: ActivityType;
     page?: number;
     limit?: number;
-}
-export interface ActivityStats {
-    totalLogs: number;
-    successfulLogs: number;
-    failedLogs: number;
-    loginCount: number;
-    logoutCount: number;
-    meetingActivities: number;
-    participantActivities: number;
-    recentActivity: ActivityLog[];
 }
 export declare class ActivityService {
     private readonly activityLogRepository;
     constructor(activityLogRepository: Repository<ActivityLog>);
-    createLog(log: ActivityLog): Promise<ActivityLog>;
-    findAll(filters?: ActivityLogFilters): Promise<{
+    logActivity(type: ActivityType, description: string, meeting: Meeting, user?: User, metadata?: Record<string, any>): Promise<ActivityLog>;
+    getMeetingActivities(filters: ActivityLogFilters): Promise<{
         logs: ActivityLog[];
         total: number;
     }>;
-    findById(id: number): Promise<ActivityLog>;
-    findByUserId(userId: number, limit?: number): Promise<ActivityLog[]>;
-    getStats(startDate?: Date, endDate?: Date): Promise<ActivityStats>;
-    cleanupOldLogs(days?: number): Promise<number>;
-    getFailedLoginAttempts(email: string, hours?: number): Promise<number>;
+    createMeetingCreatedLog(meeting: Meeting, user: User): Promise<ActivityLog>;
+    createMeetingUpdatedLog(meeting: Meeting, user: User, changes: Record<string, any>): Promise<ActivityLog>;
+    createMeetingClosedLog(meeting: Meeting, user: User, automatic?: boolean): Promise<ActivityLog>;
+    createMeetingReopenedLog(meeting: Meeting, user: User): Promise<ActivityLog>;
+    createAttendanceListPrintedLog(meeting: Meeting, user: User): Promise<ActivityLog>;
+    createQrCodePrintedLog(meeting: Meeting, user: User): Promise<ActivityLog>;
+    createQrConfigUpdatedLog(meeting: Meeting, user: User, config: any): Promise<ActivityLog>;
 }

@@ -1,5 +1,6 @@
 import { Repository } from 'typeorm';
 import { Meeting } from './meeting.entity';
+import { User } from '../user/user.entity';
 interface ParticipantResponse {
     id: number;
     name: string;
@@ -18,12 +19,15 @@ interface ParticipantResponse {
 import { Participant } from '../participant/participant.entity';
 import { QrCodeService } from '../qrcode/qrcode.service';
 import { EmailService } from '../email/email.service';
+import { ActivityService } from '../activity/activity.service';
 export declare class MeetingService {
     private meetingRepository;
     private participantRepository;
+    private userRepository;
     private qrCodeService;
     private emailService;
-    constructor(meetingRepository: Repository<Meeting>, participantRepository: Repository<Participant>, qrCodeService: QrCodeService, emailService: EmailService);
+    private activityService;
+    constructor(meetingRepository: Repository<Meeting>, participantRepository: Repository<Participant>, userRepository: Repository<User>, qrCodeService: QrCodeService, emailService: EmailService, activityService: ActivityService);
     create(meetingData: {
         title: string;
         description?: string;

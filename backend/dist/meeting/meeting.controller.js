@@ -17,12 +17,14 @@ const common_1 = require("@nestjs/common");
 const meeting_service_1 = require("./meeting.service");
 const pdf_service_1 = require("../pdf/pdf.service");
 const email_service_1 = require("../email/email.service");
+const activity_service_1 = require("../activity/activity.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let MeetingController = class MeetingController {
-    constructor(service, pdfService, emailService) {
+    constructor(service, pdfService, emailService, activityService) {
         this.service = service;
         this.pdfService = pdfService;
         this.emailService = emailService;
+        this.activityService = activityService;
     }
     async findAll(req) {
         const userId = req.user?.id;
@@ -164,6 +166,26 @@ let MeetingController = class MeetingController {
             throw new common_1.HttpException(err.message || "Erreur lors de l'envoi des emails", common_1.HttpStatus.BAD_REQUEST);
         }
     }
+    async updateStatus(id, body, req) {
+        try {
+            const meeting = await this.service.findOne(id);
+            if (meeting.createdById !== req.user?.id && req.user?.role !== 'admin') {
+                throw new common_1.HttpException('Accès non autorisé', common_1.HttpStatus.FORBIDDEN);
+            }
+            const updatedMeeting = await this.service.update(id, { status: body.status });
+            const user = { id: req.user.id, name: req.user.email.split('@')[0] };
+            if (body.status === 'completed') {
+                await this.activityService.createMeetingClosedLog(updatedMeeting, user, false);
+            }
+            else if (body.status === 'active' && meeting.status === 'completed') {
+                await this.activityService.createMeetingReopenedLog(updatedMeeting, user);
+            }
+            return updatedMeeting;
+        }
+        catch (err) {
+            throw new common_1.HttpException(err.message || 'Erreur lors de la mise à jour du statut', common_1.HttpStatus.BAD_REQUEST);
+        }
+    }
 };
 exports.MeetingController = MeetingController;
 __decorate([
@@ -269,10 +291,21 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
 ], MeetingController.prototype, "sendEmailsToParticipants", null);
+__decorate([
+    (0, common_1.Put)(':id/status'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:returntype", Promise)
+], MeetingController.prototype, "updateStatus", null);
 exports.MeetingController = MeetingController = __decorate([
     (0, common_1.Controller)('meetings'),
     __metadata("design:paramtypes", [meeting_service_1.MeetingService,
         pdf_service_1.PdfService,
-        email_service_1.EmailService])
+        email_service_1.EmailService,
+        activity_service_1.ActivityService])
 ], MeetingController);
 //# sourceMappingURL=meeting.controller.js.map

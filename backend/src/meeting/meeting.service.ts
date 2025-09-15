@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Meeting } from './meeting.entity';
+import { User } from '../user/user.entity';
 
 interface ParticipantResponse {
   id: number;
@@ -22,6 +23,7 @@ import { Participant } from '../participant/participant.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { QrCodeService } from '../qrcode/qrcode.service';
 import { EmailService } from '../email/email.service';
+import { ActivityService } from '../activity/activity.service';
 
 @Injectable()
 export class MeetingService {
@@ -30,8 +32,11 @@ export class MeetingService {
     private meetingRepository: Repository<Meeting>,
     @InjectRepository(Participant)
     private participantRepository: Repository<Participant>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private qrCodeService: QrCodeService,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private activityService: ActivityService
   ) {}
 
   async create(meetingData: {
@@ -104,7 +109,21 @@ export class MeetingService {
 
     // Enregistrer une seule fois avec le QR code
     meeting.qrCode = await this.qrCodeService.generateMeetingQRCode(meeting.uniqueCode);
-    return await this.meetingRepository.save(meeting);
+    const savedMeeting = await this.meetingRepository.save(meeting);
+    
+    // Log de création de réunion
+    if (userId) {
+      try {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (user) {
+          await this.activityService.createMeetingCreatedLog(savedMeeting, user);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la création du log d\'activité:', error);
+      }
+    }
+    
+    return savedMeeting;
   }
 
   async findAll(userId?: number): Promise<Meeting[]> {
@@ -469,6 +488,15 @@ export class MeetingService {
       .set({ status: 'completed' })
       .whereInIds(meetingsToComplete.map(m => m.id))
       .execute();
+
+    // Log d'activité pour les réunions clôturées automatiquement
+    for (const meeting of meetingsToComplete) {
+      try {
+        await this.activityService.createMeetingClosedLog(meeting, meeting.createdBy, true);
+      } catch (error) {
+        console.error('Erreur lors de la création du log d\'activité pour la réunion', meeting.id, error);
+      }
+    }
 
     console.log(`${meetingsToComplete.length} réunion(s) ont été marquées comme 'completed' suite à l'expiration de leur date de fin`);
   }

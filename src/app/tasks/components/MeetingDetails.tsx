@@ -21,6 +21,7 @@ import {
 import { type Meeting } from './MeetingCard';
 import { MeetingForm } from './MeetingForm';
 import { ParticipantsList } from './Participants/ParticipantsList';
+import { ActivityLog } from './ActivityLog';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
@@ -148,6 +149,23 @@ export const MeetingDetails = ({
         onClose: () => {
           clearTimeout(timeoutId);
           setIsSubmitting(false);
+          
+          // Log d'activité pour l'impression de la liste de présence
+          try {
+            fetch(apiUrl(`/activity/meeting/${meeting.id}/log`), {
+              method: 'POST',
+              headers: {
+                ...AuthService.getAuthHeaders(),
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'attendance_list_printed',
+                description: `${user?.name || 'Utilisateur'} a imprimé la liste de présence`
+              })
+            });
+          } catch (logError) {
+            console.error('Erreur lors du log d\'activité:', logError);
+          }
         }
       });
     } catch (error) {
@@ -249,7 +267,7 @@ export const MeetingDetails = ({
       setIsSubmitting(true);
       const newStatus = currentMeeting.status === 'completed' ? 'active' : 'completed';
       
-      const response = await fetch(apiUrl(`/meetings/${currentMeeting.id}`), {
+      const response = await fetch(apiUrl(`/meetings/${currentMeeting.id}/status`), {
         method: 'PUT',
         headers: {
           ...AuthService.getAuthHeaders(),
@@ -525,6 +543,9 @@ export const MeetingDetails = ({
                   </div> */}
                 </div>
               </div>
+
+              {/* Journal d'activité */}
+              <ActivityLog meetingId={currentMeeting.id} />
             </div>
           </div>
         </div>
