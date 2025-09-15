@@ -51,7 +51,7 @@ let QrCodeService = class QrCodeService {
         this.configService = configService;
     }
     async generateMeetingQRCode(meetingCode) {
-        const baseUrl = this.configService.get('APP_URL') || 'http://164.160.40.182:3001';
+        const baseUrl = this.configService.get('APP_URL') || 'http://localhost:3001';
         const registrationUrl = `${baseUrl}/meetings/${meetingCode}/register`;
         try {
             return await QRCode.toDataURL(registrationUrl);

@@ -18,8 +18,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AuthService } from '@/lib/auth';
-import { MeetingService, Meeting, MeetingStats } from '@/lib/meeting';
+import { MeetingService, MeetingStats, type Meeting as BackendMeeting } from '@/lib/meeting';
 import { useParticipantsCount } from '@/hooks/useParticipantsCount';
+import { MeetingForm } from '@/app/tasks/components/MeetingForm';
+import { type Meeting } from '@/app/tasks/components/MeetingCard';
 
 export default function HomePage() {
   const { user, logout, loading } = useAuth();
@@ -33,6 +35,22 @@ export default function HomePage() {
   });
   const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [showMeetingForm, setShowMeetingForm] = useState(false);
+
+  // Fonction pour convertir les données du backend vers le format frontend
+  const convertBackendMeetingToFrontend = (backendMeeting: BackendMeeting): Meeting => {
+    return {
+      id: backendMeeting.id,
+      title: backendMeeting.title,
+      description: backendMeeting.description,
+      status: backendMeeting.status as 'active' | 'completed' | 'inactive',
+      start_date: backendMeeting.start_date,
+      location: backendMeeting.location,
+      max_participants: backendMeeting.max_participants,
+      uniqueCode: backendMeeting.unique_code, // Conversion de snake_case à camelCase
+      participants_count: backendMeeting.participants_count
+    };
+  };
 
   // Charger les données du tableau de bord
   useEffect(() => {
@@ -49,7 +67,7 @@ export default function HomePage() {
         ]);
 
         setStats(meetingStats);
-        setRecentMeetings(recentMeetingsData);
+        setRecentMeetings(recentMeetingsData.map(convertBackendMeetingToFrontend));
 
       } catch (error) {
         console.error('Erreur lors du chargement des données du tableau de bord:', error);
@@ -113,6 +131,26 @@ export default function HomePage() {
   const handleClearStorage = () => {
     AuthService.clearAllAuthData();
     router.push('/login');
+  };
+
+  const handleSaveMeeting = async (meeting: Meeting) => {
+    try {
+      // Recharger les données après la création d'une nouvelle réunion
+      const [meetingStats, recentMeetingsData] = await Promise.all([
+        MeetingService.getMeetingStats(),
+        MeetingService.getRecentMeetings(5)
+      ]);
+      
+      setStats(meetingStats);
+      setRecentMeetings(recentMeetingsData.map(convertBackendMeetingToFrontend));
+      setShowMeetingForm(false);
+    } catch (error) {
+      console.error('Erreur lors du rechargement des données:', error);
+    }
+  };
+
+  const handleCancelMeetingForm = () => {
+    setShowMeetingForm(false);
   };
 
   return (
@@ -188,12 +226,21 @@ export default function HomePage() {
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Réunions Récentes</h2>
             </div>
-            <Link
-              href="/tasks"
-              className="inline-flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 bg-orange-500 text-white font-medium text-sm sm:text-base rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
-            >
-              Voir tout →
-            </Link>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowMeetingForm(true)}
+                className="inline-flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 bg-green-600 text-white font-medium text-sm sm:text-base rounded-xl hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+              >
+                <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
+                Nouvelle réunion
+              </button>
+              <Link
+                href="/tasks"
+                className="inline-flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 bg-orange-500 text-white font-medium text-sm sm:text-base rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+              >
+                Voir tout →
+              </Link>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -217,6 +264,14 @@ export default function HomePage() {
             )}
           </div>
         </Card>
+
+        {/* Formulaire de création de réunion */}
+        {showMeetingForm && (
+          <MeetingForm
+            onSave={handleSaveMeeting}
+            onCancel={handleCancelMeetingForm}
+          />
+        )}
       </div>
     </main>
   );
@@ -260,7 +315,7 @@ function MeetingListItem({ meeting, index, onMeetingClick }: MeetingListItemProp
       <div className="flex items-center justify-end sm:justify-center">
         <span className={`
           px-2 py-1 sm:px-4 sm:py-2 rounded-full text-xs font-bold transition-all duration-300 whitespace-nowrap
-          ${meeting.status === 'active' || meeting.status === 'scheduled'
+          ${meeting.status === 'active'
             ? 'bg-green-500 text-white shadow-md hover:shadow-lg'
             : meeting.status === 'inactive'
             ? 'bg-blue-500 text-white shadow-md hover:shadow-lg'
@@ -269,7 +324,7 @@ function MeetingListItem({ meeting, index, onMeetingClick }: MeetingListItemProp
             : 'bg-gray-500 text-white shadow-md hover:shadow-lg'
           }
         `}>
-          {meeting.status === 'active' || meeting.status === 'scheduled'
+          {meeting.status === 'active'
             ? 'Active'
             : meeting.status === 'inactive'
             ? 'En attente'

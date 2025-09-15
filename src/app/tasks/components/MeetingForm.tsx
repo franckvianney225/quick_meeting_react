@@ -46,7 +46,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     status: (initialData?.status as StatusType) || 'active', // Par défaut 'active' au lieu de 'inactive'
     start_date: initialData?.startDate
       ? new Date(initialData.startDate).toISOString().slice(0, 16)
-      : initialData?.start_date || '',
+      : initialData?.start_date || new Date().toISOString().slice(0, 16), // Valeur par défaut comme dans tasks/page.tsx
     meetingStartDate: initialData?.meetingStartDate
       ? new Date(initialData.meetingStartDate).toISOString().slice(0, 16)
       : '',
@@ -96,14 +96,17 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     
     try {
       // Préparer les données à envoyer au backend
-      if (!formData.start_date) {
-        throw new Error('La date de début est requise');
-      }
+      // La date de début n'est plus obligatoire depuis que nous avons les dates de réunion
+      // if (!formData.start_date) {
+      //   throw new Error('La date de début est requise');
+      // }
 
-      // Vérifier que les dates sont valides
-      const dateObj = new Date(formData.start_date);
-      if (isNaN(dateObj.getTime())) {
-        throw new Error('Format de date invalide');
+      // Vérifier que les dates sont valides (seulement si start_date est fourni)
+      if (formData.start_date) {
+        const dateObj = new Date(formData.start_date);
+        if (isNaN(dateObj.getTime())) {
+          throw new Error('Format de date invalide');
+        }
       }
 
       // Vérifier que la date de fin de réunion n'est pas inférieure à la date de début
