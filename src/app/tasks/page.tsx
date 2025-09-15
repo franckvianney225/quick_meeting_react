@@ -156,7 +156,7 @@ export default function TasksPage() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showForm, setShowForm] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
   
