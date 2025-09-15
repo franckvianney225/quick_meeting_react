@@ -19,6 +19,7 @@ interface ActivityLog {
 
 interface ActivityLogProps {
   meetingId: number;
+  refreshTrigger?: number;
 }
 
 const getActivityIcon = (type: string) => {
@@ -52,7 +53,7 @@ const formatDateTime = (dateString: string) => {
   });
 };
 
-export const ActivityLog = ({ meetingId }: ActivityLogProps) => {
+export const ActivityLog = ({ meetingId, refreshTrigger }: ActivityLogProps) => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +67,7 @@ export const ActivityLog = ({ meetingId }: ActivityLogProps) => {
         });
 
         if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des logs dactivité');
+          throw new Error("Erreur lors de la récupération des logs d'activité");
         }
 
         const data = await response.json();
@@ -80,12 +81,12 @@ export const ActivityLog = ({ meetingId }: ActivityLogProps) => {
     };
 
     fetchActivityLogs();
-  }, [meetingId]);
+  }, [meetingId, refreshTrigger]);
 
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Journal d'activité</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Journal d&apos;activité</h3>
         <div className="text-center text-gray-500">Chargement...</div>
       </div>
     );
@@ -94,7 +95,7 @@ export const ActivityLog = ({ meetingId }: ActivityLogProps) => {
   if (error) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Journal d'activité</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Journal d&apos;activité</h3>
         <div className="text-center text-red-500">{error}</div>
       </div>
     );
@@ -102,7 +103,7 @@ export const ActivityLog = ({ meetingId }: ActivityLogProps) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Journal d'activité</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Journal d&apos;activité</h3>
       
       {logs.length === 0 ? (
         <div className="text-center text-gray-500 py-8">

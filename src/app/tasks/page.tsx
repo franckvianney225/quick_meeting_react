@@ -17,7 +17,9 @@ import {
   FunnelIcon,
   PlusIcon,
   Squares2X2Icon,
-  ListBulletIcon
+  ListBulletIcon,
+  PlayIcon,
+  CheckIcon
 } from '@heroicons/react/24/outline';
 
 export default function TasksPage() {
@@ -491,7 +493,7 @@ export default function TasksPage() {
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                <ListBulletIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                <PlayIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'active').length}
@@ -500,7 +502,7 @@ export default function TasksPage() {
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'completed').length}

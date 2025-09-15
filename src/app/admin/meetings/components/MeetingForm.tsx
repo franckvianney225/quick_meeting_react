@@ -576,7 +576,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Niveau de correction derreur
+                        Niveau de correction d&apos;erreur
                       </label>
                       <select
                         value={qrConfig.errorCorrectionLevel}

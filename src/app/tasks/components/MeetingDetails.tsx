@@ -48,6 +48,7 @@ export const MeetingDetails = ({
   const [showUniqueCode, setShowUniqueCode] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState(meeting);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [activityLogRefresh, setActivityLogRefresh] = useState(0);
   
   // Vérifier si l'utilisateur est admin
   const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
@@ -84,6 +85,8 @@ export const MeetingDetails = ({
   const handleSaveEdit = async (meetingData: Omit<Meeting, 'id'>) => {
     setShowEditForm(false);
     onEdit(meeting.id);
+    // Rafraîchir le journal d'activité après modification
+    setActivityLogRefresh(prev => prev + 1);
     return Promise.resolve();
   };
 
@@ -285,6 +288,8 @@ export const MeetingDetails = ({
       
       // Forcer le rafraîchissement complet de la page après la mise à jour
       window.location.reload();
+      // Rafraîchir aussi le journal d'activité
+      setActivityLogRefresh(prev => prev + 1);
       
     } catch (error) {
       console.error('Erreur:', error);
@@ -545,7 +550,7 @@ export const MeetingDetails = ({
               </div>
 
               {/* Journal d'activité */}
-              <ActivityLog meetingId={currentMeeting.id} />
+              <ActivityLog meetingId={currentMeeting.id} refreshTrigger={activityLogRefresh} />
             </div>
           </div>
         </div>
