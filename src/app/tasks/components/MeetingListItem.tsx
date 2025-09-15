@@ -186,7 +186,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onGenerateQ
   return (
     <>
       <tr
-        className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/80 hover:border-orange-300/50 transition-all duration-300 cursor-pointer"
+        className="bg-white/60 backdrop-blur-sm border-b border-orange-200/30 hover:bg-white/90 hover:border-orange-300/70 hover:shadow-lg hover:scale-[1.02] transform transition-all duration-300 cursor-pointer"
         onClick={() => onView(meeting.id)}
       >
         {/* Réunion */}
