@@ -14,12 +14,12 @@ export class MeetingSchedulerService {
 
     try {
       // Vérifier et envoyer les notifications d'expiration imminente
-      await this.sendExpirationReminders();
+      // await this.sendExpirationReminders(); // Désactivé temporairement
 
       // Vérifier et mettre à jour les réunions expirées
       await this.meetingService.checkAndUpdateExpiredMeetings();
 
-      this.logger.log('Vérification automatique terminée avec succès');
+      this.logger.log('Vérification automatique terminée avec succès (notifications emails désactivées)');
     } catch (error) {
       this.logger.error(`Erreur lors de la vérification automatique: ${error.message}`, error.stack);
     }
@@ -83,12 +83,12 @@ export class MeetingSchedulerService {
 
     try {
       // Vérifier et envoyer les notifications d'expiration imminente
-      await this.sendExpirationReminders();
+      // await this.sendExpirationReminders(); // Désactivé temporairement
 
       // Vérifier et mettre à jour les réunions expirées
       await this.meetingService.checkAndUpdateExpiredMeetings();
 
-      this.logger.log('Vérification fréquente terminée');
+      this.logger.log('Vérification fréquente terminée (notifications emails désactivées)');
     } catch (error) {
       this.logger.error(`Erreur vérification fréquente: ${error.message}`, error.stack);
     }

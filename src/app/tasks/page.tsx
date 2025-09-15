@@ -505,7 +505,7 @@ export default function TasksPage() {
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                 {meetings.filter(m => m.status === 'completed').length}
               </div>
-              <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions Terminées</div>
+              <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions Cloturées</div>
             </div>
           </div>
 

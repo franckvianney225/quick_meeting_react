@@ -208,7 +208,7 @@ export default function HomePage() {
           </Link>
           <Link href="/tasks?status=completed">
             <StatCard
-              title="Réunions Terminées"
+              title="Réunions Cloturées"
               value={stats.completedMeetings}
               icon={CheckCircleIcon}
               color="red"

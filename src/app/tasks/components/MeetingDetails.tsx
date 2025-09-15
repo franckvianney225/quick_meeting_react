@@ -514,7 +514,7 @@ export const MeetingDetails = ({
                     <div className="text-xs sm:text-sm text-gray-600">Inscrits</div>
                   </div>
                   
-                  <div className="text-center">
+                  {/* <div className="text-center">
                     <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-full mx-auto mb-2 sm:mb-3">
                       <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
                     </div>
@@ -522,7 +522,7 @@ export const MeetingDetails = ({
                       {calculateDuration(currentMeeting.meetingStartDate, currentMeeting.meetingEndDate)}
                     </div>
                     <div className="text-xs sm:text-sm text-gray-600">Durée estimée</div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

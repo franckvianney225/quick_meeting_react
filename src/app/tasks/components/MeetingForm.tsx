@@ -281,7 +281,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
       },
       {
         key: 'completed' as StatusType,
-        label: 'Terminé',
+        label: 'Cloturer',
         icon: CheckIcon,
         color: 'red',
         bgActive: 'bg-red-100 border-red-500 text-red-700',
@@ -479,27 +479,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                     </div>
 
                     <div>
-                      <label htmlFor="meetingEndDate" className="block text-sm font-medium text-gray-700 mb-1">
-                        Date de fin de réunion
-                      </label>
-                      <input
-                        type="datetime-local"
-                        id="meetingEndDate"
-                        name="meetingEndDate"
-                        value={formData.meetingEndDate}
-                        onChange={handleChange}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
-                          dateValidationError
-                            ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                            : 'border-gray-300'
-                        }`}
-                      />
-                      {dateValidationError && (
-                        <p className="mt-1 text-sm text-red-600">{dateValidationError}</p>
-                      )}
-                    </div>
-
-                    <div className="md:col-span-2">
+                      <div className="md:col-span-2">
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                         Lieu*
                       </label>
@@ -510,6 +490,9 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         required
                       />
                     </div>
+                    </div>
+
+                   
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

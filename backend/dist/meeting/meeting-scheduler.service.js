@@ -22,9 +22,8 @@ let MeetingSchedulerService = MeetingSchedulerService_1 = class MeetingScheduler
     async handleMeetingStatusChecks() {
         this.logger.log('Démarrage de la vérification automatique des statuts de réunion');
         try {
-            await this.sendExpirationReminders();
             await this.meetingService.checkAndUpdateExpiredMeetings();
-            this.logger.log('Vérification automatique terminée avec succès');
+            this.logger.log('Vérification automatique terminée avec succès (notifications emails désactivées)');
         }
         catch (error) {
             this.logger.error(`Erreur lors de la vérification automatique: ${error.message}`, error.stack);
@@ -71,9 +70,8 @@ let MeetingSchedulerService = MeetingSchedulerService_1 = class MeetingScheduler
         }
         this.logger.log('Vérification fréquente (développement) démarrée');
         try {
-            await this.sendExpirationReminders();
             await this.meetingService.checkAndUpdateExpiredMeetings();
-            this.logger.log('Vérification fréquente terminée');
+            this.logger.log('Vérification fréquente terminée (notifications emails désactivées)');
         }
         catch (error) {
             this.logger.error(`Erreur vérification fréquente: ${error.message}`, error.stack);
