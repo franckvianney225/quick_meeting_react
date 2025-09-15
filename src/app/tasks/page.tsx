@@ -8,10 +8,12 @@ import { MeetingDetails } from './components/MeetingDetails';
 import { UserProfile } from '../../components/ui/UserProfile';
 import { ErrorModal } from '@/components/ui/ErrorModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { OnboardingTour } from '@/components/ui/OnboardingTour';
 import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthService } from '@/lib/auth';
 import { apiUrl } from '@/lib/api';
+import { tasksOnboardingSteps } from '@/data/onboardingSteps';
 import {
   MagnifyingGlassIcon,
   FunnelIcon,
@@ -161,6 +163,9 @@ export default function TasksPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [showForm, setShowForm] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
+  
+  // Gestion du guide onboarding
+  const [showOnboardingTour, setShowOnboardingTour] = useState(false);
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -450,6 +455,18 @@ export default function TasksPage() {
     }
   }
 
+  // Démarrer le guide onboarding pour les nouveaux utilisateurs
+  useEffect(() => {
+    if (AuthService.isFirstLogin() && !AuthService.hasCompletedOnboarding()) {
+      setShowOnboardingTour(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    AuthService.markOnboardingCompleted();
+    setShowOnboardingTour(false);
+  };
+
   // Page principale avec formulaire optionnel
   return (
     <AuthGuard>
@@ -473,7 +490,7 @@ export default function TasksPage() {
             </div>
 
             {/* Profil utilisateur en haut à droite */}
-            <div className="self-end sm:self-auto">
+            <div className="self-end sm:self-auto user-profile-container">
               <UserProfile
                 user={currentUser}
                 onLogout={handleLogout}
@@ -482,9 +499,26 @@ export default function TasksPage() {
             </div>
           </div>
 
+          {/* Bouton pour redémarrer le guide (visible seulement en développement) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={() => {
+                  if (confirm('Voulez-vous redémarrer le guide de bienvenue ?')) {
+                    AuthService.resetOnboarding();
+                    setShowOnboardingTour(true);
+                  }
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+              >
+                🎓 Redémarrer le guide
+              </button>
+            </div>
+          )}
+
           {/* Statistiques */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 stats-total-meetings">
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
                 <Squares2X2Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
@@ -515,7 +549,7 @@ export default function TasksPage() {
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-6 mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               {/* Recherche - Pleine largeur sur mobile, réduite sur desktop */}
-              <div className="relative flex-1 lg:max-w-md">
+              <div className="relative flex-1 lg:max-w-md search-input">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black-400" />
                 <input
                   type="text"
@@ -531,7 +565,7 @@ export default function TasksPage() {
                 {/* Première ligne mobile: Filtres de base */}
                 <div className="flex items-center justify-between sm:justify-start gap-3">
                   {/* Toggle Vue Grille/Liste - Masqué sur mobile */}
-                  <div className="hidden sm:flex items-center bg-gray-100/80 rounded-xl p-1">
+                  <div className="hidden sm:flex items-center bg-gray-100/80 rounded-xl p-1 view-mode-toggle">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`p-3 rounded-lg transition-all duration-300 ${
@@ -557,7 +591,7 @@ export default function TasksPage() {
                   </div>
 
                   {/* Filtre de statut */}
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 status-filter">
                     <FunnelIcon className="h-5 w-5 text-gray-400" />
                     <select
                       value={statusFilter}
@@ -594,7 +628,7 @@ export default function TasksPage() {
 
                   <button
                     onClick={handleCreateNew}
-                    className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold"
+                    className="flex items-center space-x-3 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl font-semibold new-meeting-btn"
                   >
                     <PlusIcon className="h-5 w-5" />
                     <span>Nouvelle Réunion</span>
@@ -761,7 +795,7 @@ export default function TasksPage() {
 
               {/* Pagination en bas - optimisée pour mobile */}
               {totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 sm:mt-6 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 space-y-3 sm:space-y-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 sm:mt-6 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/30 space-y-3 sm:space-y-0 pagination-controls">
                   <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                     Page {currentPage} sur {totalPages}
                   </div>
@@ -844,6 +878,14 @@ export default function TasksPage() {
       title={errorModalTitle}
       message={errorModalMessage}
     />
+
+      {/* Guide onboarding */}
+      <OnboardingTour
+        steps={tasksOnboardingSteps}
+        isOpen={showOnboardingTour}
+        onClose={() => setShowOnboardingTour(false)}
+        onComplete={handleOnboardingComplete}
+      />
   </AuthGuard>
   );
 }

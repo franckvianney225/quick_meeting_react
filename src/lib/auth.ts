@@ -36,7 +36,14 @@ export class AuthService {
       throw new Error(errorData.message || 'Erreur de connexion');
     }
 
-    return response.json();
+    const authResponse = await response.json();
+    
+    // Marquer comme première connexion si l'utilisateur n'a pas de lastLogin
+    if (!authResponse.user.lastLogin) {
+      localStorage.setItem('is_first_login', 'true');
+    }
+
+    return authResponse;
   }
 
   static setToken(token: string): void {
@@ -138,5 +145,24 @@ export class AuthService {
     } catch (error) {
       console.error('Error refreshing user data:', error);
     }
+  }
+
+  // Méthodes pour la gestion du guide onboarding
+  static isFirstLogin(): boolean {
+    return localStorage.getItem('is_first_login') === 'true';
+  }
+
+  static markOnboardingCompleted(): void {
+    localStorage.removeItem('is_first_login');
+    localStorage.setItem('onboarding_completed', 'true');
+  }
+
+  static hasCompletedOnboarding(): boolean {
+    return localStorage.getItem('onboarding_completed') === 'true';
+  }
+
+  static resetOnboarding(): void {
+    localStorage.removeItem('is_first_login');
+    localStorage.removeItem('onboarding_completed');
   }
 }
