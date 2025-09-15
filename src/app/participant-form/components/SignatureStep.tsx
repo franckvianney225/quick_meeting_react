@@ -12,6 +12,7 @@ export default function SignatureStep({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const signaturePadRef = useRef<SignaturePad | null>(null);
   const [hasSigned, setHasSigned] = useState(!!signature);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialiser SignaturePad
   useEffect(() => {
@@ -71,13 +72,25 @@ export default function SignatureStep({
 
   const [showSignatureError, setShowSignatureError] = useState(false);
 
-  const handleSubmit = () => {
-    if (!hasSigned) {
-      setShowSignatureError(true);
+  const handleSubmit = async () => {
+    if (!hasSigned || isSubmitting) {
+      if (!hasSigned) {
+        setShowSignatureError(true);
+      }
       return;
     }
+    
     setShowSignatureError(false);
-    onSubmit();
+    setIsSubmitting(true);
+    
+    try {
+      await onSubmit();
+    } catch (error) {
+      // En cas d'erreur, réactiver le bouton après un délai
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 2000);
+    }
   };
 
   return (
@@ -134,10 +147,18 @@ export default function SignatureStep({
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={!hasSigned}
+        disabled={!hasSigned || isSubmitting}
         className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
       >
-        {hasSigned ? (
+        {isSubmitting ? (
+          <div className="flex items-center justify-center">
+            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Envoi en cours...
+          </div>
+        ) : hasSigned ? (
           <div className="flex items-center justify-center">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
