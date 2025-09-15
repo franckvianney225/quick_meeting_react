@@ -57,6 +57,9 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
     max_participants: initialData?.max_participants || 10,
   });
 
+  // Vérifier si le formulaire est en lecture seule (statut "completed")
+  const isReadOnly = formData.status === 'completed';
+
   // Configuration QR Code
   const [qrConfig, setQRConfig] = useState<QRConfig>(initialData?.qrConfig || {
     backgroundColor: '#FFFFFF',
@@ -345,23 +348,25 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
           <div className="flex space-x-1 mt-4 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
-              onClick={() => setActiveTab('general')}
+              onClick={() => !isReadOnly && setActiveTab('general')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'general'
                   ? 'bg-white text-orange-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
+                  : isReadOnly ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-800'
               }`}
+              disabled={isReadOnly}
             >
               Informations générales
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('qrcode')}
+              onClick={() => !isReadOnly && setActiveTab('qrcode')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                 activeTab === 'qrcode'
                   ? 'bg-white text-orange-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
+                  : isReadOnly ? 'text-gray-400 cursor-not-allowed' : 'text-gray-600 hover:text-gray-800'
               }`}
+              disabled={isReadOnly}
             >
               <QrCodeIcon className="h-4 w-4" />
               <span>Configuration QR Code</span>
@@ -392,11 +397,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                           <button
                             key={status.key}
                             type="button"
-                            onClick={() => !isCompletedDisabled && handleStatusChange(status.key)}
-                            disabled={isCompletedDisabled}
+                            onClick={() => !isCompletedDisabled && !isReadOnly && handleStatusChange(status.key)}
+                            disabled={isCompletedDisabled || isReadOnly}
                             className={`relative p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center space-y-2 ${
                               isActive ? status.bgActive :
-                              isCompletedDisabled ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' :
+                              isCompletedDisabled || isReadOnly ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' :
                               status.bgInactive
                             }`}
                           >
@@ -430,7 +435,10 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       value={formData.title}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                      readOnly={isReadOnly}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                        isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                     />
                   </div>
 
@@ -444,7 +452,10 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       value={formData.description}
                       onChange={handleChange}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                      readOnly={isReadOnly}
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                        isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''
+                      }`}
                     />
                   </div>
 
@@ -474,7 +485,10 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         name="meetingStartDate"
                         value={formData.meetingStartDate}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                        readOnly={isReadOnly}
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                          isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''
+                        }`}
                       />
                     </div>
 
@@ -483,12 +497,14 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                         Lieu*
                       </label>
-                      <LocationInput
-                        value={formData.location}
-                        onChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
-                        placeholder="Entrez le lieu de la réunion (ex: Abidjan, Plateau)"
-                        required
-                      />
+                      <div className={isReadOnly ? 'opacity-70 cursor-not-allowed' : ''}>
+                        <LocationInput
+                          value={formData.location}
+                          onChange={(value) => !isReadOnly && setFormData(prev => ({ ...prev, location: value }))}
+                          placeholder="Entrez le lieu de la réunion (ex: Abidjan, Plateau)"
+                          required
+                        />
+                      </div>
                     </div>
                     </div>
 
@@ -556,11 +572,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                           <button
                             key={color.value}
                             type="button"
-                            onClick={() => handleQRConfigChange('foregroundColor', color.value)}
+                            onClick={() => !isReadOnly && handleQRConfigChange('foregroundColor', color.value)}
+                            disabled={isReadOnly}
                             className={`p-3 rounded-lg border-2 transition-all ${
-                              qrConfig.foregroundColor === color.value 
-                                ? 'border-orange-500 ring-2 ring-orange-200' 
-                                : 'border-gray-200 hover:border-gray-300'
+                              qrConfig.foregroundColor === color.value
+                                ? 'border-orange-500 ring-2 ring-orange-200'
+                                : isReadOnly ? 'border-gray-200 cursor-not-allowed' : 'border-gray-200 hover:border-gray-300'
                             }`}
                             style={{ backgroundColor: color.value }}
                             title={color.name}
@@ -590,11 +607,12 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                           <button
                             key={color.value}
                             type="button"
-                            onClick={() => handleQRConfigChange('backgroundColor', color.value)}
+                            onClick={() => !isReadOnly && handleQRConfigChange('backgroundColor', color.value)}
+                            disabled={isReadOnly}
                             className={`p-3 rounded-lg border-2 transition-all ${
-                              qrConfig.backgroundColor === color.value 
-                                ? 'border-orange-500 ring-2 ring-orange-200' 
-                                : 'border-gray-200 hover:border-gray-300'
+                              qrConfig.backgroundColor === color.value
+                                ? 'border-orange-500 ring-2 ring-orange-200'
+                                : isReadOnly ? 'border-gray-200 cursor-not-allowed' : 'border-gray-200 hover:border-gray-300'
                             }`}
                             style={{ backgroundColor: color.value === 'transparent' ? '#fff' : color.value }}
                             title={color.name}
@@ -623,8 +641,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       </label>
                       <select
                         value={qrConfig.size}
-                        onChange={(e) => handleQRConfigChange('size', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                        onChange={(e) => !isReadOnly && handleQRConfigChange('size', parseInt(e.target.value))}
+                        disabled={isReadOnly}
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 ${
+                          isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''
+                        }`}
                       >
                         <option value={128}>Petit (128px)</option>
                         <option value={256}>Moyen (256px)</option>
@@ -639,8 +660,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                       </label>
                       <select
                         value={qrConfig.errorCorrectionLevel}
-                        onChange={(e) => handleQRConfigChange('errorCorrectionLevel', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
+                        onChange={(e) => !isReadOnly && handleQRConfigChange('errorCorrectionLevel', e.target.value)}
+                        disabled={isReadOnly}
+                        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 ${
+                          isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''
+                        }`}
                       >
                         <option value="L">Faible (7%)</option>
                         <option value="M">Moyen (15%)</option>
@@ -657,8 +681,11 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                         type="checkbox"
                         id="includeMargin"
                         checked={qrConfig.includeMargin}
-                        onChange={(e) => handleQRConfigChange('includeMargin', e.target.checked)}
-                        className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        onChange={(e) => !isReadOnly && handleQRConfigChange('includeMargin', e.target.checked)}
+                        disabled={isReadOnly}
+                        className={`h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded ${
+                          isReadOnly ? 'cursor-not-allowed opacity-70' : ''
+                        }`}
                       />
                       <label htmlFor="includeMargin" className="text-sm font-medium text-gray-700">
                         Inclure une marge autour du QR Code
@@ -735,7 +762,7 @@ export const MeetingForm = ({ initialData, onSave, onCancel, isSaving = false }:
                   </button>
                   <button
                     type="submit"
-                    disabled={isSaving}
+                    disabled={isSaving || isReadOnly}
                     className="flex-1 sm:flex-none px-6 py-3.5 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:ring-offset-1 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <div className="flex items-center justify-center">

@@ -53,7 +53,7 @@ export default function AdminMeetingsPage() {
             // Si le token est expiré, déconnecter et rediriger
             if (payload.exp * 1000 < Date.now()) {
               console.log('Token expiré, déconnexion...');
-              AuthService.logout();
+              logout(); // Utiliser la fonction logout du hook useAuth
               setError('Session expirée. Veuillez vous reconnecter.');
               setTimeout(() => {
                 window.location.href = '/login';

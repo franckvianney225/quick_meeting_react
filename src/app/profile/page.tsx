@@ -7,8 +7,10 @@ import { ProfileTabContent } from './components/ProfileTabContent';
 import { AvatarUploadModal } from './components/AvatarUploadModal';
 import { AuthService } from '@/lib/auth';
 import { apiUrl, getAvatarUrl } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 function ProfilePage() {
+  const { logout } = useAuth();
   const [user, setUser] = useState({
     name: 'Jean Dupont',
     email: 'jean.dupont@example.com',
@@ -174,7 +176,7 @@ function ProfilePage() {
   };
 
   const handleLogout = () => {
-    AuthService.logout();
+    logout();
     window.location.href = '/login';
   };
 

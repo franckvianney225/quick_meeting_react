@@ -195,7 +195,6 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onGenerateQ
             {meeting.title.length > 40 ? `${meeting.title.substring(0, 40)}...` : meeting.title}
           </h3>
           <p className="text-sm text-gray-600 line-clamp-1">{meeting.description}</p>
-          <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-full">{meeting.uniqueCode}</span>
         </td>
 
         {/* Date */}
@@ -211,7 +210,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onGenerateQ
         {/* Lieu */}
         <td className="px-6 py-4 w-2/12">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
               <MapPinIcon className="h-4 w-4 text-white" />
             </div>
             <span className="font-medium truncate">{meeting.location}</span>
