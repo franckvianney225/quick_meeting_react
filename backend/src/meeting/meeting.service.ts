@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Meeting } from './meeting.entity';
 import { User } from '../user/user.entity';
+import { ActivityLog } from '../activity/activity-log.entity';
 
 interface ParticipantResponse {
   id: number;
@@ -34,6 +35,8 @@ export class MeetingService {
     private participantRepository: Repository<Participant>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(ActivityLog)
+    private activityLogRepository: Repository<ActivityLog>,
     private qrCodeService: QrCodeService,
     private emailService: EmailService,
     private activityService: ActivityService
@@ -209,6 +212,9 @@ export class MeetingService {
     if (participants.length > 0) {
       throw new Error('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANTS DEJA ENREGISTRES');
     }
+    
+    // Supprimer d'abord les logs d'activité liés à cette réunion
+    await this.activityLogRepository.delete({ meeting: { id } });
     
     await this.meetingRepository.remove(meeting);
   }

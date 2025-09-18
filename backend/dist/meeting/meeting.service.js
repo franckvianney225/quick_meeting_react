@@ -18,15 +18,17 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const meeting_entity_1 = require("./meeting.entity");
 const user_entity_1 = require("../user/user.entity");
+const activity_log_entity_1 = require("../activity/activity-log.entity");
 const participant_entity_1 = require("../participant/participant.entity");
 const qrcode_service_1 = require("../qrcode/qrcode.service");
 const email_service_1 = require("../email/email.service");
 const activity_service_1 = require("../activity/activity.service");
 let MeetingService = class MeetingService {
-    constructor(meetingRepository, participantRepository, userRepository, qrCodeService, emailService, activityService) {
+    constructor(meetingRepository, participantRepository, userRepository, activityLogRepository, qrCodeService, emailService, activityService) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.userRepository = userRepository;
+        this.activityLogRepository = activityLogRepository;
         this.qrCodeService = qrCodeService;
         this.emailService = emailService;
         this.activityService = activityService;
@@ -143,6 +145,7 @@ let MeetingService = class MeetingService {
         if (participants.length > 0) {
             throw new Error('OUPPS VOUS NE POUVEZ PAS SUPPRIMER UNE REUNION AVEC DES PARTICIPANTS DEJA ENREGISTRES');
         }
+        await this.activityLogRepository.delete({ meeting: { id } });
         await this.meetingRepository.remove(meeting);
     }
     async getMeetingParticipants(meetingId) {
@@ -357,7 +360,9 @@ exports.MeetingService = MeetingService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(meeting_entity_1.Meeting)),
     __param(1, (0, typeorm_1.InjectRepository)(participant_entity_1.Participant)),
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(3, (0, typeorm_1.InjectRepository)(activity_log_entity_1.ActivityLog)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         qrcode_service_1.QrCodeService,

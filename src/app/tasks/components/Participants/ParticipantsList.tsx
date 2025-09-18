@@ -42,6 +42,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
   
   // Vérifier si l'utilisateur est admin
   const isAdmin = user?.role && ['admin', 'administrator', 'Admin'].includes(user.role);
@@ -112,9 +115,6 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
 
     fetchParticipants();
   }, [meetingId]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 50;
 
   // Filtrer les participants
   const filteredParticipants = useMemo(() => {

@@ -46,8 +46,6 @@ export const MeetingDetails = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
   const [showUniqueCode, setShowUniqueCode] = useState(false);
-  const [currentMeeting, setCurrentMeeting] = useState(meeting);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [activityLogRefresh, setActivityLogRefresh] = useState(0);
   
   // Vérifier si l'utilisateur est admin
@@ -86,7 +84,7 @@ export const MeetingDetails = ({
     setShowEditForm(false);
     onEdit(meeting.id);
     // Rafraîchir le journal d'activité après modification
-    setActivityLogRefresh(prev => prev + 1);
+    setActivityLogRefresh((prev: number) => prev + 1);
     return Promise.resolve();
   };
 
@@ -250,7 +248,7 @@ export const MeetingDetails = ({
   useEffect(() => {
     const fetchParticipantCount = async () => {
       try {
-        const response = await fetch(apiUrl(`/meetings/${currentMeeting.id}/participants`), {
+        const response = await fetch(apiUrl(`/meetings/${meeting.id}/participants`), {
           headers: AuthService.getAuthHeaders()
         });
         if (response.ok) {
@@ -263,14 +261,14 @@ export const MeetingDetails = ({
     };
 
     fetchParticipantCount();
-  }, [currentMeeting.id, refreshTrigger]);
+  }, [meeting.id]);
 
   const handleToggleStatus = async () => {
     try {
       setIsSubmitting(true);
-      const newStatus = currentMeeting.status === 'completed' ? 'active' : 'completed';
+      const newStatus = meeting.status === 'completed' ? 'active' : 'completed';
       
-      const response = await fetch(apiUrl(`/meetings/${currentMeeting.id}/status`), {
+      const response = await fetch(apiUrl(`/meetings/${meeting.id}/status`), {
         method: 'PUT',
         headers: {
           ...AuthService.getAuthHeaders(),
@@ -283,13 +281,8 @@ export const MeetingDetails = ({
         throw new Error('Erreur lors de la mise à jour du statut');
       }
 
-      const updatedMeeting = await response.json();
-      setCurrentMeeting(updatedMeeting);
-      
       // Forcer le rafraîchissement complet de la page après la mise à jour
       window.location.reload();
-      // Rafraîchir aussi le journal d'activité
-      setActivityLogRefresh(prev => prev + 1);
       
     } catch (error) {
       console.error('Erreur:', error);
@@ -299,8 +292,8 @@ export const MeetingDetails = ({
     }
   };
 
-  const statusConfig = getStatusConfig(currentMeeting.status);
-  const formattedDate = formatDate(currentMeeting.start_date || currentMeeting.startDate);
+  const statusConfig = getStatusConfig(meeting.status);
+  const formattedDate = formatDate(meeting.start_date || meeting.startDate);
 
   return (
     <>
@@ -330,10 +323,10 @@ export const MeetingDetails = ({
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 break-words whitespace-normal">
-                  {currentMeeting.title.length > 20 ? (
-                    <span className="break-all">{currentMeeting.title}</span>
+                  {meeting.title.length > 20 ? (
+                    <span className="break-all">{meeting.title}</span>
                   ) : (
-                    currentMeeting.title
+                    meeting.title
                   )}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -342,19 +335,19 @@ export const MeetingDetails = ({
                     <span className="text-xs sm:text-sm font-medium">{statusConfig.label}</span>
                   </div>
                   {/* Affichage des dates de début et fin si définies - AVANT le code unique */}
-                  {(currentMeeting.meetingStartDate || currentMeeting.meetingEndDate) && (
+                  {(meeting.meetingStartDate || meeting.meetingEndDate) && (
                     <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600 bg-gray-50 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg border border-gray-200">
                       <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
                       <span>
-                        {currentMeeting.meetingStartDate && formatDate(currentMeeting.meetingStartDate)}
-                        {currentMeeting.meetingEndDate && ` → ${formatDate(currentMeeting.meetingEndDate)}`}
+                        {meeting.meetingStartDate && formatDate(meeting.meetingStartDate)}
+                        {meeting.meetingEndDate && ` → ${formatDate(meeting.meetingEndDate)}`}
                       </span>
                     </div>
                   )}
-                  {currentMeeting.uniqueCode && (
+                  {meeting.uniqueCode && (
                     <div className="flex items-center space-x-2">
                       <span className="text-xs sm:text-sm text-gray-500 font-mono bg-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg">
-                        {showUniqueCode ? currentMeeting.uniqueCode : '*******'}
+                        {showUniqueCode ? meeting.uniqueCode : '*******'}
                       </span>
                       <button
                         onClick={() => setShowUniqueCode(!showUniqueCode)}
@@ -365,7 +358,7 @@ export const MeetingDetails = ({
                       </button>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText(currentMeeting.uniqueCode);
+                          navigator.clipboard.writeText(meeting.uniqueCode);
                           alert('Code copié dans le presse-papier !');
                         }}
                         className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -381,7 +374,7 @@ export const MeetingDetails = ({
               {/* Actions */}
               
               <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-0">
-                {currentMeeting.status !== 'completed' ? (
+                {meeting.status !== 'completed' ? (
                   <button
                     onClick={handleToggleStatus}
                     disabled={isSubmitting}
@@ -423,7 +416,7 @@ export const MeetingDetails = ({
                   <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Description</h2>
                 </div>
                 <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
-                  {currentMeeting.description || 'Aucune description fournie pour cette réunion.'}
+                  {meeting.description || 'Aucune description fournie pour cette réunion.'}
                 </p>
               </div>
 
@@ -441,7 +434,7 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Date de creation</h3>
-                      <p className="text-gray-600 text-xs sm:text-sm">{formatDate(currentMeeting.start_date || currentMeeting.startDate)}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm">{formatDate(meeting.start_date || meeting.startDate)}</p>
                     </div>
                   </div>
 
@@ -454,7 +447,7 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Lieu</h3>
-                      <p className="text-gray-600 text-xs sm:text-sm">{currentMeeting.location || 'Lieu non défini'}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm">{meeting.location || 'Lieu non défini'}</p>
                     </div>
                   </div>
 
@@ -468,7 +461,7 @@ export const MeetingDetails = ({
                     <div>
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Participants max:</h3>
                       <p className="text-gray-600 text-xs sm:text-sm">
-                        {currentMeeting.max_participants ? `${currentMeeting.max_participants} personnes` : 'Illimité'}
+                        {meeting.max_participants ? `${meeting.max_participants} personnes` : 'Illimité'}
                       </p>
                     </div>
                   </div>
@@ -482,10 +475,10 @@ export const MeetingDetails = ({
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Code accès</h3>
-                      {currentMeeting.uniqueCode ? (
+                      {meeting.uniqueCode ? (
                         <div className="flex items-center space-x-2">
                           <p className="text-gray-600 font-mono bg-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm inline-block">
-                            {showUniqueCode ? currentMeeting.uniqueCode : '*******'}
+                            {showUniqueCode ? meeting.uniqueCode : '*******'}
                           </p>
                           <button
                             onClick={() => setShowUniqueCode(!showUniqueCode)}
@@ -496,7 +489,7 @@ export const MeetingDetails = ({
                           </button>
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(currentMeeting.uniqueCode);
+                              navigator.clipboard.writeText(meeting.uniqueCode);
                               alert('Code copié dans le presse-papier !');
                             }}
                             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -516,8 +509,8 @@ export const MeetingDetails = ({
               {/* Liste des participants - Masquée sur mobile */}
               <div className="hidden sm:block">
                 <ParticipantsList
-                  meetingId={currentMeeting.id}
-                  meetingTitle={currentMeeting.title}
+                  meetingId={meeting.id}
+                  meetingTitle={meeting.title}
                 />
               </div>
             </div>
@@ -542,7 +535,7 @@ export const MeetingDetails = ({
                       <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
                     </div>
                     <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                      {calculateDuration(currentMeeting.meetingStartDate, currentMeeting.meetingEndDate)}
+                      {calculateDuration(meeting.meetingStartDate, meeting.meetingEndDate)}
                     </div>
                     <div className="text-xs sm:text-sm text-gray-600">Durée estimée</div>
                   </div> */}
@@ -550,7 +543,7 @@ export const MeetingDetails = ({
               </div>
 
               {/* Journal d'activité */}
-              <ActivityLog meetingId={currentMeeting.id} refreshTrigger={activityLogRefresh} />
+              <ActivityLog meetingId={meeting.id} refreshTrigger={activityLogRefresh} />
             </div>
           </div>
         </div>
@@ -559,7 +552,7 @@ export const MeetingDetails = ({
       {/* Formulaire d'édition */}
       {showEditForm && (
         <MeetingForm
-          initialData={currentMeeting}
+          initialData={meeting}
           onSave={handleSaveEdit}
           onCancel={handleCancelEdit}
         />
