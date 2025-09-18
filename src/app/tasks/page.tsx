@@ -500,7 +500,7 @@ export default function TasksPage() {
           </div>
 
           {/* Bouton pour redémarrer le guide (visible seulement en développement) */}
-          {process.env.NODE_ENV === 'development' && (
+          {/* {process.env.NODE_ENV === 'development' && (
             <div className="mt-4 flex justify-center">
               <button
                 onClick={() => {
@@ -514,7 +514,7 @@ export default function TasksPage() {
                 🎓 Redémarrer le guide
               </button>
             </div>
-          )}
+          )} */}
 
           {/* Statistiques */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
