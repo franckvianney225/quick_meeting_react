@@ -108,6 +108,7 @@ export const MeetingListItem = ({ meeting, onView, onEdit, onDelete, onGenerateQ
 
       await generateAttendancePDF({
         meetingTitle: meeting.title,
+        meetingLocation: meeting.location, // Ajouter le lieu de la réunion
         participants: mappedParticipants,
         onClose: () => {}
       });

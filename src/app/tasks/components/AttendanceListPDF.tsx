@@ -162,23 +162,23 @@ const AttendanceListPDF = forwardRef(({
     doc.setTextColor(0, 0, 0);
     
     // Titre principal
-    doc.setFontSize(22); // Réduit de 25 à 22
+    doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text('LISTE DE PRÉSENCE', pageWidth / 2, 40, { align: 'center' });
+    doc.text('LISTE DE PRÉSENCE', pageWidth / 2, 35, { align: 'center' }); // Réduit de 40 à 35
     
     // Nom de la réunion
-    doc.setFontSize(18); // Réduit de 20 à 18
+    doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text(meetingTitle, pageWidth / 2, 50, { align: 'center' });
+    doc.text(meetingTitle, pageWidth / 2, 43, { align: 'center' }); // Réduit de 50 à 43
     
     // Souligner le nom de la réunion
     const textWidth = doc.getTextWidth(meetingTitle);
-    const underlineY = 51; // Position Y pour la ligne de soulignement (montée un peu)
+    const underlineY = 44; // Position Y pour la ligne de soulignement (montée un peu)
     doc.setDrawColor(0, 0, 0);
     doc.line(pageWidth / 2 - textWidth / 2, underlineY, pageWidth / 2 + textWidth / 2, underlineY);
     
     // Informations de la réunion
-    let yPos = 65;
+    let yPos = 55; // Réduit de 65 à 55
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     
@@ -198,19 +198,48 @@ const AttendanceListPDF = forwardRef(({
     }
     
     // Localisation
-    if (meetingLocation) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('LOCALISATION :', 15, yPos);
-      doc.setFont('helvetica', 'normal');
-      doc.text(meetingLocation, 50, yPos);
-      yPos += 8;
-    }
+    // if (meetingLocation) {
+    //   doc.setFont('helvetica', 'bold');
+    //   doc.text('LOCALISATION :', 15, yPos);
+    //   doc.setFont('helvetica', 'normal');
+    //   doc.text(meetingLocation, 50, yPos);
+    //   yPos += 8;
+    // }
     
-    // Nombre de participants
+    // Nombre de participants et Lieu sur la même ligne
     doc.setFont('helvetica', 'bold');
     doc.text('Nombre de participants :', 15, yPos);
     doc.setFont('helvetica', 'normal');
     doc.text(participants.length.toString(), 60, yPos); // Rapproché de 70 à 60
+    
+    // Ajouter le lieu sur la même ligne, poussé vers l'autre bout
+    doc.setFont('helvetica', 'bold');
+    
+    // Calculer la largeur du texte "Lieu :"
+    const lieuLabelWidth = doc.getTextWidth('Lieu :');
+    
+    // Calculer la largeur disponible pour le lieu
+    const lieuMaxWidth = 70; // Largeur maximale pour le lieu
+    const lieuStartX = pageWidth - lieuMaxWidth - lieuLabelWidth - 10;
+    
+    doc.text('Lieu :', lieuStartX, yPos);
+    doc.setFont('helvetica', 'normal');
+    
+    // Gérer les lieux trop longs avec troncature
+    const lieuText = meetingLocation || 'Non défini';
+    const lieuTextWidth = doc.getTextWidth(lieuText);
+    
+    if (lieuTextWidth > lieuMaxWidth) {
+      // Tronquer le texte si trop long
+      let truncatedText = lieuText;
+      while (doc.getTextWidth(truncatedText + '...') > lieuMaxWidth && truncatedText.length > 3) {
+        truncatedText = truncatedText.slice(0, -1);
+      }
+      doc.text(truncatedText + '...', lieuStartX + lieuLabelWidth + 5, yPos, { maxWidth: lieuMaxWidth });
+    } else {
+      doc.text(lieuText, lieuStartX + lieuLabelWidth + 5, yPos);
+    }
+    
     yPos += 15;
     
     // En-tête du tableau (ordre modifié pour correspondre à l'affichage)

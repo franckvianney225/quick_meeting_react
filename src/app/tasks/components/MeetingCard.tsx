@@ -178,6 +178,7 @@ export const MeetingCard = ({
       
       await generateAttendancePDF({
         meetingTitle: meeting.title,
+        meetingLocation: meeting.location, // Ajouter le lieu de la réunion
         participants: mappedParticipants,
         onClose: () => {}
       });
