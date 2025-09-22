@@ -139,12 +139,16 @@ export const MeetingCard = ({
       // Définir l'interface pour les données de l'API
       interface ApiParticipant {
         id: number;
-        name: string;
-        prenom: string;
+        firstName?: string;
+        lastName?: string;
+        name?: string;           // Ancien nom (fallback)
+        prenom?: string;         // Ancien prénom (fallback)
         email: string;
         phone: string;
-        fonction: string;
-        organisation: string;
+        position?: string;       // Nouveau nom
+        company?: string;        // Nouveau nom
+        fonction?: string;       // Ancien nom (fallback)
+        organisation?: string;   // Ancien nom (fallback)
         createdAt?: string;
         submittedAt?: string;
         signatureDate?: string;
@@ -156,12 +160,12 @@ export const MeetingCard = ({
       // Mapper les données de l'API vers l'interface attendue par le PDF (même mapping que MeetingDetails)
       const mappedParticipants = apiParticipants.map((p: ApiParticipant) => ({
         id: p.id,
-        firstName: p.prenom,        // prénom = first name
-        lastName: p.name,           // name = last name (nom de famille)
+        firstName: p.firstName || p.prenom,        // Utiliser le nouveau nom ou l'ancien en fallback
+        lastName: p.lastName || p.name,           // Utiliser le nouveau nom ou l'ancien en fallback
         email: p.email,
         phone: p.phone,
-        function: p.fonction,
-        organization: p.organisation,
+        function: p.position || p.fonction,       // Utiliser le nouveau nom ou l'ancien en fallback
+        organization: p.company || p.organisation, // Utiliser le nouveau nom ou l'ancien en fallback
         submittedAt: p.submittedAt,
         signatureDate: p.signatureDate,
         createdAt: p.createdAt,
