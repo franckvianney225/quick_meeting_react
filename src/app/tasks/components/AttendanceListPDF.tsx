@@ -162,12 +162,12 @@ const AttendanceListPDF = forwardRef(({
     doc.setTextColor(0, 0, 0);
     
     // Titre principal
-    doc.setFontSize(25);
+    doc.setFontSize(22); // Réduit de 25 à 22
     doc.setFont('helvetica', 'bold');
     doc.text('LISTE DE PRÉSENCE', pageWidth / 2, 40, { align: 'center' });
     
     // Nom de la réunion
-    doc.setFontSize(20); // Taille augmentée de 14 à 16
+    doc.setFontSize(18); // Réduit de 20 à 18
     doc.setFont('helvetica', 'bold');
     doc.text(meetingTitle, pageWidth / 2, 50, { align: 'center' });
     
@@ -266,8 +266,8 @@ const AttendanceListPDF = forwardRef(({
     // Log des données pour débogage
     console.log('Participants data:', participants);
     
-    // Données du tableau
-    doc.setTextColor(0, 0, 0);
+    // Données du tableau - en bleu comme stylo à bille
+    doc.setTextColor(0, 0, 128); // Bleu foncé pour stylo à bille
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7); // Taille de police réduite pour les données
     
@@ -291,11 +291,7 @@ const AttendanceListPDF = forwardRef(({
       xPos = 10; // Commencer plus à gauche
       const rowHeight = 14; // Hauteur de ligne augmentée pour meilleure lisibilité
       
-      // Alternance de couleur pour les lignes - utiliser toute la largeur
-      if (index % 2 === 0) {
-        doc.setFillColor(250, 250, 250);
-        doc.rect(5, yPos - 4, pageWidth - 10, rowHeight, 'F'); // Étendre sur toute la largeur
-      }
+      // Supprimer l'alternance de couleur pour éviter l'effet de carte sur les signatures
       
       // Numéro
       doc.text((index + 1).toString(), xPos + 3, yPos);
@@ -365,7 +361,7 @@ const AttendanceListPDF = forwardRef(({
       // Ajouter la signature si elle existe (format data URL)
       if (participant.signature) {
         try {
-          // Meilleur placement de la signature dans la colonne
+          // Meilleur placement de la signature dans la colonne - sans arrière-plan
           const signatureWidth = adjustedColWidths[8] - 6;
           const signatureHeight = rowHeight - 6;
           doc.addImage(
