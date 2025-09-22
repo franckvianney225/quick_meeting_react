@@ -346,7 +346,7 @@ export const MeetingDetails = ({
                       </span>
                     </div>
                   )}
-                  {meeting.uniqueCode && (
+                  {/* {meeting.uniqueCode && (
                     <div className="flex items-center space-x-2">
                       <span className="text-xs sm:text-sm text-gray-500 font-mono bg-gray-100 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg">
                         {showUniqueCode ? meeting.uniqueCode : '*******'}
@@ -369,7 +369,7 @@ export const MeetingDetails = ({
                         <ClipboardDocumentListIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                       </button>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
@@ -453,7 +453,22 @@ export const MeetingDetails = ({
                     </div>
                   </div>
 
-                  {/* Participants */}
+                  {/* Nombre de participants actuels */}
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="p-2 sm:p-3 bg-blue-100 rounded-md sm:rounded-lg">
+                        <UsersIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 sm:mb-2">Nombre de participants actuels:</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm">
+                        {participantCount} participant{participantCount !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Participants max */}
                   <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">
                       <div className="p-2 sm:p-3 bg-green-100 rounded-md sm:rounded-lg">
@@ -469,7 +484,7 @@ export const MeetingDetails = ({
                   </div>
 
                   {/* Code unique */}
-                  <div className="flex items-start space-x-3 sm:space-x-4">
+                  {/* <div className="flex items-start space-x-3 sm:space-x-4">
                     <div className="flex-shrink-0">
                       <div className="p-2 sm:p-3 bg-purple-100 rounded-md sm:rounded-lg">
                         <TagIcon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
@@ -504,7 +519,7 @@ export const MeetingDetails = ({
                         <p className="text-gray-600 text-xs sm:text-sm">Code non défini</p>
                       )}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
