@@ -252,7 +252,7 @@ export default function LoginPage() {
               <span className="text-white font-bold text-xl">QM</span>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Quick Meeting
+              E-Présence
             </h2>
             <p className="text-gray-600 text-sm font-medium">Connexion à l&apos;espace d&apos;administration</p>
           </div>

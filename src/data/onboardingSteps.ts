@@ -3,7 +3,7 @@ import { TourStep } from '@/components/ui/OnboardingTour';
 export const tasksOnboardingSteps: TourStep[] = [
   {
     target: '.user-profile-container',
-    title: 'Bienvenue dans Quick Meeting !',
+    title: 'Bienvenue dans E-Présence !',
     content: 'Découvrez comment gérer vos réunions efficacement. Ce guide vous présentera les fonctionnalités principales.',
     position: 'bottom'
   },

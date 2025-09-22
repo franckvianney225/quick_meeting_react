@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script de déploiement Docker pour Quick Meeting React
+# Script de déploiement Docker pour E-Présence React
 set -e
 
-echo "🚀 Déploiement de Quick Meeting React avec Docker"
+echo "🚀 Déploiement de E-Présence React avec Docker"
 
 # Vérifier que Docker est installé
 if ! command -v docker &> /dev/null; then

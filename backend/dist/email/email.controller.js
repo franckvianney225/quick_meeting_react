@@ -30,11 +30,11 @@ let EmailController = class EmailController {
     async testEmail(body) {
         const testHtml = `
       <h1>Test d'email SMTP</h1>
-      <p>Ceci est un email de test envoyé depuis votre application Quick Meeting.</p>
+      <p>Ceci est un email de test envoyé depuis votre application E-Présence.</p>
       <p>Date: ${new Date().toLocaleString('fr-FR')}</p>
       <p>Configuration SMTP testée avec succès !</p>
     `;
-        return await this.emailService.sendEmail(body.smtpConfig, body.to, 'Test SMTP - Quick Meeting', testHtml);
+        return await this.emailService.sendEmail(body.smtpConfig, body.to, 'Test SMTP - E-Présence', testHtml);
     }
     async testConnection(body) {
         return await this.emailService.testConnection(body.smtpConfig);

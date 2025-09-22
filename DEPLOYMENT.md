@@ -1,6 +1,6 @@
-# Déploiement Docker - Quick Meeting React
+# Déploiement Docker - E-Présence React
 
-Ce guide explique comment déployer l'application Quick Meeting React avec Docker.
+Ce guide explique comment déployer l'application E-Présence React avec Docker.
 
 ## Structure du projet
 

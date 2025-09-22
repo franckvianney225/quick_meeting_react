@@ -1,4 +1,4 @@
-# Guide de Déploiement Quick Meeting - Résumé des Problèmes Rencontrés
+# Guide de Déploiement E-Présence - Résumé des Problèmes Rencontrés
 
 ## 🚨 Problèmes Courants et Solutions
 
