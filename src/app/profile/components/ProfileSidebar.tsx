@@ -72,7 +72,7 @@ export const ProfileSidebar = ({ user, activeTab, onTabChange, onAvatarEdit }: P
 
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between py-3 px-4 bg-gradient-to-r from-orange-50/80 to-green-50/80 border border-orange-200/50 rounded-xl backdrop-blur-sm">
-            <span className="text-gray-600 font-medium">Membre depuis</span>
+            <span className="text-gray-600 font-medium">Date d'Activation</span>
             <span className="font-semibold text-orange-700">{user.joinedDate}</span>
           </div>
           <div className="flex items-center justify-between py-3 px-4 bg-gray-50/80 backdrop-blur-sm border border-gray-200/50 rounded-xl">

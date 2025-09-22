@@ -170,7 +170,7 @@ export const CreditsSection = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations du Projet</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Informations sur l'application</h3>
                   
                   <div className="space-y-4">
                     {[

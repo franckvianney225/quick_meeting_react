@@ -207,7 +207,7 @@ export const UserModal = ({ isOpen, onClose, onSave, editingUser }: UserModalPro
               {/* Nom complet */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Nom complet *
+                  Nom et Prénom *
                 </label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />

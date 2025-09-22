@@ -484,14 +484,28 @@ export default function TasksPage() {
 
           {/* Statistiques */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 stats-total-meetings">
+            <div
+              className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 stats-total-meetings cursor-pointer hover:scale-105 active:scale-95"
+              onClick={() => {
+                setStatusFilter('');
+                setSearchTerm('');
+                setCurrentPage(1);
+              }}
+            >
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
                 <Squares2X2Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{meetings.length}</div>
               <div className="text-gray-600 text-xs sm:text-sm font-medium">Total Réunions</div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div
+              className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95"
+              onClick={() => {
+                setStatusFilter('active');
+                setSearchTerm('');
+                setCurrentPage(1);
+              }}
+            >
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
                 <PlayIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>
@@ -500,7 +514,14 @@ export default function TasksPage() {
               </div>
               <div className="text-gray-600 text-xs sm:text-sm font-medium">Réunions En cours</div>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div
+              className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/30 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95"
+              onClick={() => {
+                setStatusFilter('completed');
+                setSearchTerm('');
+                setCurrentPage(1);
+              }}
+            >
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
                 <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
               </div>

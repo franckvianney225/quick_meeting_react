@@ -237,7 +237,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Adresse complète</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Adresse complète de l'organisation</label>
                 <textarea
                   value={settings.address}
                   onChange={(e) => setSettings({...settings, address: e.target.value})}
@@ -248,7 +248,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone de l'organisation</label>
                 <input
                   type="tel"
                   value={settings.phone}
@@ -261,7 +261,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
 
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email de contact</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email de l'organisation</label>
                 <input
                   type="email"
                   value={settings.email}
@@ -272,7 +272,7 @@ export const OrganizationSection = ({ settings, setSettings }: OrganizationSecti
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Site web</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Site web de l'organisation</label>
                 <input
                   type="url"
                   value={settings.website}
