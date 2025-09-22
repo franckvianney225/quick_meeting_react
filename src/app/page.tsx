@@ -161,7 +161,7 @@ export default function HomePage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="w-full px-3 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-[1800px] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         {/* Header avec profil utilisateur */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
           <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-0">
