@@ -16,7 +16,7 @@ export declare class ActivityLog {
     id: number;
     type: ActivityType;
     description: string;
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown>;
     createdAt: Date;
     user: User;
     userId: number;

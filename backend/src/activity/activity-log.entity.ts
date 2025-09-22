@@ -17,8 +17,8 @@ export enum ActivityType {
 
 @Entity('activity_logs')
 export class ActivityLog {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('increment')
+  id!: number;
 
   @Column({
     type: 'enum',
@@ -30,7 +30,7 @@ export class ActivityLog {
   description: string;
 
   @Column('jsonb', { nullable: true })
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 
   @CreateDateColumn()
   createdAt: Date;

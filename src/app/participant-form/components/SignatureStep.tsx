@@ -94,17 +94,18 @@ export default function SignatureStep({
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Signature électronique</h2>
-        <p className="text-gray-600 text-sm">
-          Signez dans la zone ci-dessous pour confirmer votre présence
-        </p>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="w-full max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Signature électronique</h2>
+          <p className="text-gray-600 text-sm">
+            Signez dans la zone ci-dessous pour confirmer votre présence
+          </p>
       </div>
 
       <div className="mb-4">
@@ -172,5 +173,7 @@ export default function SignatureStep({
         </div>
       </div>
     </div>
+      </div>
+
   );
 }

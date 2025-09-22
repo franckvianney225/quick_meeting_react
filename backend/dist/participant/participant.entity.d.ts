@@ -1,16 +1,17 @@
 import { Meeting } from '../meeting/meeting.entity';
 export declare class Participant {
     id: number;
-    name: string;
-    prenom: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
-    fonction: string;
-    organisation: string;
+    position: string;
+    company: string;
     signature: string;
     meeting: Meeting;
     createdAt: Date;
     submittedAt: Date;
     signatureDate?: Date;
     location?: string;
+    gender?: string;
 }

@@ -24,6 +24,7 @@ export interface Participant {
   phone: string;
   function: string;
   organization: string;
+  gender?: string | null;
   submittedAt?: string | null;
   signatureDate?: string | null;
   createdAt?: string | null;
@@ -76,12 +77,13 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
         const data = await response.json();
         interface ApiParticipant {
           id: number;
-          name: string;
-          prenom: string;
+          firstName: string;
+          lastName: string;
           email: string;
           phone: string;
-          fonction: string;
-          organisation: string;
+          position: string;
+          company: string;
+          gender?: string;
           createdAt?: string;
           submittedAt?: string;
           signatureDate?: string;
@@ -91,12 +93,13 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
 
         const mappedParticipants = data.map((p: ApiParticipant) => ({
           id: p.id,
-          firstName: p.prenom,
-          lastName: p.name,
+          firstName: p.firstName,
+          lastName: p.lastName,
           email: p.email,
           phone: p.phone,
-          function: p.fonction,
-          organization: p.organisation,
+          function: p.position,
+          organization: p.company,
+          gender: p.gender,
           submittedAt: p.submittedAt,
           signatureDate: p.signatureDate,
           createdAt: p.createdAt,
@@ -125,7 +128,8 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
         (participant.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (participant.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
         (participant.function?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (participant.organization?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+        (participant.organization?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (participant.gender?.toLowerCase() || '').includes(searchTerm.toLowerCase());
       
       return matchesSearch;
     });
@@ -202,7 +206,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
 
   // Fonction d'exportation CSV
   const exportToCSV = () => {
-    const headers = ['Nom', 'Prénom', 'Email', 'Téléphone', 'Fonction', 'Organisation', 'Date de signature', 'Localisation'];
+    const headers = ['Nom', 'Prénom', 'Email', 'Téléphone', 'Fonction', 'Organisation', 'Genre', 'Date de signature', 'Localisation'];
     const csvData = filteredParticipants.map(participant => [
       participant.lastName,
       participant.firstName,
@@ -210,6 +214,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
       participant.phone,
       participant.function,
       participant.organization,
+      participant.gender || 'Non spécifié',
       participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible',
       participant.location || 'Non disponible'
     ]);
@@ -240,6 +245,7 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
         'Téléphone': participant.phone,
         'Fonction': participant.function,
         'Organisation': participant.organization,
+        'Genre': participant.gender || 'Non spécifié',
         'Date de signature': participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible',
         'Localisation': participant.location || 'Non disponible'
       }))
@@ -349,6 +355,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                     Organisation
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Genre
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date de signature
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -392,6 +401,9 @@ export const ParticipantsList = ({ meetingId, meetingTitle }: ParticipantsListPr
                         <BuildingOfficeIcon className="w-4 h-4 mr-2 text-gray-400" />
                         <span className="truncate max-w-xs">{participant.organization}</span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {participant.gender || 'Non spécifié'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {participant.submittedAt ? formatDate(participant.submittedAt) : 'Non disponible'}

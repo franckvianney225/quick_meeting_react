@@ -7,11 +7,11 @@ export declare class ParticipantSearchController {
         isRegistered: boolean;
         participant: {
             email: string;
-            name: string;
-            prenom: string;
+            firstName: string;
+            lastName: string;
             phone: string;
-            fonction: string;
-            organisation: string;
+            position: string;
+            company: string;
             signature: string;
         };
     } | {

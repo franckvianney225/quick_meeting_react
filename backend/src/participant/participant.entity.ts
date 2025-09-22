@@ -6,11 +6,11 @@ export class Participant {
   @PrimaryGeneratedColumn()
   id: number = 0;
 
-  @Column()
-  name: string = '';
+  @Column({ name: 'first_name' })
+  firstName: string = '';
 
-  @Column()
-  prenom: string = '';
+  @Column({ name: 'last_name' })
+  lastName: string = '';
 
   @Column()
   email: string = '';
@@ -18,11 +18,11 @@ export class Participant {
   @Column()
   phone: string = '';
 
-  @Column()
-  fonction: string = '';
+  @Column({ name: 'position' })
+  position: string = '';
 
-  @Column()
-  organisation: string = '';
+  @Column({ name: 'company' })
+  company: string = '';
 
   @Column('text')
   signature: string = '';
@@ -42,4 +42,7 @@ export class Participant {
 
   @Column({ name: 'location', type: 'text', nullable: true })
   location?: string;
+
+  @Column({ name: 'gender', type: 'varchar', length: 10, nullable: true })
+  gender?: string;
 }

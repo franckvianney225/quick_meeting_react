@@ -155,18 +155,19 @@ let MeetingService = class MeetingService {
         });
         return participants.map(p => ({
             id: p.id,
-            name: p.name,
-            prenom: p.prenom,
+            firstName: p.firstName,
+            lastName: p.lastName,
             email: p.email,
             phone: p.phone,
-            fonction: p.fonction,
-            organisation: p.organisation,
+            position: p.position,
+            company: p.company,
             signature: p.signature,
             meetingId: p.meeting?.id || 0,
             registeredAt: p.meeting?.createdAt.toISOString() || new Date().toISOString(),
             submittedAt: p.submittedAt?.toISOString(),
             signatureDate: p.signatureDate?.toISOString(),
-            location: p.location
+            location: p.location,
+            gender: p.gender
         }));
     }
     async registerParticipant(meetingCode, participantData) {
@@ -175,12 +176,12 @@ let MeetingService = class MeetingService {
             throw new Error('Meeting not found');
         }
         const participant = this.participantRepository.create({
-            name: participantData.lastName,
-            prenom: participantData.firstName,
+            firstName: participantData.firstName,
+            lastName: participantData.lastName,
             email: participantData.email,
             phone: participantData.phone,
-            fonction: participantData.position || '',
-            organisation: participantData.company || '',
+            position: participantData.position || '',
+            company: participantData.company || '',
             signature: participantData.signature,
             location: participantData.location,
             meeting: meeting

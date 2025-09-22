@@ -34,7 +34,7 @@ import { ActivityModule } from './activity/activity.module';
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
         entities: [Meeting, Entreprise, Participant, User, OrganizationSettings, EmailConfig, AdminLog, Backup, Session, ActivityLog],
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: false,
         logging: process.env.NODE_ENV === 'development',
       })
     }),

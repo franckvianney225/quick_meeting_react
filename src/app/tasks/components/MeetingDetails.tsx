@@ -113,12 +113,13 @@ export const MeetingDetails = ({
       // Définir l'interface pour les données de l'API
       interface ApiParticipant {
         id: number;
-        name: string;
-        prenom: string;
+        firstName: string;
+        lastName: string;
         email: string;
         phone: string;
-        fonction: string;
-        organisation: string;
+        position: string;
+        company: string;
+        gender?: string;
         createdAt?: string;
         submittedAt?: string;
         signatureDate?: string;
@@ -130,12 +131,13 @@ export const MeetingDetails = ({
       // Mapper les données de l'API vers l'interface attendue par le PDF (même mapping que ParticipantsList)
       const mappedParticipants = apiParticipants.map((p: ApiParticipant) => ({
         id: p.id,
-        firstName: p.prenom,        // prénom = first name
-        lastName: p.name,           // name = last name (nom de famille)
+        firstName: p.firstName,
+        lastName: p.lastName,
         email: p.email,
         phone: p.phone,
-        function: p.fonction,
-        organization: p.organisation,
+        function: p.position,
+        organization: p.company,
+        gender: p.gender,
         submittedAt: p.submittedAt,
         signatureDate: p.signatureDate,
         createdAt: p.createdAt,

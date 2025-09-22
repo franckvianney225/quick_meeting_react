@@ -4,18 +4,19 @@ import { User } from '../user/user.entity';
 import { ActivityLog } from '../activity/activity-log.entity';
 interface ParticipantResponse {
     id: number;
-    name: string;
-    prenom: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
-    fonction: string;
-    organisation: string;
+    position: string;
+    company: string;
     signature: string;
     meetingId: number;
     registeredAt: string;
     submittedAt?: string;
     signatureDate?: string;
     location?: string;
+    gender?: string;
 }
 import { Participant } from '../participant/participant.entity';
 import { QrCodeService } from '../qrcode/qrcode.service';

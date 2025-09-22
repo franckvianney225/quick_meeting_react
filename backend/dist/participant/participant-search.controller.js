@@ -29,33 +29,22 @@ let ParticipantSearchController = class ParticipantSearchController {
         if (!email || !meetingCode) {
             throw new Error('Email and meetingCode parameters are required');
         }
-        const isRegistered = await this.participantService.isAlreadyRegistered(email, meetingCode);
-        if (isRegistered) {
-            const meeting = await this.participantService['meetingService'].findOneByCode(meetingCode);
-            if (!meeting) {
-                throw new Error('Réunion non trouvée');
-            }
-            const existingParticipant = await this.participantService['participantRepository'].findOne({
-                where: {
-                    email,
-                    meeting: { id: meeting.id }
-                },
-                relations: ['meeting']
-            });
-            if (existingParticipant) {
-                return {
-                    isRegistered: true,
-                    participant: {
-                        email: existingParticipant.email,
-                        name: existingParticipant.name,
-                        prenom: existingParticipant.prenom,
-                        phone: existingParticipant.phone,
-                        fonction: existingParticipant.fonction,
-                        organisation: existingParticipant.organisation,
-                        signature: existingParticipant.signature
-                    }
-                };
-            }
+        const participants = await this.participantService.findByEmail(email);
+        const meetingParticipants = participants.filter(p => p.meeting?.uniqueCode === meetingCode);
+        if (meetingParticipants.length > 0) {
+            const existingParticipant = meetingParticipants[0];
+            return {
+                isRegistered: true,
+                participant: {
+                    email: existingParticipant.email,
+                    firstName: existingParticipant.firstName,
+                    lastName: existingParticipant.lastName,
+                    phone: existingParticipant.phone,
+                    position: existingParticipant.position,
+                    company: existingParticipant.company,
+                    signature: existingParticipant.signature
+                }
+            };
         }
         return { isRegistered: false };
     }

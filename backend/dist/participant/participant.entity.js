@@ -15,12 +15,12 @@ const meeting_entity_1 = require("../meeting/meeting.entity");
 let Participant = class Participant {
     constructor() {
         this.id = 0;
-        this.name = '';
-        this.prenom = '';
+        this.firstName = '';
+        this.lastName = '';
         this.email = '';
         this.phone = '';
-        this.fonction = '';
-        this.organisation = '';
+        this.position = '';
+        this.company = '';
         this.signature = '';
     }
 };
@@ -30,13 +30,13 @@ __decorate([
     __metadata("design:type", Number)
 ], Participant.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: 'first_name' }),
     __metadata("design:type", String)
-], Participant.prototype, "name", void 0);
+], Participant.prototype, "firstName", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: 'last_name' }),
     __metadata("design:type", String)
-], Participant.prototype, "prenom", void 0);
+], Participant.prototype, "lastName", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
@@ -46,13 +46,13 @@ __decorate([
     __metadata("design:type", String)
 ], Participant.prototype, "phone", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: 'position' }),
     __metadata("design:type", String)
-], Participant.prototype, "fonction", void 0);
+], Participant.prototype, "position", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: 'company' }),
     __metadata("design:type", String)
-], Participant.prototype, "organisation", void 0);
+], Participant.prototype, "company", void 0);
 __decorate([
     (0, typeorm_1.Column)('text'),
     __metadata("design:type", String)
@@ -78,6 +78,10 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'location', type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], Participant.prototype, "location", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'gender', type: 'varchar', length: 10, nullable: true }),
+    __metadata("design:type", String)
+], Participant.prototype, "gender", void 0);
 exports.Participant = Participant = __decorate([
     (0, typeorm_1.Entity)()
 ], Participant);

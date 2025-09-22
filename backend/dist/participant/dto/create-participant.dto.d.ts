@@ -7,4 +7,5 @@ export declare class CreateParticipantDto {
     signature: string;
     phone: string;
     location?: string;
+    gender?: string;
 }

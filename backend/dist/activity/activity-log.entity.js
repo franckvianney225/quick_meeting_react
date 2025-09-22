@@ -30,7 +30,7 @@ let ActivityLog = class ActivityLog {
 };
 exports.ActivityLog = ActivityLog;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    (0, typeorm_1.PrimaryGeneratedColumn)('increment'),
     __metadata("design:type", Number)
 ], ActivityLog.prototype, "id", void 0);
 __decorate([

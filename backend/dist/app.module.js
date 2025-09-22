@@ -45,7 +45,7 @@ exports.AppModule = AppModule = __decorate([
                     password: process.env.DB_PASSWORD,
                     database: process.env.DB_NAME,
                     entities: [meeting_entity_1.Meeting, entreprise_entity_1.Entreprise, participant_entity_1.Participant, user_entity_1.User, organization_entity_1.OrganizationSettings, email_config_entity_1.EmailConfig, admin_log_entity_1.AdminLog, backup_entity_1.Backup, session_entity_1.Session, activity_log_entity_1.ActivityLog],
-                    synchronize: process.env.NODE_ENV !== 'production',
+                    synchronize: false,
                     logging: process.env.NODE_ENV === 'development',
                 })
             }),

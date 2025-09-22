@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Building, Mail, Briefcase, ArrowLeft, ArrowRight } from 'lucide-react';
+import { User, Building, Mail, Briefcase, ArrowLeft, ArrowRight, Users } from 'lucide-react';
 
 // Types pour les props
 interface FormData {
@@ -11,6 +11,7 @@ interface FormData {
   company: string;
   email: string;
   phone: string;
+  gender: string;
 }
 
 interface FormStepProps {
@@ -35,7 +36,8 @@ export default function FormStep({
       position: '',
       company: '',
       email: '',
-      phone: ''
+      phone: '',
+      gender: ''
     }
   );
 
@@ -43,7 +45,7 @@ export default function FormStep({
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const updatedData = {
       ...localFormData,
@@ -64,7 +66,7 @@ export default function FormStep({
     validateField(name, value);
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setTouchedFields(prev => ({ ...prev, [name]: true }));
     validateField(name, value);
@@ -89,7 +91,7 @@ export default function FormStep({
     let isValid = true;
 
     // Valider tous les champs requis
-    const requiredFields: (keyof FormData)[] = ['firstName', 'lastName', 'position', 'company', 'email', 'phone'];
+    const requiredFields: (keyof FormData)[] = ['firstName', 'lastName', 'position', 'company', 'email', 'phone', 'gender'];
     
     requiredFields.forEach(field => {
       const value = localFormData[field];
@@ -261,6 +263,36 @@ export default function FormStep({
               </div>
               {touchedFields.company && errors.company && (
                 <p className="mt-1 text-sm text-red-600">{errors.company}</p>
+              )}
+            </div>
+
+            {/* Genre */}
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                Genre
+              </label>
+              <div className="relative">
+                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 text-gray-900 ${
+                    touchedFields.gender && errors.gender
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:ring-black'
+                  }`}
+                  required
+                >
+                  <option value="">Sélectionnez votre genre</option>
+                  <option value="male">Homme</option>
+                  <option value="female">Femme</option>
+                </select>
+              </div>
+              {touchedFields.gender && errors.gender && (
+                <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
               )}
             </div>
           </div>

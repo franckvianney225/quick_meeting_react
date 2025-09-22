@@ -13,18 +13,19 @@ interface AuthenticatedRequest extends Request {
 }
 interface ParticipantResponse {
     id: number;
-    name: string;
-    prenom: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
-    fonction: string;
-    organisation: string;
+    position: string;
+    company: string;
     signature: string;
     meetingId: number;
     registeredAt: string;
     submittedAt?: string;
     signatureDate?: string;
     location?: string;
+    gender?: string;
 }
 export declare class MeetingController {
     private readonly service;
