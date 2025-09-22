@@ -2,19 +2,19 @@
 const nextConfig = {
   images: {
     // Pour dev local simple
-    domains: ['164.160.40.182', '164.160.40.182'], 
+    domains: ['localhost', 'localhost'], 
     
     // Si tu veux utiliser remotePatterns pour plus de contrôle
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: '164.160.40.182', // chaîne unique, pas de tableau
+        hostname: 'localhost', // chaîne unique, pas de tableau
         port: '3001',
         pathname: '/uploads/**',
       },
       {
         protocol: 'http',
-        hostname: '164.160.40.182', // chaîne unique
+        hostname: 'localhost', // chaîne unique
         port: '3001',
         pathname: '/uploads/**',
       },

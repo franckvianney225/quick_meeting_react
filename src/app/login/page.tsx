@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [emailSuggestions, setEmailSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -90,11 +92,46 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
+      
+      // Sauvegarder l'email dans l'historique
+      saveEmailToHistory(email);
+      
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de connexion');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Sauvegarder un email dans l'historique
+  const saveEmailToHistory = (email: string) => {
+    try {
+      const storedEmails = localStorage.getItem('loginEmailHistory');
+      let emails: string[] = [];
+      
+      if (storedEmails) {
+        emails = JSON.parse(storedEmails);
+      }
+      
+      // Éviter les doublons et garder seulement les 5 derniers
+      const filteredEmails = emails.filter(e => e !== email);
+      const updatedEmails = [email, ...filteredEmails].slice(0, 5);
+      
+      localStorage.setItem('loginEmailHistory', JSON.stringify(updatedEmails));
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'email:', error);
+    }
+  };
+
+  // Récupérer l'historique des emails
+  const getEmailHistory = (): string[] => {
+    try {
+      const storedEmails = localStorage.getItem('loginEmailHistory');
+      return storedEmails ? JSON.parse(storedEmails) : [];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des emails:', error);
+      return [];
     }
   };
 
@@ -138,9 +175,13 @@ export default function LoginPage() {
     }
   };
 
-  // Charger le nom de l'organisation au montage du composant
+  // Charger le nom de l'organisation et l'historique des emails au montage du composant
   useEffect(() => {
     fetchOrganizationName();
+    
+    // Charger l'historique des emails
+    const history = getEmailHistory();
+    setEmailSuggestions(history);
   }, []);
 
   return (
@@ -219,8 +260,8 @@ export default function LoginPage() {
           {/* Formulaire */}
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Email */}
-            <div>
+            {/* Email avec suggestions */}
+            <div className="relative">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Adresse email
               </label>
@@ -230,11 +271,36 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={handleEmailChange}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-orange-300/30 focus:border-orange-500 transition-all duration-300 bg-white/60 backdrop-blur-sm hover:border-gray-300"
                   placeholder="admin@ministere.gov"
                   required
                 />
               </div>
+              
+              {/* Suggestions d'emails */}
+              {showSuggestions && emailSuggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-2xl shadow-lg max-h-60 overflow-y-auto">
+                  {emailSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => {
+                        setEmail(suggestion);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-orange-50 transition-colors duration-200 first:rounded-t-2xl last:rounded-b-2xl"
+                    >
+                      <div className="flex items-center">
+                        <EnvelopeIcon className="w-4 h-4 text-gray-400 mr-2" />
+                        <span className="text-gray-700">{suggestion}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              
               {domainError && (
                 <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-xl">
                   <p className="text-red-600 text-sm font-medium">{domainError}</p>
