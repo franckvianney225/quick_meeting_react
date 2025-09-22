@@ -102,9 +102,9 @@ export const ProfileForm = ({ user, isEditing, onInputChange, onSelectChange, on
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors appearance-none bg-white"
               >
                 <option value="">Sélectionner une civilité</option>
-                <option value="Mr">Mr</option>
-                <option value="Mme">Mme</option>
-                <option value="Mlle">Mlle</option>
+                <option value="M.">M.</option>
+                <option value="Mme.">Mme.</option>
+                <option value="Mlle.">Mlle.</option>
               </select>
             ) : (
               <div className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
