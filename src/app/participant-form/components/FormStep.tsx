@@ -2,21 +2,12 @@
 
 import { useState } from 'react';
 import { User, Building, Mail, Briefcase, ArrowLeft, ArrowRight, Users } from 'lucide-react';
+import { BaseFormData } from './types';
 
 // Types pour les props
-interface FormData {
-  firstName: string;
-  lastName: string;
-  position: string;
-  company: string;
-  email: string;
-  phone: string;
-  gender: string;
-}
-
 interface FormStepProps {
-  formData?: FormData;
-  onChange?: (data: FormData) => void;
+  formData?: BaseFormData;
+  onChange?: (data: BaseFormData) => void;
   onNext?: () => void;
   onBack?: () => void;
 }
@@ -29,14 +20,17 @@ export default function FormStep({
 }: FormStepProps) {
 
   // État local initialisé avec les props ou des valeurs par défaut
-  const [localFormData, setLocalFormData] = useState<FormData>(
+  const [localFormData, setLocalFormData] = useState<BaseFormData>(
     propFormData || {
+      email: '',
       firstName: '',
       lastName: '',
-      position: '',
       company: '',
-      email: '',
+      position: '',
       phone: '',
+      signature: '',
+      agreedToTerms: false,
+      location: '',
       gender: ''
     }
   );
@@ -72,15 +66,19 @@ export default function FormStep({
     validateField(name, value);
   };
 
-  const validateField = (fieldName: string, value: string) => {
+  const validateField = (fieldName: string, value: string | boolean | undefined) => {
     let error = '';
     
-    if (!value.trim()) {
+    if (typeof value === 'string') {
+      if (!value.trim()) {
+        error = 'Ce champ est requis';
+      } else if (fieldName === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+        error = 'Format d\'email invalide';
+      } else if (fieldName === 'phone' && !/^[+\d\s\-()]{10,20}$/.test(value)) {
+        error = 'Format de téléphone invalide';
+      }
+    } else {
       error = 'Ce champ est requis';
-    } else if (fieldName === 'email' && !/\S+@\S+\.\S+/.test(value)) {
-      error = 'Format d\'email invalide';
-    } else if (fieldName === 'phone' && !/^[+\d\s\-()]{10,20}$/.test(value)) {
-      error = 'Format de téléphone invalide';
     }
 
     setErrors(prev => ({ ...prev, [fieldName]: error }));
@@ -91,18 +89,23 @@ export default function FormStep({
     let isValid = true;
 
     // Valider tous les champs requis
-    const requiredFields: (keyof FormData)[] = ['firstName', 'lastName', 'position', 'company', 'email', 'phone', 'gender'];
+    const requiredFields: (keyof BaseFormData)[] = ['firstName', 'lastName', 'position', 'company', 'email', 'phone', 'gender'];
     
     requiredFields.forEach(field => {
       const value = localFormData[field];
-      if (!value.trim()) {
+      if (typeof value === 'string') {
+        if (!value.trim()) {
+          newErrors[field] = 'Ce champ est requis';
+          isValid = false;
+        } else if (field === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+          newErrors[field] = 'Format d\'email invalide';
+          isValid = false;
+        } else if (field === 'phone' && !/^[+\d\s\-()]{10,20}$/.test(value)) {
+          newErrors[field] = 'Format de téléphone invalide';
+          isValid = false;
+        }
+      } else {
         newErrors[field] = 'Ce champ est requis';
-        isValid = false;
-      } else if (field === 'email' && !/\S+@\S+\.\S+/.test(value)) {
-        newErrors[field] = 'Format d\'email invalide';
-        isValid = false;
-      } else if (field === 'phone' && !/^[+\d\s\-()]{10,20}$/.test(value)) {
-        newErrors[field] = 'Format de téléphone invalide';
         isValid = false;
       }
     });

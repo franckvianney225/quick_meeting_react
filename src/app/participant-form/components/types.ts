@@ -50,6 +50,7 @@ export interface BaseFormData {
   signature: string;
   agreedToTerms: boolean;
   location?: string;
+  gender: string;
 }
 
 export interface FormData extends BaseFormData {

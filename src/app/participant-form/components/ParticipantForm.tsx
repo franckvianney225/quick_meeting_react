@@ -80,7 +80,8 @@ export function ParticipantForm() {
     phone: '',
     signature: '',
     agreedToTerms: false,
-    location: ''
+    location: '',
+    gender: ''
   });
 
   // Capturer automatiquement la géolocalisation au chargement du composant
@@ -104,10 +105,10 @@ export function ParticipantForm() {
           
           console.log('Précision GPS:', accuracy, 'mètres - Precise:', isAccurate);
           
-          // Utiliser OpenStreetMap avec des paramètres optimisés pour l'Afrique
+          // Utiliser OpenStreetMap avec des paramètres optimisés pour les informations administratives
           try {
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
             );
             
             if (!response.ok) throw new Error('Erreur API OpenStreetMap');
@@ -118,24 +119,36 @@ export function ParticipantForm() {
             let specificLocation = '';
             
             if (data.display_name) {
-              // Essayer d'obtenir le nom le plus spécifique possible
+              // Récupérer les informations administratives (commune > département > ville)
               if (data.address) {
-                // Priorité: quartier > banlieue > ville
-                if (data.address.suburb) {
-                  specificLocation = data.address.suburb;
-                } else if (data.address.neighbourhood) {
-                  specificLocation = data.address.neighbourhood;
-                } else if (data.address.city_district) {
-                  specificLocation = data.address.city_district;
-                } else if (data.address.town) {
-                  specificLocation = data.address.town;
-                } else if (data.address.city) {
-                  specificLocation = data.address.city;
+                const address = data.address;
+                
+                // Priorité : Commune > Département > Ville > Région
+                if (address.municipality) {
+                  // Commune - niveau le plus précis administrativement
+                  specificLocation = address.municipality;
+                } else if (address.county) {
+                  // Département
+                  specificLocation = address.county;
+                } else if (address.city) {
+                  // Ville
+                  specificLocation = address.city;
+                } else if (address.town) {
+                  // Ville (alternative)
+                  specificLocation = address.town;
+                } else if (address.state) {
+                  // Région
+                  specificLocation = address.state;
+                } else {
+                  // Fallback aux coordonnées
+                  specificLocation = coordinates;
                 }
                 
-                // Pour Abidjan, on peut avoir des arrondissements spécifiques
-                if (data.address.city === 'Abidjan' && data.address.suburb) {
-                  specificLocation = data.address.suburb + ', Abidjan';
+                // Pour Abidjan, on peut préciser le niveau administratif
+                if (address.city === 'Abidjan' && address.municipality) {
+                  specificLocation = `${address.municipality}, Abidjan`;
+                } else if (address.city === 'Abidjan') {
+                  specificLocation = 'Abidjan';
                 }
               }
               
@@ -166,23 +179,29 @@ export function ParticipantForm() {
             // La géolocalisation par IP est toujours approximative
             try {
               const geoResponse = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=10`
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.latitude}&lon=${data.longitude}&zoom=8`
               );
               const geoData = await geoResponse.json();
               
               let locationName = 'Localisation par IP (approximative)';
               
               if (geoData.display_name) {
-                // Pour IP, on se limite à la ville/region pour éviter la fausse précision
+                // Pour IP, on utilise la même logique administrative
                 if (geoData.address) {
-                  if (geoData.address.city) {
-                    locationName = `${geoData.address.city} (Localisation IP approximative)`;
-                  } else if (geoData.address.town) {
-                    locationName = `${geoData.address.town} (Localisation IP approximative)`;
-                  } else if (geoData.address.state) {
-                    locationName = `${geoData.address.state} (Localisation IP approximative)`;
+                  const address = geoData.address;
+                  
+                  if (address.municipality) {
+                    locationName = `${address.municipality} (Localisation IP approximative)`;
+                  } else if (address.county) {
+                    locationName = `${address.county} (Localisation IP approximative)`;
+                  } else if (address.city) {
+                    locationName = `${address.city} (Localisation IP approximative)`;
+                  } else if (address.town) {
+                    locationName = `${address.town} (Localisation IP approximative)`;
+                  } else if (address.state) {
+                    locationName = `${address.state} (Localisation IP approximative)`;
                   } else {
-                    locationName = `${geoData.display_name} (Localisation IP approximative)`;
+                    locationName = 'Localisation IP approximative';
                   }
                 }
               }
@@ -223,7 +242,8 @@ export function ParticipantForm() {
         company: existingParticipant.organisation,
         position: existingParticipant.fonction,
         phone: existingParticipant.phone || '',
-        signature: existingParticipant.signature
+        signature: existingParticipant.signature,
+        gender: '' // Initialiser le genre à vide pour les participants existants
       }));
     }
     setCurrentStep(prev => prev + 1);
